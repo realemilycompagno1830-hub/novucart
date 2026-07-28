@@ -2,9 +2,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Firebase Config
+// Firebase Config (Updated API Key)
 const firebaseConfig = {
-  apiKey: "AIzaSyCvwAg_i3wnfrKdbegLlh7-tPJE44COYoI",
+  apiKey: "AIzaSyCvwAg_i3wnfrKdbegLLh7-tPJE44COYoI",
   authDomain: "novucart-5d9a3.firebaseapp.com",
   projectId: "novucart-5d9a3",
   storageBucket: "novucart-5d9a3.firebasestorage.app",
@@ -294,7 +294,7 @@ if (document.getElementById('adminAuthContainer')) {
     try {
       await signInWithEmailAndPassword(auth, email, pass);
     } catch (err) {
-      errEl.innerText = "Invalid credentials. Ensure user is created in Firebase Auth.";
+      errEl.innerText = "Invalid credentials or account issue. Check Firebase Auth.";
     }
   });
 
