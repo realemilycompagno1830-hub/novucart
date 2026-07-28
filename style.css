@@ -1,14 +1,14 @@
 :root {
   --primary-color: #4F46E5;
   --accent-orange: #FF6B1F;
-  --bg-main: #F8FAFC;
+  --bg-main: #FFFFFF;
   --text-dark: #0F172A;
   --text-muted: #64748B;
   --border-color: #E2E8F0;
   --border-radius: 12px;
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
   --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 20px 30px rgba(0,0,0,0.2);
+  --shadow-lg: 0 20px 30px rgba(0,0,0,0.15);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -22,7 +22,7 @@ body { background-color: var(--bg-main); color: var(--text-dark); line-height: 1
 .btn-large { padding: 14px 28px; font-size: 1rem; }
 .btn-block { width: 100%; }
 
-/* ANNOUNCEMENT BAR & HEADER */
+/* HEADER */
 .announcement-bar { background: var(--text-dark); color: #FFF; text-align: center; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; }
 .main-header { background: #FFF; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
 .header-container { max-width: 1200px; margin: 0 auto; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
@@ -50,8 +50,8 @@ body { background-color: var(--bg-main); color: var(--text-dark); line-height: 1
 .product-card p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; flex: 1; }
 .product-card .price { font-size: 1.25rem; font-weight: 800; color: var(--primary-color); margin-bottom: 12px; }
 
-/* CART & CHECKOUT MODAL */
-.cart-drawer-overlay, .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; }
+/* CART & MODAL OVERLAYS */
+.cart-drawer-overlay, .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
 .cart-drawer { position: fixed; top: 0; right: -400px; width: 100%; max-width: 380px; height: 100%; background: #FFF; z-index: 1001; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 24px; }
 .cart-drawer.open { right: 0; }
 .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 16px; }
@@ -60,31 +60,30 @@ body { background-color: var(--bg-main); color: var(--text-dark); line-height: 1
 .cart-footer { border-top: 1px solid var(--border-color); padding-top: 16px; }
 .cart-total-row { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; }
 
-.modal-overlay { display: flex; align-items: center; justify-content: center; }
-.modal-card { background: #FFF; width: 90%; max-width: 450px; padding: 24px; border-radius: 16px; box-shadow: var(--shadow-lg); }
+.modal-overlay { display: flex; align-items: center; justify-content: center; z-index: 1002; }
+.modal-card { background: #FFF; width: 90%; max-width: 480px; padding: 24px; border-radius: 16px; box-shadow: var(--shadow-lg); }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 
-/* DISTINCT PROMO AD POP-UP */
-.promo-ad-popup {
+/* NON-BLOCKING SIDE AD BOX */
+.promo-ad-sidebox {
   position: fixed;
-  bottom: 24px; right: 24px;
-  max-width: 350px; width: 90%;
-  background: linear-gradient(145deg, #1E1B4B 0%, #0F172A 100%);
+  bottom: 20px; right: 20px;
+  max-width: 320px; width: 88%;
+  background: #1E1B4B;
   color: #FFF;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
   border: 2px solid #F59E0B;
-  padding: 20px;
-  z-index: 9999;
+  padding: 16px;
+  z-index: 99;
 }
-.promo-ad-popup h4 { font-size: 1.15rem; color: #F59E0B; margin-bottom: 6px; }
-.promo-ad-popup p { font-size: 0.85rem; color: #CBD5E1; margin-bottom: 14px; }
-.promo-ad-close { position: absolute; top: 10px; right: 14px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #94A3B8; }
+.promo-ad-sidebox h4 { font-size: 1.05rem; color: #F59E0B; margin-bottom: 4px; }
+.promo-ad-sidebox p { font-size: 0.82rem; color: #CBD5E1; margin-bottom: 12px; }
+.promo-ad-close { position: absolute; top: 8px; right: 12px; background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #94A3B8; }
 .btn-ad-action { background-color: #F59E0B; color: #0F172A; font-weight: 800; }
-.btn-ad-action:hover { background-color: #D97706; }
 
-/* ADMIN LAYOUT */
-.admin-login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:999; }
+/* ADMIN DASHBOARD */
+.admin-login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:999; }
 .admin-card { background: #FFF; border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-sm); }
 .admin-wrapper { max-width: 1200px; margin: 20px auto; padding: 0 16px; }
 .admin-navbar { display: flex; justify-content: space-between; align-items: center; background: #FFF; padding: 16px 20px; border-radius: var(--border-radius); border: 1px solid var(--border-color); margin-bottom: 20px; }
@@ -92,16 +91,9 @@ body { background-color: var(--bg-main); color: var(--text-dark); line-height: 1
 .admin-nav-tabs .tab-btn { background: transparent; border: none; padding: 8px 16px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 10px; white-space: nowrap; }
 .admin-nav-tabs .tab-btn.active { background-color: #FFF; color: var(--primary-color); }
 .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 12px; }
-.form-group { margin-bottom: 16px; }
+.form-group { margin-bottom: 14px; }
 .form-group label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; }
 .form-group input { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; }
 .table-responsive { overflow-x: auto; }
 .admin-table { width: 100%; border-collapse: collapse; }
 .admin-table th, .admin-table td { padding: 12px 14px; border-bottom: 1px solid var(--border-color); text-align: left; }
-
-@media (max-width: 768px) {
-  .hero-content h1 { font-size: 1.8rem; }
-  .header-container { flex-direction: column; gap: 12px; }
-  .card-header-flex, .admin-navbar { flex-direction: column; align-items: flex-start; }
-  .promo-ad-popup { right: 5%; bottom: 15px; }
-}
