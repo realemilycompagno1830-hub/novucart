@@ -20,10 +20,10 @@ import {
 // 1. FIREBASE CONFIGURATION
 // ==========================================
 const firebaseConfig = {
-  apiKey: "AIzaSyD-YOUR_ACTUAL_KEY_HERE", // Replace with full key if needed
-  authDomain: "novucart.firebaseapp.com",
-  projectId: "novucart",
-  storageBucket: "novucart.appspot.com",
+  apiKey: "AIzaSyCvwAg_i3wnfrKdbegLLh7-tPJE44COYoI",
+  authDomain: "novucart-5d9a3.firebaseapp.com",
+  projectId: "novucart-5d9a3",
+  storageBucket: "novucart-5d9a3.appspot.com",
   messagingSenderId: "102938475610",
   appId: "1:102938475610:web:abc123def456"
 };
