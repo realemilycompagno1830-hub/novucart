@@ -7,24 +7,28 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="admin-body">
+<body class="admin-page-bg">
 
   <!-- ==========================================
-       1. LOGIN SECTION (Centered View)
+       1. LOGIN OVERLAY (CENTERED)
        ========================================== -->
-  <div class="admin-login-wrapper" id="login-section">
-    <div class="modal-card admin-login-card">
+  <div class="admin-login-overlay" id="login-section">
+    <div class="admin-card login-box">
       <div class="login-header">
-        <h2><i class="fa-solid fa-lock"></i> Admin Login</h2>
-        <p class="text-secondary">Enter your credentials to access Novucart Dashboard.</p>
+        <h2><i class="fa-solid fa-lock"></i> Novucart Admin Login</h2>
+        <p class="text-secondary">Enter your credentials to access the control panel.</p>
       </div>
 
       <form id="admin-login-form">
-        <label for="admin-email">Email Address</label>
-        <input type="email" id="admin-email" placeholder="admin@novucart.com" required>
+        <div class="form-group">
+          <label for="admin-email">Email Address</label>
+          <input type="email" id="admin-email" placeholder="admin@novucart.com" required>
+        </div>
 
-        <label for="admin-password">Password</label>
-        <input type="password" id="admin-password" placeholder="••••••••" required>
+        <div class="form-group">
+          <label for="admin-password">Password</label>
+          <input type="password" id="admin-password" placeholder="••••••••" required>
+        </div>
 
         <button type="submit" class="btn btn-primary btn-block">Log In</button>
       </form>
@@ -33,12 +37,12 @@
   </div>
 
   <!-- ==========================================
-       2. ADMIN DASHBOARD (Hidden until logged in)
+       2. DASHBOARD MAIN CONTAINER (HIDDEN INITIALLY)
        ========================================== -->
-  <div class="admin-container" id="dashboard-section" style="display: none;">
+  <div class="admin-wrapper" id="dashboard-section" style="display: none;">
     
-    <!-- Admin Header Bar -->
-    <header class="admin-header">
+    <!-- Top Header -->
+    <header class="admin-navbar">
       <div class="admin-brand">
         <h2><i class="fa-solid fa-bag-shopping"></i> Novucart Admin</h2>
       </div>
@@ -48,61 +52,145 @@
     </header>
 
     <!-- Navigation Tabs -->
-    <div class="admin-tabs">
-      <button class="admin-tab-btn active" data-tab="products-tab">
+    <div class="admin-nav-tabs">
+      <button class="tab-btn active" onclick="switchAdminTab('products-tab', this)">
         <i class="fa-solid fa-box"></i> Products
       </button>
-      <button class="admin-tab-btn" data-tab="settings-tab">
-        <i class="fa-solid fa-gear"></i> Site Settings
+      <button class="tab-btn" onclick="switchAdminTab('settings-tab', this)">
+        <i class="fa-solid fa-sliders"></i> Site Settings & Logo
       </button>
-      <button class="admin-tab-btn" data-tab="orders-tab">
+      <button class="tab-btn" onclick="switchAdminTab('orders-tab', this)">
         <i class="fa-solid fa-receipt"></i> Customer Orders
       </button>
     </div>
 
-    <!-- TAB 1: Product Inventory -->
-    <div class="tab-content active" id="products-tab">
+    <!-- TAB 1: Products Inventory -->
+    <div class="admin-tab-content active-content" id="products-tab">
       <div class="admin-card">
-        <h3>Product Inventory</h3>
-        <p class="text-secondary" style="margin-bottom: 20px;">Manage catalog items displayed on the homepage.</p>
+        <div class="card-header-flex">
+          <div>
+            <h3>Product Inventory</h3>
+            <p class="text-secondary">Manage catalog items displayed on the store.</p>
+          </div>
+          <button class="btn btn-primary" id="add-product-btn">+ Add Product</button>
+        </div>
         
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Image</th>
-              <th>Name</th>
-              <th>Price</th>
-              <th>Category</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="admin-product-list">
-            <!-- Products render dynamically via app.js -->
-          </tbody>
-        </table>
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Price ($)</th>
+                <th>Badge</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-product-list">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <!-- TAB 2: Site Settings -->
-    <div class="tab-content" id="settings-tab" style="display: none;">
+    <!-- TAB 2: Site & Logo Customizer -->
+    <div class="admin-tab-content" id="settings-tab" style="display: none;">
       <div class="admin-card">
-        <h3>Site Settings & Banner</h3>
-        <p class="text-secondary" style="margin-bottom: 20px;">Configure announcement messages and global settings.</p>
-        <!-- Form elements handled in app.js -->
+        <h3>Site & Logo Customizer</h3>
+        <p class="text-secondary" style="margin-bottom: 24px;">Edit your logo URL, support details, and banner text anytime.</p>
+        
+        <form id="site-settings-form">
+          <div class="form-group">
+            <label>Site Title (Browser Tab)</label>
+            <input type="text" id="setting-site-title" placeholder="Novucart | Exclusive Deals">
+          </div>
+
+          <div class="form-group">
+            <label>Logo Image URL</label>
+            <input type="text" id="setting-logo-url" placeholder="https://...">
+          </div>
+
+          <div class="form-group">
+            <label>Top Announcement Banner</label>
+            <input type="text" id="setting-announcement" placeholder="Welcome to Novucart!">
+          </div>
+
+          <div class="form-group">
+            <label>Hero Headline</label>
+            <input type="text" id="setting-hero-headline" placeholder="Discover Extraordinary Products">
+          </div>
+
+          <div class="form-group">
+            <label>WhatsApp Support Link</label>
+            <input type="text" id="setting-whatsapp" placeholder="https://wa.me/...">
+          </div>
+
+          <div class="form-group">
+            <label>Support Email Address</label>
+            <input type="email" id="setting-email" placeholder="support@novucart.com">
+          </div>
+
+          <div class="form-group">
+            <label>Footer Copyright Text</label>
+            <input type="text" id="setting-footer-text" placeholder="2026 Novucart Marketplace. All rights reserved.">
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save Settings</button>
+        </form>
       </div>
     </div>
 
     <!-- TAB 3: Customer Orders -->
-    <div class="tab-content" id="orders-tab" style="display: none;">
+    <div class="admin-tab-content" id="orders-tab" style="display: none;">
       <div class="admin-card">
         <h3>Customer Orders</h3>
-        <p class="text-secondary" style="margin-bottom: 20px;">View and fulfill incoming customer purchases.</p>
+        <p class="text-secondary" style="margin-bottom: 20px;">View incoming purchases and customer delivery info.</p>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Promo Code</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="admin-orders-list">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
   </div>
 
-  <!-- Firebase & App Scripts -->
+  <!-- Tab Switch Script Helper -->
+  <script>
+    function switchAdminTab(tabId, btnElement) {
+      // Hide all contents
+      const contents = document.querySelectorAll('.admin-tab-content');
+      contents.forEach(content => {
+        content.style.display = 'none';
+        content.classList.remove('active-content');
+      });
+
+      // Remove active class from all buttons
+      const buttons = document.querySelectorAll('.admin-nav-tabs .tab-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+
+      // Show selected tab content & set button active
+      document.getElementById(tabId).style.display = 'block';
+      btnElement.classList.add('active');
+    }
+  </script>
+
+  <!-- Main Firebase JS -->
   <script type="module" src="app.js"></script>
 </body>
 </html>
