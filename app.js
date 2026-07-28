@@ -11,7 +11,6 @@ import {
   getDocs, 
   addDoc, 
   doc, 
-  updateDoc, 
   deleteDoc, 
   getDoc, 
   setDoc 
@@ -19,15 +18,14 @@ import {
 
 // ==========================================
 // 1. FIREBASE CONFIGURATION
-// (Your existing Firebase project settings)
 // ==========================================
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyD-YOUR_ACTUAL_KEY_HERE", // Replace with full key if needed
+  authDomain: "novucart.firebaseapp.com",
+  projectId: "novucart",
+  storageBucket: "novucart.appspot.com",
+  messagingSenderId: "102938475610",
+  appId: "1:102938475610:web:abc123def456"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -46,14 +44,12 @@ const loginError = document.getElementById('login-error');
 // Monitor Login State
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // User is signed in -> Show Dashboard, Hide Login
     if (loginSection) loginSection.style.display = 'none';
     if (dashboardSection) dashboardSection.style.display = 'block';
     loadAdminProducts();
     loadAdminOrders();
     loadSiteSettings();
   } else {
-    // User is signed out -> Show Login, Hide Dashboard
     if (loginSection) loginSection.style.display = 'flex';
     if (dashboardSection) dashboardSection.style.display = 'none';
   }
