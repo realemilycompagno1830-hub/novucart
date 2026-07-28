@@ -18,7 +18,7 @@ const db = getFirestore(app);
 let currentProductsList = [];
 let cart = [];
 
-// INITIALIZE SITE OR ADMIN ON PAGE LOAD
+// INITIALIZE FRONTEND DYNAMIC CONTENT
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('frontend-product-list')) {
     loadFrontendProducts();
@@ -59,7 +59,68 @@ if (loginForm) {
 
 if (logoutBtn) logoutBtn.addEventListener('click', () => signOut(auth));
 
-// FRONTEND DYNAMIC LOADERS
+// ==========================================
+// ADD / EDIT PRODUCT MODAL LOGIC
+// ==========================================
+const productModal = document.getElementById('product-modal');
+const openModalBtn = document.getElementById('open-product-modal-btn');
+const closeModalBtn = document.getElementById('close-product-modal-btn');
+const productForm = document.getElementById('product-form');
+
+if (openModalBtn) {
+  openModalBtn.addEventListener('click', () => {
+    if (document.getElementById('modal-title')) document.getElementById('modal-title').textContent = "Add New Product";
+    if (document.getElementById('modal-product-id')) document.getElementById('modal-product-id').value = "";
+    if (productForm) productForm.reset();
+    if (productModal) productModal.style.display = 'flex';
+  });
+}
+
+if (closeModalBtn) {
+  closeModalBtn.addEventListener('click', () => {
+    if (productModal) productModal.style.display = 'none';
+  });
+}
+
+if (productForm) {
+  productForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const id = document.getElementById('modal-product-id').value;
+    const title = document.getElementById('modal-product-title').value.trim();
+    const price = parseFloat(document.getElementById('modal-product-price').value);
+    const image = document.getElementById('modal-product-image').value.trim();
+    const badge = document.getElementById('modal-product-badge').value.trim() || 'In Stock';
+
+    try {
+      if (id) {
+        // Edit Existing Item
+        await updateDoc(doc(db, "products", id), { title, price, image, badge });
+      } else {
+        // Add New Item
+        const newDocRef = doc(collection(db, "products"));
+        await setDoc(newDocRef, {
+          title,
+          price,
+          image,
+          badge,
+          order: currentProductsList.length + 1
+        });
+      }
+      
+      if (productModal) productModal.style.display = 'none';
+      productForm.reset();
+      loadAdminProducts();
+    } catch (err) {
+      console.error("Save Product Error:", err);
+      alert("Failed to save product.");
+    }
+  });
+}
+
+// ==========================================
+// FRONTEND FUNCTIONS
+// ==========================================
 async function loadFrontendProducts() {
   const container = document.getElementById('frontend-product-list');
   if (!container) return;
@@ -97,19 +158,19 @@ async function loadFrontendSettings() {
     const docSnap = await getDoc(doc(db, "settings", "general"));
     if (docSnap.exists()) {
       const data = docSnap.data();
-      if (data.siteTitle) document.getElementById('site-title-tag').textContent = data.siteTitle;
-      if (data.announcement) document.getElementById('announcement-text').textContent = data.announcement;
-      if (data.heroHeadline) document.getElementById('hero-headline-text').textContent = data.heroHeadline;
+      if (data.siteTitle && document.getElementById('site-title-tag')) document.getElementById('site-title-tag').textContent = data.siteTitle;
+      if (data.announcement && document.getElementById('announcement-text')) document.getElementById('announcement-text').textContent = data.announcement;
+      if (data.heroHeadline && document.getElementById('hero-headline-text')) document.getElementById('hero-headline-text').textContent = data.heroHeadline;
       if (data.whatsappText) {
-        document.getElementById('header-contact-text').textContent = data.whatsappText;
-        document.getElementById('footer-whatsapp-text').textContent = data.whatsappText;
+        if (document.getElementById('header-contact-text')) document.getElementById('header-contact-text').textContent = data.whatsappText;
+        if (document.getElementById('footer-whatsapp-text')) document.getElementById('footer-whatsapp-text').textContent = data.whatsappText;
       }
       if (data.whatsapp) {
-        document.getElementById('header-contact-btn').href = data.whatsapp;
-        document.getElementById('footer-whatsapp-link').href = data.whatsapp;
+        if (document.getElementById('header-contact-btn')) document.getElementById('header-contact-btn').href = data.whatsapp;
+        if (document.getElementById('footer-whatsapp-link')) document.getElementById('footer-whatsapp-link').href = data.whatsapp;
       }
-      if (data.email) document.getElementById('footer-email-text').textContent = data.email;
-      if (data.footerText) document.getElementById('footer-copyright-text').textContent = data.footerText;
+      if (data.email && document.getElementById('footer-email-text')) document.getElementById('footer-email-text').textContent = data.email;
+      if (data.footerText && document.getElementById('footer-copyright-text')) document.getElementById('footer-copyright-text').textContent = data.footerText;
     }
   } catch(e) {}
 }
@@ -121,57 +182,65 @@ async function loadFrontendPromoAd() {
       const data = docSnap.data();
       if (data.active) {
         const adBox = document.getElementById('frontend-promo-ad');
-        document.getElementById('promo-ad-heading').textContent = data.title || '';
-        document.getElementById('promo-ad-body').textContent = data.desc || '';
+        if (document.getElementById('promo-ad-heading')) document.getElementById('promo-ad-heading').textContent = data.title || '';
+        if (document.getElementById('promo-ad-body')) document.getElementById('promo-ad-body').textContent = data.desc || '';
         if (data.image) {
           const img = document.getElementById('promo-ad-img');
-          img.src = data.image;
-          img.style.display = 'block';
+          if (img) {
+            img.src = data.image;
+            img.style.display = 'block';
+          }
         }
-        if (data.btnText) document.getElementById('promo-ad-link-btn').textContent = data.btnText;
-        if (data.btnLink) document.getElementById('promo-ad-link-btn').href = data.btnLink;
+        if (data.btnText && document.getElementById('promo-ad-link-btn')) document.getElementById('promo-ad-link-btn').textContent = data.btnText;
+        if (data.btnLink && document.getElementById('promo-ad-link-btn')) document.getElementById('promo-ad-link-btn').href = data.btnLink;
         
-        adBox.style.display = 'block';
-        document.getElementById('close-promo-ad').onclick = () => adBox.style.display = 'none';
+        if (adBox) adBox.style.display = 'block';
+        if (document.getElementById('close-promo-ad')) {
+          document.getElementById('close-promo-ad').onclick = () => adBox.style.display = 'none';
+        }
       }
     }
   } catch(e) {}
 }
 
-// CART DRAWER LOGIC
+// CART CONTROLS
 function setupCartControls() {
   const cartDrawer = document.getElementById('cart-drawer');
   const cartOverlay = document.getElementById('cart-overlay');
   
-  document.getElementById('open-cart-btn').onclick = () => {
-    cartDrawer.classList.add('open');
-    cartOverlay.style.display = 'block';
-  };
+  if (document.getElementById('open-cart-btn')) {
+    document.getElementById('open-cart-btn').onclick = () => {
+      if (cartDrawer) cartDrawer.classList.add('open');
+      if (cartOverlay) cartOverlay.style.display = 'block';
+    };
+  }
 
   const closeCart = () => {
-    cartDrawer.classList.remove('open');
-    cartOverlay.style.display = 'none';
+    if (cartDrawer) cartDrawer.classList.remove('open');
+    if (cartOverlay) cartOverlay.style.display = 'none';
   };
 
-  document.getElementById('close-cart-btn').onclick = closeCart;
-  cartOverlay.onclick = closeCart;
+  if (document.getElementById('close-cart-btn')) document.getElementById('close-cart-btn').onclick = closeCart;
+  if (cartOverlay) cartOverlay.onclick = closeCart;
 }
 
 window.addToCart = (id, title, price, image) => {
   cart.push({ id, title, price, image });
   updateCartUI();
-  document.getElementById('cart-drawer').classList.add('open');
-  document.getElementById('cart-overlay').style.display = 'block';
+  if (document.getElementById('cart-drawer')) document.getElementById('cart-drawer').classList.add('open');
+  if (document.getElementById('cart-overlay')) document.getElementById('cart-overlay').style.display = 'block';
 };
 
 function updateCartUI() {
-  document.getElementById('cart-count').textContent = cart.length;
+  if (document.getElementById('cart-count')) document.getElementById('cart-count').textContent = cart.length;
   const container = document.getElementById('cart-items-container');
   let total = 0;
 
+  if (!container) return;
+
   if (cart.length === 0) {
     container.innerHTML = `<p class="empty-cart-msg">Your bag is empty.</p>`;
-    document.getElementById('cart-total-price').textContent = "$0.00";
+    if (document.getElementById('cart-total-price')) document.getElementById('cart-total-price').textContent = "$0.00";
     return;
   }
 
@@ -193,7 +262,7 @@ function updateCartUI() {
     container.appendChild(div);
   });
 
-  document.getElementById('cart-total-price').textContent = `$${total.toFixed(2)}`;
+  if (document.getElementById('cart-total-price')) document.getElementById('cart-total-price').textContent = `$${total.toFixed(2)}`;
 }
 
 window.removeFromCart = (idx) => {
@@ -201,35 +270,82 @@ window.removeFromCart = (idx) => {
   updateCartUI();
 };
 
-// ADMIN FUNCTIONS
+// ==========================================
+// ADMIN DASHBOARD HELPERS
+// ==========================================
 async function loadAdminProducts() {
   const container = document.getElementById('admin-product-list');
   if (!container) return;
-  const snapshot = await getDocs(collection(db, "products"));
-  container.innerHTML = "";
-  currentProductsList = [];
-  snapshot.forEach(d => currentProductsList.push({ id: d.id, ...d.data() }));
-  currentProductsList.sort((a,b) => (a.order || 0) - (b.order || 0));
 
-  currentProductsList.forEach((item, index) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>
-        <button class="btn btn-outline" style="padding:2px 6px;" onclick="moveProduct('${item.id}', 'up')" ${index===0?'disabled':''}>▲</button>
-        <button class="btn btn-outline" style="padding:2px 6px;" onclick="moveProduct('${item.id}', 'down')" ${index===currentProductsList.length-1?'disabled':''}>▼</button>
-      </td>
-      <td><img src="${item.image}" width="35" height="35" style="border-radius:6px; object-fit:cover;"></td>
-      <td><strong>${item.title}</strong></td>
-      <td>$${item.price}</td>
-      <td>${item.badge || 'In Stock'}</td>
-      <td>
-        <button class="btn btn-outline" style="padding:4px 8px;" onclick="editProduct('${item.id}')">Edit</button>
-        <button class="btn btn-outline" style="padding:4px 8px; color:red;" onclick="deleteProduct('${item.id}')">Delete</button>
-      </td>
-    `;
-    container.appendChild(tr);
-  });
+  try {
+    const snapshot = await getDocs(collection(db, "products"));
+    container.innerHTML = "";
+    currentProductsList = [];
+    snapshot.forEach(d => currentProductsList.push({ id: d.id, ...d.data() }));
+    currentProductsList.sort((a,b) => (a.order || 0) - (b.order || 0));
+
+    if (currentProductsList.length === 0) {
+      container.innerHTML = `<tr><td colspan="6" class="text-secondary">No products found. Add your first item!</td></tr>`;
+      return;
+    }
+
+    currentProductsList.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <button class="btn btn-outline" style="padding:2px 6px;" onclick="moveProduct('${item.id}', 'up')" ${index===0?'disabled':''}>▲</button>
+          <button class="btn btn-outline" style="padding:2px 6px;" onclick="moveProduct('${item.id}', 'down')" ${index===currentProductsList.length-1?'disabled':''}>▼</button>
+        </td>
+        <td><img src="${item.image}" width="35" height="35" style="border-radius:6px; object-fit:cover;"></td>
+        <td><strong>${item.title}</strong></td>
+        <td>$${item.price}</td>
+        <td>${item.badge || 'In Stock'}</td>
+        <td>
+          <button class="btn btn-outline" style="padding:4px 8px;" onclick="editProduct('${item.id}')">Edit</button>
+          <button class="btn btn-outline" style="padding:4px 8px; color:red;" onclick="deleteProduct('${item.id}')">Delete</button>
+        </td>
+      `;
+      container.appendChild(tr);
+    });
+  } catch(e) {
+    console.error("Load Admin Products Error:", e);
+  }
 }
+
+window.editProduct = (id) => {
+  const product = currentProductsList.find(p => p.id === id);
+  if (!product) return;
+
+  if (document.getElementById('modal-title')) document.getElementById('modal-title').textContent = "Edit Product";
+  if (document.getElementById('modal-product-id')) document.getElementById('modal-product-id').value = product.id;
+  if (document.getElementById('modal-product-title')) document.getElementById('modal-product-title').value = product.title || '';
+  if (document.getElementById('modal-product-price')) document.getElementById('modal-product-price').value = product.price || '';
+  if (document.getElementById('modal-product-image')) document.getElementById('modal-product-image').value = product.image || '';
+  if (document.getElementById('modal-product-badge')) document.getElementById('modal-product-badge').value = product.badge || '';
+
+  if (productModal) productModal.style.display = 'flex';
+};
+
+window.moveProduct = async (id, direction) => {
+  const idx = currentProductsList.findIndex(p => p.id === id);
+  if (idx === -1) return;
+  const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+  if (targetIdx < 0 || targetIdx >= currentProductsList.length) return;
+
+  const a = currentProductsList[idx];
+  const b = currentProductsList[targetIdx];
+
+  await updateDoc(doc(db, "products", a.id), { order: targetIdx + 1 });
+  await updateDoc(doc(db, "products", b.id), { order: idx + 1 });
+  loadAdminProducts();
+};
+
+window.deleteProduct = async (id) => {
+  if (confirm("Delete this product?")) {
+    await deleteDoc(doc(db, "products", id));
+    loadAdminProducts();
+  }
+};
 
 const settingsForm = document.getElementById('site-settings-form');
 if (settingsForm) {
@@ -274,55 +390,38 @@ async function loadPromoAdSettings() {
     const docSnap = await getDoc(doc(db, "settings", "promoAd"));
     if (docSnap.exists()) {
       const data = docSnap.data();
-      document.getElementById('promo-ad-active').checked = data.active || false;
-      document.getElementById('promo-ad-title').value = data.title || '';
-      document.getElementById('promo-ad-desc').value = data.desc || '';
-      document.getElementById('promo-ad-image').value = data.image || '';
-      document.getElementById('promo-ad-btn-text').value = data.btnText || '';
-      document.getElementById('promo-ad-btn-link').value = data.btnLink || '';
+      if (document.getElementById('promo-ad-active')) document.getElementById('promo-ad-active').checked = data.active || false;
+      if (document.getElementById('promo-ad-title')) document.getElementById('promo-ad-title').value = data.title || '';
+      if (document.getElementById('promo-ad-desc')) document.getElementById('promo-ad-desc').value = data.desc || '';
+      if (document.getElementById('promo-ad-image')) document.getElementById('promo-ad-image').value = data.image || '';
+      if (document.getElementById('promo-ad-btn-text')) document.getElementById('promo-ad-btn-text').value = data.btnText || '';
+      if (document.getElementById('promo-ad-btn-link')) document.getElementById('promo-ad-btn-link').value = data.btnLink || '';
     }
   } catch(e) {}
 }
 
 async function loadSiteSettings() {
-  const docSnap = await getDoc(doc(db, "settings", "general"));
-  if (docSnap.exists()) {
-    const data = docSnap.data();
-    if (document.getElementById('setting-site-title')) document.getElementById('setting-site-title').value = data.siteTitle || '';
-    if (document.getElementById('setting-logo-url')) document.getElementById('setting-logo-url').value = data.logoUrl || '';
-    if (document.getElementById('setting-announcement')) document.getElementById('setting-announcement').value = data.announcement || '';
-    if (document.getElementById('setting-hero-headline')) document.getElementById('setting-hero-headline').value = data.heroHeadline || '';
-    if (document.getElementById('setting-whatsapp-text')) document.getElementById('setting-whatsapp-text').value = data.whatsappText || '';
-    if (document.getElementById('setting-whatsapp')) document.getElementById('setting-whatsapp').value = data.whatsapp || '';
-    if (document.getElementById('setting-email')) document.getElementById('setting-email').value = data.email || '';
-    if (document.getElementById('setting-footer-text')) document.getElementById('setting-footer-text').value = data.footerText || '';
-  }
+  try {
+    const docSnap = await getDoc(doc(db, "settings", "general"));
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      if (document.getElementById('setting-site-title')) document.getElementById('setting-site-title').value = data.siteTitle || '';
+      if (document.getElementById('setting-logo-url')) document.getElementById('setting-logo-url').value = data.logoUrl || '';
+      if (document.getElementById('setting-announcement')) document.getElementById('setting-announcement').value = data.announcement || '';
+      if (document.getElementById('setting-hero-headline')) document.getElementById('setting-hero-headline').value = data.heroHeadline || '';
+      if (document.getElementById('setting-whatsapp-text')) document.getElementById('setting-whatsapp-text').value = data.whatsappText || '';
+      if (document.getElementById('setting-whatsapp')) document.getElementById('setting-whatsapp').value = data.whatsapp || '';
+      if (document.getElementById('setting-email')) document.getElementById('setting-email').value = data.email || '';
+      if (document.getElementById('setting-footer-text')) document.getElementById('setting-footer-text').value = data.footerText || '';
+    }
+  } catch(e) {}
 }
 
 async function loadAdminOrders() {
   const container = document.getElementById('admin-orders-list');
   if (!container) return;
-  const snapshot = await getDocs(collection(db, "orders"));
-  container.innerHTML = snapshot.empty ? `<tr><td colspan="7">No orders yet.</td></tr>` : "";
+  try {
+    const snapshot = await getDocs(collection(db, "orders"));
+    container.innerHTML = snapshot.empty ? `<tr><td colspan="7">No orders yet.</td></tr>` : "";
+  } catch(e) {}
 }
-
-window.moveProduct = async (id, direction) => {
-  const idx = currentProductsList.findIndex(p => p.id === id);
-  if (idx === -1) return;
-  const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
-  if (targetIdx < 0 || targetIdx >= currentProductsList.length) return;
-
-  const a = currentProductsList[idx];
-  const b = currentProductsList[targetIdx];
-
-  await updateDoc(doc(db, "products", a.id), { order: targetIdx + 1 });
-  await updateDoc(doc(db, "products", b.id), { order: idx + 1 });
-  loadAdminProducts();
-};
-
-window.deleteProduct = async (id) => {
-  if (confirm("Delete this product?")) {
-    await deleteDoc(doc(db, "products", id));
-    loadAdminProducts();
-  }
-};
