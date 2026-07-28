@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-html lang="en">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,7 @@ html lang="en">
 </head>
 <body>
 
-  <!-- Announcement Bar -->
+  <!-- Top Announcement Bar -->
   <div class="announcement-bar" id="announcement-text">
     📢 Welcome to Novucart — Premium Deals Delivered Worldwide!
   </div>
@@ -43,15 +43,14 @@ html lang="en">
     </div>
   </section>
 
-  <!-- Product Catalog -->
+  <!-- Video & Product Catalog -->
   <main class="store-container" id="catalog">
     <div class="section-title">
-      <h2>Featured Products</h2>
-      <p class="text-secondary">Browse our newest arrivals and popular items</p>
+      <h2>Featured Catalog</h2>
+      <p class="text-secondary">Explore item videos, descriptions, and current availability</p>
     </div>
 
     <div class="product-grid" id="frontend-product-list">
-      <!-- Dynamic Products Loaded via app.js -->
       <div class="loading-spinner">Loading products...</div>
     </div>
   </main>
@@ -61,10 +60,10 @@ html lang="en">
     <div class="footer-container">
       <div class="footer-col">
         <h3 id="footer-brand-title">Novucart</h3>
-        <p>Guaranteed premium quality & direct shipping.</p>
+        <p>Guaranteed premium quality & direct delivery.</p>
       </div>
       <div class="footer-col">
-        <h4>Customer Support</h4>
+        <h4>Customer Care</h4>
         <p><a href="#" id="footer-whatsapp-link" target="_blank"><i class="fa-brands fa-whatsapp"></i> <span id="footer-whatsapp-text">Contact on WhatsApp</span></a></p>
         <p><i class="fa-solid fa-envelope"></i> <span id="footer-email-text">support@novucart.com</span></p>
       </div>
@@ -93,13 +92,38 @@ html lang="en">
     </div>
   </div>
 
-  <!-- Pop-Up Promo Ad Banner -->
+  <!-- Checkout Information Modal -->
+  <div class="modal-overlay" id="checkout-modal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Complete Your Order</h3>
+        <button class="close-btn" id="close-checkout-modal-btn">✕</button>
+      </div>
+      <form id="checkout-form">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="cust-name" placeholder="John Doe" required>
+        </div>
+        <div class="form-group">
+          <label>Phone / WhatsApp Number</label>
+          <input type="tel" id="cust-phone" placeholder="+1234567890" required>
+        </div>
+        <div class="form-group">
+          <label>Delivery Address</label>
+          <input type="text" id="cust-address" placeholder="123 Main St, City" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Submit Order & Place via WhatsApp</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Pop-Up Promo Ad Banner (Distinct Contrast Styling) -->
   <div class="promo-ad-popup" id="frontend-promo-ad" style="display: none;">
     <button class="promo-ad-close" id="close-promo-ad">✕</button>
     <img id="promo-ad-img" src="" style="display:none; width:100%; border-radius:10px; margin-bottom:12px; max-height:140px; object-fit:cover;">
-    <h4 id="promo-ad-heading" style="font-size:1.1rem; margin-bottom:6px; color:#1E293B;"></h4>
-    <p id="promo-ad-body" style="font-size:0.85rem; color:#64748B; margin-bottom:14px;"></p>
-    <a href="#" id="promo-ad-link-btn" class="btn btn-primary btn-block" style="font-size:0.85rem; padding:8px 12px;">Claim Offer</a>
+    <h4 id="promo-ad-heading"></h4>
+    <p id="promo-ad-body"></p>
+    <a href="#" id="promo-ad-link-btn" class="btn btn-ad-action btn-block">Claim Offer</a>
   </div>
 
   <script type="module" src="app.js"></script>
