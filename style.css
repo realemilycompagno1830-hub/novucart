@@ -1,27 +1,20 @@
-/* ==========================================
-   GLOBAL DESIGN VARIABLES & RESET
-   ========================================== */
 :root {
-  --primary-color: #4F46E5;       /* Modern Indigo */
-  --primary-hover: #4338CA;
-  --accent-orange: #FF6B1F;       /* Warm Brand Accent */
-  --bg-main: #F8FAFC;             /* Clean Off-White */
-  --bg-card: #FFFFFF;
-  --sidebar-bg: #0F172A;          /* Premium Dark Navy/Slate */
-  --sidebar-text: #94A3B8;
+  --primary-color: #4F46E5;
+  --accent-orange: #FF6B1F;
+  --bg-main: #F8FAFC;
   --text-dark: #1E293B;
   --text-muted: #64748B;
   --border-color: #E2E8F0;
   --border-radius: 12px;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
@@ -30,144 +23,77 @@ body {
   line-height: 1.5;
 }
 
-/* ==========================================
-   BUTTONS & GENERAL COMPONENTS
-   ========================================== */
+/* BUTTONS */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 20px;
+  padding: 10px 18px;
   font-size: 0.9rem;
   font-weight: 600;
   border-radius: var(--border-radius);
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.btn-primary {
-  background-color: var(--accent-orange);
-  color: #FFFFFF;
-}
+.btn-primary { background-color: var(--accent-orange); color: #FFF; }
+.btn-primary:hover { background-color: #E55A10; }
+.btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-dark); }
+.btn-block { width: 100%; }
 
-.btn-primary:hover {
-  background-color: #E55A10;
-  transform: translateY(-1px);
-}
-
-.btn-outline {
-  background-color: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-dark);
-}
-
-.btn-outline:hover {
-  background-color: #F1F5F9;
-}
-
-.btn-block {
-  width: 100%;
-}
-
-/* ==========================================
-   ADMIN LOGIN OVERLAY
-   ========================================== */
-.admin-login-overlay {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-  padding: 20px;
-}
-
-.login-box {
-  width: 100%;
-  max-width: 420px;
-  background: #FFFFFF;
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-}
-
-.login-header {
-  text-align: center;
-  margin-bottom: 28px;
-}
-
-.login-header h2 {
-  font-size: 1.6rem;
-  color: var(--text-dark);
-  margin-bottom: 8px;
-}
-
-/* ==========================================
-   ADMIN DASHBOARD LAYOUT
-   ========================================== */
+/* ADMIN LAYOUT */
 .admin-wrapper {
   max-width: 1200px;
-  margin: 40px auto;
-  padding: 0 20px;
+  margin: 20px auto;
+  padding: 0 16px;
 }
 
-/* Header Navbar */
 .admin-navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #FFFFFF;
-  padding: 20px 32px;
+  background: #FFF;
+  padding: 16px 20px;
   border-radius: var(--border-radius);
   border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 
-.admin-brand h2 {
-  font-size: 1.4rem;
-  color: var(--primary-color);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* Nav Tabs */
 .admin-nav-tabs {
   display: flex;
-  gap: 10px;
-  margin-bottom: 28px;
+  gap: 8px;
+  margin-bottom: 20px;
   background: #E2E8F0;
   padding: 6px;
   border-radius: 14px;
-  width: fit-content;
+  overflow-x: auto;
 }
 
 .admin-nav-tabs .tab-btn {
   background: transparent;
   border: none;
-  padding: 10px 22px;
-  font-size: 0.9rem;
+  padding: 8px 16px;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-muted);
   cursor: pointer;
   border-radius: 10px;
-  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .admin-nav-tabs .tab-btn.active {
-  background-color: #FFFFFF;
+  background-color: #FFF;
   color: var(--primary-color);
-  box-shadow: var(--shadow-sm);
 }
 
-/* Admin Cards */
 .admin-card {
-  background: #FFFFFF;
+  background: #FFF;
   border: 1px solid var(--border-color);
   border-radius: 16px;
-  padding: 32px;
+  padding: 24px;
   box-shadow: var(--shadow-sm);
 }
 
@@ -175,75 +101,53 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-/* Form Styles */
-.form-group {
   margin-bottom: 20px;
+  gap: 12px;
 }
 
-.form-group label {
-  display: block;
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: var(--text-dark);
-  margin-bottom: 8px;
-}
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; }
+.form-group input { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; }
 
-.form-group input {
-  width: 100%;
-  padding: 12px 16px;
+.table-responsive { overflow-x: auto; }
+.admin-table { width: 100%; border-collapse: collapse; }
+.admin-table th, .admin-table td { padding: 12px 14px; border-bottom: 1px solid var(--border-color); text-align: left; }
+
+/* POPUP PROMO AD BANNER (FRONTEND) */
+.promo-ad-popup {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  max-width: 380px;
+  width: 90%;
+  background: #FFF;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
-  font-size: 0.95rem;
-  background-color: #F8FAFC;
-  transition: border-color 0.2s ease;
+  padding: 20px;
+  z-index: 9999;
+  animation: slideUp 0.4s ease;
 }
 
-.form-group input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  background-color: #FFFFFF;
-}
-
-/* Tables */
-.table-responsive {
-  overflow-x: auto;
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  margin-top: 8px;
-}
-
-.admin-table th {
-  background: #F1F5F9;
+.promo-ad-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
   color: var(--text-muted);
-  font-weight: 600;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--border-color);
 }
 
-.admin-table td {
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--border-color);
-  font-size: 0.95rem;
-  vertical-align: middle;
+@keyframes slideUp {
+  from { transform: translateY(100px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
-.stock-tag {
-  background-color: #DEF7EC;
-  color: #03543F;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
+/* MOBILE RESPONSIVE OPTIMIZATION */
+@media (max-width: 768px) {
+  .card-header-flex { flex-direction: column; align-items: flex-start; }
+  .admin-navbar { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .promo-ad-popup { right: 5%; bottom: 15px; }
 }
