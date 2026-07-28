@@ -17,7 +17,8 @@ const db = getFirestore(app);
 
 let currentProductsList = [];
 let cart = [];
-let whatsappNumber = "https://wa.me/123456789";
+let cardPaymentLink = "";
+let storeEmail = "";
 
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('frontend-product-list')) {
@@ -52,14 +53,14 @@ if (loginForm) {
     try {
       await signInWithEmailAndPassword(auth, document.getElementById('admin-email').value, document.getElementById('admin-password').value);
     } catch (err) {
-      if (document.getElementById('login-error')) document.getElementById('login-error').textContent = "Invalid credentials. Try again.";
+      if (document.getElementById('login-error')) document.getElementById('login-error').textContent = "Invalid credentials.";
     }
   });
 }
 
 if (logoutBtn) logoutBtn.addEventListener('click', () => signOut(auth));
 
-// PRODUCT MODAL (ADMIN)
+// ADD / EDIT PRODUCT MODAL
 const productModal = document.getElementById('product-modal');
 const openModalBtn = document.getElementById('open-product-modal-btn');
 const closeModalBtn = document.getElementById('close-product-modal-btn');
@@ -123,7 +124,7 @@ async function loadFrontendProducts() {
     products.forEach(p => {
       const card = document.createElement('div');
       card.className = "product-card";
-      const isVideo = p.image && p.image.endsWith('.mp4');
+      const isVideo = p.image && p.image.toLowerCase().endsWith('.mp4');
 
       const mediaHtml = isVideo 
         ? `<video src="${p.image}" class="product-media" controls autoplay muted loop></video>`
@@ -133,7 +134,7 @@ async function loadFrontendProducts() {
         ${mediaHtml}
         <h3>${p.title}</h3>
         <span class="stock-tag">${p.stock > 0 ? `${p.stock} in stock` : 'Out of stock'}</span>
-        <p>${p.desc || 'High quality item available for immediate ordering.'}</p>
+        <p>${p.desc || 'High quality item available for immediate order.'}</p>
         <div class="price">$${parseFloat(p.price).toFixed(2)}</div>
         <button class="btn btn-primary btn-block" onclick="addToCart('${p.id}', '${p.title}', ${p.price}, '${p.image}')">Add to Bag</button>
       `;
@@ -147,11 +148,13 @@ async function loadFrontendSettings() {
     const docSnap = await getDoc(doc(db, "settings", "general"));
     if (docSnap.exists()) {
       const data = docSnap.data();
+      cardPaymentLink = data.cardPaymentLink || "";
+      storeEmail = data.email || "support@novucart.com";
+
       if (data.siteTitle && document.getElementById('site-title-tag')) document.getElementById('site-title-tag').textContent = data.siteTitle;
       if (data.announcement && document.getElementById('announcement-text')) document.getElementById('announcement-text').textContent = data.announcement;
       if (data.heroHeadline && document.getElementById('hero-headline-text')) document.getElementById('hero-headline-text').textContent = data.heroHeadline;
       if (data.whatsapp) {
-        whatsappNumber = data.whatsapp;
         if (document.getElementById('header-contact-btn')) document.getElementById('header-contact-btn').href = data.whatsapp;
         if (document.getElementById('footer-whatsapp-link')) document.getElementById('footer-whatsapp-link').href = data.whatsapp;
       }
@@ -184,7 +187,7 @@ async function loadFrontendPromoAd() {
   } catch(e) {}
 }
 
-// CART AND CHECKOUT LOGIC
+// CART & CHECKOUT SETUP
 function setupCartAndCheckout() {
   const cartDrawer = document.getElementById('cart-drawer');
   const cartOverlay = document.getElementById('cart-overlay');
@@ -205,7 +208,6 @@ function setupCartAndCheckout() {
   if (document.getElementById('close-cart-btn')) document.getElementById('close-cart-btn').onclick = closeCart;
   if (cartOverlay) cartOverlay.onclick = closeCart;
 
-  // Checkout Modal triggers
   if (document.getElementById('checkout-btn')) {
     document.getElementById('checkout-btn').onclick = () => {
       if (cart.length === 0) { alert("Your cart is empty!"); return; }
@@ -220,33 +222,48 @@ function setupCartAndCheckout() {
     };
   }
 
-  // Handle Order Submit
+  // CHECKOUT SUBMISSION LOGIC
   const checkoutForm = document.getElementById('checkout-form');
   if (checkoutForm) {
     checkoutForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('cust-name').value;
+      const email = document.getElementById('cust-email').value;
       const phone = document.getElementById('cust-phone').value;
       const address = document.getElementById('cust-address').value;
+      const altContact = document.getElementById('cust-alt-contact').value || 'N/A';
+      const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
 
       let total = cart.reduce((acc, i) => acc + parseFloat(i.price), 0);
-      let itemsList = cart.map(i => `- ${i.title} ($${i.price})`).join('\n');
+      let itemsListStr = cart.map(i => `- ${i.title} ($${i.price})`).join('\n');
 
       try {
+        // Save order to Firebase
         await addDoc(collection(db, "orders"), {
-          name, phone, address, total: total.toFixed(2),
-          items: cart, date: new Date().toLocaleDateString()
+          name, email, phone, address, altContact,
+          paymentMethod: paymentMethod === 'card' ? 'Pay via Card' : 'Pay on Delivery',
+          total: total.toFixed(2), items: cart, date: new Date().toLocaleDateString()
         });
 
-        // WhatsApp Redirect Message
-        const text = encodeURIComponent(`Hello! I would like to order:\n\n${itemsList}\n\n*Total:* $${total.toFixed(2)}\n*Name:* ${name}\n*Phone:* ${phone}\n*Address:* ${address}`);
-        window.open(`${whatsappNumber}?text=${text}`, '_blank');
+        if (paymentMethod === 'card') {
+          if (!cardPaymentLink) {
+            alert("Card payment link has not been configured in the admin dashboard yet.");
+            return;
+          }
+          window.location.href = cardPaymentLink;
+        } else {
+          // Pay on Delivery: Launch default mail client
+          const subject = encodeURIComponent(`New Pay on Delivery Order from ${name}`);
+          const body = encodeURIComponent(`Customer Order Details:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nDelivery Address: ${address}\nAlt Contact: ${altContact}\n\nItems Ordered:\n${itemsListStr}\n\nTotal Amount: $${total.toFixed(2)}`);
+          
+          window.location.href = `mailto:${storeEmail}?subject=${subject}&body=${body}`;
+        }
 
         cart = [];
         updateCartUI();
         if (checkoutModal) checkoutModal.style.display = 'none';
         checkoutForm.reset();
-      } catch(err) { alert("Error processing order."); }
+      } catch(err) { alert("Error placing order."); }
     });
   }
 }
@@ -296,7 +313,7 @@ window.removeFromCart = (idx) => {
   updateCartUI();
 };
 
-// ADMIN TABLE LOADERS
+// ADMIN DATA LOADERS
 async function loadAdminProducts() {
   const container = document.getElementById('admin-product-list');
   if (!container) return;
@@ -377,16 +394,16 @@ if (settingsForm) {
     e.preventDefault();
     try {
       await setDoc(doc(db, "settings", "general"), {
+        cardPaymentLink: document.getElementById('setting-card-payment-link').value,
         siteTitle: document.getElementById('setting-site-title').value,
         logoUrl: document.getElementById('setting-logo-url').value,
         announcement: document.getElementById('setting-announcement').value,
         heroHeadline: document.getElementById('setting-hero-headline').value,
-        whatsappText: document.getElementById('setting-whatsapp-text').value,
         whatsapp: document.getElementById('setting-whatsapp').value,
         email: document.getElementById('setting-email').value,
         footerText: document.getElementById('setting-footer-text').value
       }, { merge: true });
-      alert("Settings saved!");
+      alert("Settings and Payment Link updated successfully!");
     } catch (err) { alert("Failed to save settings."); }
   });
 }
@@ -404,7 +421,7 @@ if (promoForm) {
         btnText: document.getElementById('promo-ad-btn-text').value,
         btnLink: document.getElementById('promo-ad-btn-link').value
       });
-      alert("Pop-up Ad updated!");
+      alert("Side Ad settings updated!");
     } catch (err) { alert("Failed to update Ad."); }
   });
 }
@@ -429,11 +446,11 @@ async function loadSiteSettings() {
     const docSnap = await getDoc(doc(db, "settings", "general"));
     if (docSnap.exists()) {
       const data = docSnap.data();
+      if (document.getElementById('setting-card-payment-link')) document.getElementById('setting-card-payment-link').value = data.cardPaymentLink || '';
       if (document.getElementById('setting-site-title')) document.getElementById('setting-site-title').value = data.siteTitle || '';
       if (document.getElementById('setting-logo-url')) document.getElementById('setting-logo-url').value = data.logoUrl || '';
       if (document.getElementById('setting-announcement')) document.getElementById('setting-announcement').value = data.announcement || '';
       if (document.getElementById('setting-hero-headline')) document.getElementById('setting-hero-headline').value = data.heroHeadline || '';
-      if (document.getElementById('setting-whatsapp-text')) document.getElementById('setting-whatsapp-text').value = data.whatsappText || '';
       if (document.getElementById('setting-whatsapp')) document.getElementById('setting-whatsapp').value = data.whatsapp || '';
       if (document.getElementById('setting-email')) document.getElementById('setting-email').value = data.email || '';
       if (document.getElementById('setting-footer-text')) document.getElementById('setting-footer-text').value = data.footerText || '';
@@ -448,7 +465,7 @@ async function loadAdminOrders() {
     const snapshot = await getDocs(collection(db, "orders"));
     container.innerHTML = "";
     if (snapshot.empty) {
-      container.innerHTML = `<tr><td colspan="5">No orders placed yet.</td></tr>`;
+      container.innerHTML = `<tr><td colspan="6">No orders placed yet.</td></tr>`;
       return;
     }
     snapshot.forEach(docSnap => {
@@ -457,8 +474,9 @@ async function loadAdminOrders() {
       tr.innerHTML = `
         <td>${o.date || 'N/A'}</td>
         <td><strong>${o.name || 'N/A'}</strong></td>
-        <td>${o.phone || 'N/A'}</td>
+        <td>${o.email || 'N/A'}<br><small>${o.phone || ''}</small></td>
         <td>${o.address || 'N/A'}</td>
+        <td>${o.paymentMethod || 'N/A'}</td>
         <td>$${o.total || '0.00'}</td>
       `;
       container.appendChild(tr);
