@@ -3,170 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Novucart Control Center | Admin</title>
+  <title>Novucart | Admin Control Panel</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="admin-body">
 
-  <div class="admin-auth-container" id="adminAuthContainer">
-    <div class="modal-card">
-      <h2><i class="fa-solid fa-lock"></i> Novucart Admin Login</h2>
-      <p>Enter your admin credentials.</p>
-      <form id="adminLoginForm">
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="adminEmail" placeholder="admin@novucart.com" required>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="adminPassword" placeholder="••••••••" required>
-        </div>
-        <button type="submit" class="btn btn-gold btn-block">Log In</button>
+  <!-- ==========================================
+       1. LOGIN SECTION (Centered View)
+       ========================================== -->
+  <div class="admin-login-wrapper" id="login-section">
+    <div class="modal-card admin-login-card">
+      <div class="login-header">
+        <h2><i class="fa-solid fa-lock"></i> Admin Login</h2>
+        <p class="text-secondary">Enter your credentials to access Novucart Dashboard.</p>
+      </div>
+
+      <form id="admin-login-form">
+        <label for="admin-email">Email Address</label>
+        <input type="email" id="admin-email" placeholder="admin@novucart.com" required>
+
+        <label for="admin-password">Password</label>
+        <input type="password" id="admin-password" placeholder="••••••••" required>
+
+        <button type="submit" class="btn btn-primary btn-block">Log In</button>
       </form>
-      <p id="loginErrorMsg" class="error-msg"></p>
+      <p id="login-error" class="error-msg"></p>
     </div>
   </div>
 
-  <div class="admin-dashboard-container hidden" id="adminDashboard">
-    <aside class="admin-sidebar">
-      <h3>Novucart Admin</h3>
-      <ul class="admin-nav">
-        <li><button class="admin-tab-btn active" data-tab="tabProducts"><i class="fa-solid fa-box"></i> Products</button></li>
-        <li><button class="admin-tab-btn" data-tab="tabSettings"><i class="fa-solid fa-gear"></i> Site Settings & Logo</button></li>
-        <li><button class="admin-tab-btn" data-tab="tabOrders"><i class="fa-solid fa-list-check"></i> Customer Orders</button></li>
-      </ul>
-      <button class="btn btn-outline btn-block" id="adminLogoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
-    </aside>
+  <!-- ==========================================
+       2. ADMIN DASHBOARD (Hidden until logged in)
+       ========================================== -->
+  <div class="admin-container" id="dashboard-section" style="display: none;">
+    
+    <!-- Admin Header Bar -->
+    <header class="admin-header">
+      <div class="admin-brand">
+        <h2><i class="fa-solid fa-bag-shopping"></i> Novucart Admin</h2>
+      </div>
+      <button class="btn btn-outline" id="logout-btn">
+        <i class="fa-solid fa-right-from-bracket"></i> Log Out
+      </button>
+    </header>
 
-    <main class="admin-content">
-      
-      <!-- PRODUCTS TAB -->
-      <section class="admin-tab-content active" id="tabProducts">
-        <div class="admin-header-row">
-          <h2>Product Inventory</h2>
-          <button class="btn btn-gold" id="openAddProductModal"><i class="fa-solid fa-plus"></i> Add Product</button>
-        </div>
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Image</th>
-                <th>Title</th>
-                <th>Price ($)</th>
-                <th>Badge</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="adminProductTableBody"></tbody>
-          </table>
-        </div>
-      </section>
+    <!-- Navigation Tabs -->
+    <div class="admin-tabs">
+      <button class="admin-tab-btn active" data-tab="products-tab">
+        <i class="fa-solid fa-box"></i> Products
+      </button>
+      <button class="admin-tab-btn" data-tab="settings-tab">
+        <i class="fa-solid fa-gear"></i> Site Settings
+      </button>
+      <button class="admin-tab-btn" data-tab="orders-tab">
+        <i class="fa-solid fa-receipt"></i> Customer Orders
+      </button>
+    </div>
 
-      <!-- SITE CUSTOMIZER TAB -->
-      <section class="admin-tab-content" id="tabSettings">
-        <h2>Site & Logo Customizer</h2>
-        <p class="section-desc">Edit your logo URL, support details, and text anytime without touching code.</p>
+    <!-- TAB 1: Product Inventory -->
+    <div class="tab-content active" id="products-tab">
+      <div class="admin-card">
+        <h3>Product Inventory</h3>
+        <p class="text-secondary" style="margin-bottom: 20px;">Manage catalog items displayed on the homepage.</p>
         
-        <form id="siteSettingsForm">
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Site Title (Browser Tab)</label>
-              <input type="text" id="setSiteTitle">
-            </div>
-            <div class="form-group">
-              <label>Logo Image URL (Editable anytime!)</label>
-              <input type="text" id="setLogoUrl" placeholder="https://...">
-            </div>
-            <div class="form-group">
-              <label>Top Announcement Banner</label>
-              <input type="text" id="setAnnouncement">
-            </div>
-            <div class="form-group">
-              <label>Hero Headline</label>
-              <input type="text" id="setHeroHeadline">
-            </div>
-            <div class="form-group">
-              <label>Hero Subtitle</label>
-              <input type="text" id="setHeroSubtitle">
-            </div>
-            <div class="form-group">
-              <label>Hero Button Text</label>
-              <input type="text" id="setHeroCta">
-            </div>
-            <div class="form-group">
-              <label>WhatsApp Support Link</label>
-              <input type="text" id="setWhatsappLink" placeholder="https://wa.me/...">
-            </div>
-            <div class="form-group">
-              <label>Support Email Address</label>
-              <input type="email" id="setContactEmail">
-            </div>
-            <div class="form-group">
-              <label>Pay via Card External Link</label>
-              <input type="text" id="setCardRedirectUrl">
-            </div>
-            <div class="form-group">
-              <label>Footer Copyright Text</label>
-              <input type="text" id="setFooterCopyright">
-            </div>
-          </div>
-          <button type="submit" class="btn btn-gold"><i class="fa-solid fa-floppy-disk"></i> Save Settings</button>
-          <span id="settingsSaveStatus" class="success-msg"></span>
-        </form>
-      </section>
-
-      <!-- ORDERS TAB -->
-      <section class="admin-tab-content" id="tabOrders">
-        <h2>Customer Orders</h2>
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Address</th>
-                <th>Promo Code</th>
-                <th>Total</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="adminOrdersTableBody"></tbody>
-          </table>
-        </div>
-      </section>
-
-    </main>
-  </div>
-
-  <!-- Add Product Modal -->
-  <div class="modal-overlay" id="productModal">
-    <div class="modal-card">
-      <button class="close-btn" id="closeProductModal">&times;</button>
-      <h2>Add Product</h2>
-      <form id="productForm">
-        <div class="form-group">
-          <label>Product Title *</label>
-          <input type="text" id="prodTitle" required>
-        </div>
-        <div class="form-group">
-          <label>Product Price ($) *</label>
-          <input type="number" step="0.01" id="prodPrice" required>
-        </div>
-        <div class="form-group">
-          <label>Image URL *</label>
-          <input type="text" id="prodImageUrl" placeholder="https://..." required>
-        </div>
-        <div class="form-group">
-          <label>Stock Badge (e.g. "In Stock")</label>
-          <input type="text" id="prodStockTag" placeholder="In Stock">
-        </div>
-        <button type="submit" class="btn btn-gold btn-block">Save Product</button>
-      </form>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Category</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-product-list">
+            <!-- Products render dynamically via app.js -->
+          </tbody>
+        </table>
+      </div>
     </div>
+
+    <!-- TAB 2: Site Settings -->
+    <div class="tab-content" id="settings-tab" style="display: none;">
+      <div class="admin-card">
+        <h3>Site Settings & Banner</h3>
+        <p class="text-secondary" style="margin-bottom: 20px;">Configure announcement messages and global settings.</p>
+        <!-- Form elements handled in app.js -->
+      </div>
+    </div>
+
+    <!-- TAB 3: Customer Orders -->
+    <div class="tab-content" id="orders-tab" style="display: none;">
+      <div class="admin-card">
+        <h3>Customer Orders</h3>
+        <p class="text-secondary" style="margin-bottom: 20px;">View and fulfill incoming customer purchases.</p>
+      </div>
+    </div>
+
   </div>
 
+  <!-- Firebase & App Scripts -->
   <script type="module" src="app.js"></script>
 </body>
 </html>
