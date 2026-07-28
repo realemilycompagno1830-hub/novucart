@@ -68,7 +68,7 @@
         <div class="card-header-flex">
           <div>
             <h3>Product Inventory</h3>
-            <p class="text-secondary">Manage and reorder items displayed on your storefront.</p>
+            <p class="text-secondary">Manage videos, pricing, stock, and item descriptions.</p>
           </div>
           <button class="btn btn-primary" id="open-product-modal-btn">+ Add Product</button>
         </div>
@@ -78,10 +78,10 @@
             <thead>
               <tr>
                 <th>Reorder</th>
-                <th>Image</th>
-                <th>Title</th>
+                <th>Media</th>
+                <th>Title & Description</th>
                 <th>Price ($)</th>
-                <th>Badge</th>
+                <th>In Stock</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -91,101 +91,83 @@
       </div>
     </div>
 
-    <!-- TAB 2: Site & Text Customizer -->
+    <!-- TAB 2: Customizer -->
     <div class="admin-tab-content" id="settings-tab" style="display: none;">
       <div class="admin-card">
         <h3>Site & Text Customizer</h3>
-        <p class="text-secondary" style="margin-bottom: 24px;">Edit titles, support labels, and buttons.</p>
-        
         <form id="site-settings-form">
           <div class="form-group">
-            <label>Site Title (Browser Tab)</label>
-            <input type="text" id="setting-site-title" placeholder="Novucart | Premium Deals">
+            <label>Site Title</label>
+            <input type="text" id="setting-site-title">
           </div>
-
           <div class="form-group">
-            <label>Logo Image URL</label>
-            <input type="text" id="setting-logo-url" placeholder="https://...">
+            <label>Logo Image / SVG URL</label>
+            <input type="text" id="setting-logo-url">
           </div>
-
           <div class="form-group">
             <label>Top Announcement Text</label>
-            <input type="text" id="setting-announcement" placeholder="Welcome to Novucart!">
+            <input type="text" id="setting-announcement">
           </div>
-
           <div class="form-group">
             <label>Hero Headline</label>
-            <input type="text" id="setting-hero-headline" placeholder="Discover Extraordinary Products">
+            <input type="text" id="setting-hero-headline">
           </div>
-
           <div class="form-group">
-            <label>WhatsApp Button Label (e.g. Chat with Us / Contact Support)</label>
-            <input type="text" id="setting-whatsapp-text" placeholder="Contact on WhatsApp">
+            <label>WhatsApp Button Label</label>
+            <input type="text" id="setting-whatsapp-text">
           </div>
-
           <div class="form-group">
             <label>WhatsApp Link / Number</label>
-            <input type="text" id="setting-whatsapp" placeholder="https://wa.me/123456789">
+            <input type="text" id="setting-whatsapp">
           </div>
-
           <div class="form-group">
             <label>Support Email Address</label>
-            <input type="email" id="setting-email" placeholder="support@novucart.com">
+            <input type="email" id="setting-email">
           </div>
-
           <div class="form-group">
             <label>Footer Copyright Text</label>
-            <input type="text" id="setting-footer-text" placeholder="2026 Novucart Marketplace. All rights reserved.">
+            <input type="text" id="setting-footer-text">
           </div>
-
           <button type="submit" class="btn btn-primary">Save Site Settings</button>
         </form>
       </div>
     </div>
 
-    <!-- TAB 3: Pop-Up Ad Manager -->
+    <!-- TAB 3: Pop-Up Ad -->
     <div class="admin-tab-content" id="promo-tab" style="display: none;">
       <div class="admin-card">
         <h3>Pop-Up Promotional Ad Manager</h3>
-        <p class="text-secondary" style="margin-bottom: 24px;">Create a pop-up advertisement and toggle it ON or OFF for visitors.</p>
-
         <form id="promo-ad-form">
           <div class="form-group" style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
             <label style="margin: 0;">Enable Pop-Up Ad on Site:</label>
             <input type="checkbox" id="promo-ad-active" style="width: 20px; height: 20px; cursor: pointer;">
           </div>
-
           <div class="form-group">
             <label>Ad Title / Headline</label>
-            <input type="text" id="promo-ad-title" placeholder="e.g. 🔥 Flash Sale! Get 20% Off Today">
+            <input type="text" id="promo-ad-title">
           </div>
-
           <div class="form-group">
             <label>Ad Description / Offer Text</label>
-            <input type="text" id="promo-ad-desc" placeholder="Use promo code NOVU20 at checkout for instant savings!">
+            <input type="text" id="promo-ad-desc">
           </div>
-
           <div class="form-group">
-            <label>Ad Image URL (Optional)</label>
-            <input type="text" id="promo-ad-image" placeholder="https://...">
+            <label>Ad Image URL</label>
+            <input type="text" id="promo-ad-image">
           </div>
-
           <div class="form-group">
             <label>Button Text</label>
-            <input type="text" id="promo-ad-btn-text" placeholder="Claim Offer Now">
+            <input type="text" id="promo-ad-btn-text">
           </div>
-
           <div class="form-group">
             <label>Button Link Target</label>
-            <input type="text" id="promo-ad-btn-link" placeholder="#catalog or https://...">
+            <input type="text" id="promo-ad-btn-link">
           </div>
-
           <button type="submit" class="btn btn-primary">Save & Update Ad</button>
         </form>
       </div>
     </div>
 
-    <!-- TAB 4: Customer Orders -->
+    <!-- TAB 4: Orders -->
     <div class="admin-tab-content" id="orders-tab" style="display: none;">
       <div class="admin-card">
         <h3>Customer Orders</h3>
@@ -197,9 +179,7 @@
                 <th>Name</th>
                 <th>Phone</th>
                 <th>Address</th>
-                <th>Promo Code</th>
                 <th>Total</th>
-                <th>Action</th>
               </tr>
             </thead>
             <tbody id="admin-orders-list"></tbody>
@@ -210,8 +190,8 @@
 
   </div>
 
-  <!-- ADD / EDIT PRODUCT MODAL -->
-  <div class="admin-login-overlay" id="product-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999; background: rgba(0,0,0,0.6);">
+  <!-- ADD / EDIT PRODUCT MODAL (INCLUDES DESCRIPTION & STOCK QUANTITY) -->
+  <div class="admin-login-overlay" id="product-modal" style="display: none;">
     <div class="admin-card login-box" style="max-width: 500px;">
       <div class="card-header-flex">
         <h3 id="modal-title">Add New Product</h3>
@@ -225,12 +205,20 @@
           <input type="text" id="modal-product-title" required>
         </div>
         <div class="form-group">
+          <label>Product Description</label>
+          <input type="text" id="modal-product-desc" placeholder="Brief feature summary...">
+        </div>
+        <div class="form-group">
           <label>Price ($)</label>
           <input type="number" step="0.01" id="modal-product-price" required>
         </div>
         <div class="form-group">
-          <label>Image URL</label>
-          <input type="text" id="modal-product-image" required>
+          <label>Stock Quantity Available</label>
+          <input type="number" id="modal-product-stock" placeholder="e.g. 15" required>
+        </div>
+        <div class="form-group">
+          <label>Media URL (Image or MP4 Video)</label>
+          <input type="text" id="modal-product-image" placeholder="https://... (.png, .jpg, or .mp4)" required>
         </div>
         <div class="form-group">
           <label>Badge Tag</label>
