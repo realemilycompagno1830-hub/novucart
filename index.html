@@ -3,95 +3,105 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Novucart | Exclusive Deals</title>
+  <title id="site-title-tag">Novucart | Premium Store</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-  <!-- Top Announcement Bar -->
-  <div class="announcement-bar">
-    <span>📢 Welcome to Novucart — Premium Deals Delivered Worldwide!</span>
+  <!-- Announcement Bar -->
+  <div class="announcement-bar" id="announcement-text">
+    📢 Welcome to Novucart — Premium Deals Delivered Worldwide!
   </div>
 
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="nav-brand">
-      <a href="#" class="logo-text"><i class="fa-solid fa-bag-shopping"></i> Novucart</a>
-    </div>
-    <div class="nav-actions">
-      <button class="cart-icon-btn" id="open-cart-btn" onclick="toggleCart()">
-        <i class="fa-solid fa-cart-shopping"></i>
-        <span class="cart-badge" id="cart-count">0</span>
-      </button>
-    </div>
-  </nav>
+  <!-- Main Store Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <a href="index.html" class="logo-area" id="store-logo-link">
+        <span id="logo-text" class="brand-name">Novucart</span>
+      </a>
 
-  <!-- Hero Section -->
+      <nav class="nav-links">
+        <a href="#catalog" class="nav-item">Shop Catalog</a>
+        <a href="#" id="header-contact-btn" class="nav-item contact-btn" target="_blank">
+          <i class="fa-brands fa-whatsapp"></i> <span id="header-contact-text">Contact Us</span>
+        </a>
+        <button class="cart-trigger" id="open-cart-btn">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span class="cart-count" id="cart-count">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
   <section class="hero-section">
     <div class="hero-content">
-      <h1>Discover Extraordinary Products</h1>
-      <p>Shop curated selections at unbeatable prices on Novucart.</p>
-      <a href="#catalog" class="btn btn-primary">Explore Catalog</a>
+      <h1 id="hero-headline-text">Discover Extraordinary Products</h1>
+      <p id="hero-subtext">Shop curated selections at unbeatable prices on Novucart.</p>
+      <a href="#catalog" class="btn btn-primary btn-large">Explore Catalog</a>
     </div>
   </section>
 
-  <!-- Catalog & Featured Products -->
-  <main class="catalog-section" id="catalog">
-    <div class="section-header">
+  <!-- Product Catalog -->
+  <main class="store-container" id="catalog">
+    <div class="section-title">
       <h2>Featured Products</h2>
+      <p class="text-secondary">Browse our newest arrivals and popular items</p>
     </div>
 
-    <!-- Product Grid -->
-    <div class="product-grid" id="product-grid">
-      <!-- Products render dynamically via app.js -->
-      <p class="text-secondary" id="no-products-msg">Loading products...</p>
+    <div class="product-grid" id="frontend-product-list">
+      <!-- Dynamic Products Loaded via app.js -->
+      <div class="loading-spinner">Loading products...</div>
     </div>
   </main>
 
   <!-- Footer -->
-  <footer>
-    <div class="footer-content">
-      <div class="footer-brand">
-        <h3>Novucart</h3>
-        <p class="text-secondary">All rights reserved. Guaranteed premium quality & direct shipping.</p>
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-col">
+        <h3 id="footer-brand-title">Novucart</h3>
+        <p>Guaranteed premium quality & direct shipping.</p>
       </div>
-      <div class="footer-contact">
-        <h4>Customer Care</h4>
-        <p><a href="https://wa.me/" target="_blank"><i class="fa-brands fa-whatsapp"></i> Contact on WhatsApp</a></p>
-        <p><i class="fa-regular fa-envelope"></i> support@novucart.com</p>
-        <p class="copyright">&copy; 2026 Novucart Marketplace. All rights reserved.</p>
+      <div class="footer-col">
+        <h4>Customer Support</h4>
+        <p><a href="#" id="footer-whatsapp-link" target="_blank"><i class="fa-brands fa-whatsapp"></i> <span id="footer-whatsapp-text">Contact on WhatsApp</span></a></p>
+        <p><i class="fa-solid fa-envelope"></i> <span id="footer-email-text">support@novucart.com</span></p>
       </div>
+    </div>
+    <div class="footer-bottom">
+      <p id="footer-copyright-text">© 2026 Novucart Marketplace. All rights reserved.</p>
     </div>
   </footer>
 
-  <!-- Shopping Bag Modal (Hidden by default) -->
-  <div class="modal-overlay" id="cart-modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Your Shopping Bag</h3>
-        <button class="close-btn" onclick="toggleCart()">&times;</button>
+  <!-- Slide-out Cart Drawer -->
+  <div class="cart-drawer-overlay" id="cart-overlay"></div>
+  <div class="cart-drawer" id="cart-drawer">
+    <div class="cart-header">
+      <h3>Your Shopping Bag</h3>
+      <button class="close-cart-btn" id="close-cart-btn">✕</button>
+    </div>
+    <div class="cart-items-body" id="cart-items-container">
+      <p class="empty-cart-msg">Your bag is empty.</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total-row">
+        <span>Total:</span>
+        <span id="cart-total-price">$0.00</span>
       </div>
-      <div class="modal-body" id="cart-items-container">
-        <p class="text-secondary">Your bag is empty.</p>
-      </div>
-      <div class="modal-footer">
-        <div class="cart-total-row">
-          <span>Total:</span>
-          <span id="cart-total-price">$0.00</span>
-        </div>
-        <button class="btn btn-primary btn-block">Proceed to Checkout</button>
-      </div>
+      <button class="btn btn-primary btn-block" id="checkout-btn">Proceed to Checkout</button>
     </div>
   </div>
 
-  <!-- Firebase & App Scripts -->
+  <!-- Pop-Up Promo Ad Banner -->
+  <div class="promo-ad-popup" id="frontend-promo-ad" style="display: none;">
+    <button class="promo-ad-close" id="close-promo-ad">✕</button>
+    <img id="promo-ad-img" src="" style="display:none; width:100%; border-radius:10px; margin-bottom:12px; max-height:140px; object-fit:cover;">
+    <h4 id="promo-ad-heading" style="font-size:1.1rem; margin-bottom:6px; color:#1E293B;"></h4>
+    <p id="promo-ad-body" style="font-size:0.85rem; color:#64748B; margin-bottom:14px;"></p>
+    <a href="#" id="promo-ad-link-btn" class="btn btn-primary btn-block" style="font-size:0.85rem; padding:8px 12px;">Claim Offer</a>
+  </div>
+
   <script type="module" src="app.js"></script>
-  <script>
-    function toggleCart() {
-      const modal = document.getElementById('cart-modal');
-      modal.classList.toggle('active');
-    }
-  </script>
 </body>
 </html>
