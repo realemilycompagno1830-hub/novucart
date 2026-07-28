@@ -9,11 +9,11 @@ import {
   getFirestore, 
   collection, 
   getDocs, 
-  addDoc, 
   doc, 
   deleteDoc, 
   getDoc, 
-  setDoc 
+  setDoc,
+  updateDoc 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // ==========================================
@@ -32,6 +32,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+let currentProductsList = [];
+
 // ==========================================
 // 2. AUTHENTICATION (ADMIN LOGIN & LOGOUT)
 // ==========================================
@@ -41,7 +43,6 @@ const loginSection = document.getElementById('login-section');
 const dashboardSection = document.getElementById('dashboard-section');
 const loginError = document.getElementById('login-error');
 
-// Monitor Login State
 onAuthStateChanged(auth, (user) => {
   if (user) {
     if (loginSection) loginSection.style.display = 'none';
@@ -55,7 +56,6 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// Handle Login Form Submission
 if (loginForm) {
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -75,7 +75,6 @@ if (loginForm) {
   });
 }
 
-// Handle Logout Button
 if (logoutBtn) {
   logoutBtn.addEventListener('click', async () => {
     try {
@@ -87,10 +86,68 @@ if (logoutBtn) {
 }
 
 // ==========================================
-// 3. ADMIN DASHBOARD FUNCTIONS
+// 3. PRODUCT MANAGEMENT (ADD / EDIT / REORDER)
 // ==========================================
+const productModal = document.getElementById('product-modal');
+const openModalBtn = document.getElementById('open-product-modal-btn');
+const closeModalBtn = document.getElementById('close-product-modal-btn');
+const productForm = document.getElementById('product-form');
 
-// Load Product List into Admin Table
+// Open Modal for New Product
+if (openModalBtn) {
+  openModalBtn.addEventListener('click', () => {
+    document.getElementById('modal-title').textContent = "Add New Product";
+    document.getElementById('modal-product-id').value = "";
+    productForm.reset();
+    productModal.style.display = 'flex';
+  });
+}
+
+// Close Modal
+if (closeModalBtn) {
+  closeModalBtn.addEventListener('click', () => {
+    productModal.style.display = 'none';
+  });
+}
+
+// Add or Update Product
+if (productForm) {
+  productForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const id = document.getElementById('modal-product-id').value;
+    const title = document.getElementById('modal-product-title').value.trim();
+    const price = parseFloat(document.getElementById('modal-product-price').value);
+    const image = document.getElementById('modal-product-image').value.trim();
+    const badge = document.getElementById('modal-product-badge').value.trim() || 'In Stock';
+
+    try {
+      if (id) {
+        // Edit existing product
+        await updateDoc(doc(db, "products", id), { title, price, image, badge });
+      } else {
+        // Add new product with high order number so it displays last by default
+        const newDocRef = doc(collection(db, "products"));
+        await setDoc(newDocRef, {
+          title,
+          price,
+          image,
+          badge,
+          order: currentProductsList.length + 1
+        });
+      }
+      
+      productModal.style.display = 'none';
+      productForm.reset();
+      loadAdminProducts();
+    } catch (err) {
+      console.error("Error saving product:", err);
+      alert("Failed to save product.");
+    }
+  });
+}
+
+// Load Products Table
 async function loadAdminProducts() {
   const listContainer = document.getElementById('admin-product-list');
   if (!listContainer) return;
@@ -98,22 +155,34 @@ async function loadAdminProducts() {
   try {
     const querySnapshot = await getDocs(collection(db, "products"));
     listContainer.innerHTML = "";
+    currentProductsList = [];
 
-    if (querySnapshot.empty) {
-      listContainer.innerHTML = `<tr><td colspan="5" class="text-secondary">No products found. Add your first item!</td></tr>`;
+    querySnapshot.forEach((docSnap) => {
+      currentProductsList.push({ id: docSnap.id, ...docSnap.data() });
+    });
+
+    // Sort products by order number
+    currentProductsList.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    if (currentProductsList.length === 0) {
+      listContainer.innerHTML = `<tr><td colspan="6" class="text-secondary">No products found. Add your first item!</td></tr>`;
       return;
     }
 
-    querySnapshot.forEach((docSnap) => {
-      const data = docSnap.data();
+    currentProductsList.forEach((item, index) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><img src="${data.image || 'https://via.placeholder.com/50'}" width="40" height="40" style="object-fit:cover; border-radius:6px;"></td>
-        <td><strong>${data.title || 'Untitled Product'}</strong></td>
-        <td>$${data.price || '0.00'}</td>
-        <td><span class="stock-tag">${data.badge || 'In Stock'}</span></td>
         <td>
-          <button class="btn btn-outline" style="padding:4px 10px; font-size:0.8rem;" onclick="deleteProduct('${docSnap.id}')">Delete</button>
+          <button class="btn btn-outline" style="padding: 2px 8px;" onclick="moveProduct('${item.id}', 'up')" ${index === 0 ? 'disabled' : ''}>▲</button>
+          <button class="btn btn-outline" style="padding: 2px 8px;" onclick="moveProduct('${item.id}', 'down')" ${index === currentProductsList.length - 1 ? 'disabled' : ''}>▼</button>
+        </td>
+        <td><img src="${item.image || 'https://via.placeholder.com/50'}" width="40" height="40" style="object-fit:cover; border-radius:6px;"></td>
+        <td><strong>${item.title || 'Untitled'}</strong></td>
+        <td>$${item.price ? item.price.toFixed(2) : '0.00'}</td>
+        <td><span class="stock-tag">${item.badge || 'In Stock'}</span></td>
+        <td>
+          <button class="btn btn-outline" style="padding:4px 10px; font-size:0.8rem; margin-right: 4px;" onclick="editProduct('${item.id}')">Edit</button>
+          <button class="btn btn-outline" style="padding:4px 10px; font-size:0.8rem; color:red;" onclick="deleteProduct('${item.id}')">Delete</button>
         </td>
       `;
       listContainer.appendChild(tr);
@@ -122,6 +191,42 @@ async function loadAdminProducts() {
     console.error("Error loading products:", err);
   }
 }
+
+// Open Edit Modal with Pre-filled Data
+window.editProduct = (id) => {
+  const product = currentProductsList.find(p => p.id === id);
+  if (!product) return;
+
+  document.getElementById('modal-title').textContent = "Edit Product";
+  document.getElementById('modal-product-id').value = product.id;
+  document.getElementById('modal-product-title').value = product.title || '';
+  document.getElementById('modal-product-price').value = product.price || '';
+  document.getElementById('modal-product-image').value = product.image || '';
+  document.getElementById('modal-product-badge').value = product.badge || '';
+
+  productModal.style.display = 'flex';
+};
+
+// Reorder Product (Up or Down)
+window.moveProduct = async (id, direction) => {
+  const index = currentProductsList.findIndex(p => p.id === id);
+  if (index === -1) return;
+
+  const targetIndex = direction === 'up' ? index - 1 : index + 1;
+  if (targetIndex < 0 || targetIndex >= currentProductsList.length) return;
+
+  // Swap order numbers
+  const itemA = currentProductsList[index];
+  const itemB = currentProductsList[targetIndex];
+
+  try {
+    await updateDoc(doc(db, "products", itemA.id), { order: targetIndex + 1 });
+    await updateDoc(doc(db, "products", itemB.id), { order: index + 1 });
+    loadAdminProducts();
+  } catch (err) {
+    console.error("Reorder Error:", err);
+  }
+};
 
 // Delete Product
 window.deleteProduct = async (id) => {
@@ -135,7 +240,9 @@ window.deleteProduct = async (id) => {
   }
 };
 
-// Load Customer Orders
+// ==========================================
+// 4. ORDERS & SITE SETTINGS
+// ==========================================
 async function loadAdminOrders() {
   const ordersContainer = document.getElementById('admin-orders-list');
   if (!ordersContainer) return;
@@ -168,7 +275,6 @@ async function loadAdminOrders() {
   }
 }
 
-// Load Site Customizer Settings
 async function loadSiteSettings() {
   const settingsForm = document.getElementById('site-settings-form');
   if (!settingsForm) return;
@@ -192,7 +298,6 @@ async function loadSiteSettings() {
   }
 }
 
-// Save Site Settings
 const settingsForm = document.getElementById('site-settings-form');
 if (settingsForm) {
   settingsForm.addEventListener('submit', async (e) => {
