@@ -75,7 +75,7 @@ body {
   justify-content: space-between; 
   align-items: center; 
   flex-wrap: wrap; 
-  gap: 10px; 
+  gap: 12px; 
 }
 
 .logo-area {
@@ -95,6 +95,99 @@ body {
   color: var(--primary-color); 
   text-decoration: none; 
   white-space: nowrap; 
+}
+
+/* MENU PRODUCT GALLERY SLIDER (HEADER) */
+.menu-gallery-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  max-width: 450px;
+  margin: 0 12px;
+  overflow: hidden;
+}
+
+.menu-product-gallery {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 2px 0;
+}
+
+.menu-product-gallery::-webkit-scrollbar {
+  display: none;
+}
+
+.menu-product-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #F8FAFC;
+  border: 1px solid var(--border-color);
+  padding: 4px 8px;
+  border-radius: 8px;
+  min-width: 140px;
+  max-width: 180px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.menu-product-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-color);
+}
+
+.menu-product-img {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #E2E8F0;
+}
+
+.menu-product-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.menu-product-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-product-price {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.gallery-nav-btn {
+  background: #F1F5F9;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--text-dark);
+}
+
+.gallery-nav-btn:hover {
+  background: var(--border-color);
 }
 
 .nav-links { 
@@ -406,6 +499,10 @@ body {
 .btn-ad-action:hover { background-color: var(--accent-red-hover) !important; }
 
 /* RESPONSIVE ADJUSTMENTS */
+@media (max-width: 850px) {
+  .menu-gallery-wrapper { display: none; }
+}
+
 @media (max-width: 600px) {
   .header-container { justify-content: space-between; }
   .nav-links { gap: 8px; }
