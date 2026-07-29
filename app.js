@@ -6,10 +6,9 @@ const firebaseConfig = {
   apiKey: "AIzaSyCvwAg_i3wnfrKdbegLLh7-tPJE44COYoI",
   authDomain: "novucart-5d9a3.firebaseapp.com",
   projectId: "novucart-5d9a3",
-  storageBucket: "novucart-5d9a3.firebasestorage.app",
-  messagingSenderId: "804299070006",
-  appId: "1:804299070006:web:4424945e4684cdb0d29697",
-  measurementId: "G-930DM2B0V0"
+  storageBucket: "novucart-5d9a3.appspot.com",
+  messagingSenderId: "102938475610",
+  appId: "1:102938475610:web:abc123def456"
 };
 
 const app = initializeApp(firebaseConfig);
