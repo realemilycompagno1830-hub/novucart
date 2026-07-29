@@ -232,21 +232,6 @@ body {
   margin-bottom: 24px; 
 }
 
-/* CAROUSEL / SLIDER DISPLAY MODE */
-.product-slider-container {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding-bottom: 16px;
-}
-
-.product-slider-container .product-card {
-  min-width: 280px;
-  max-width: 320px;
-  scroll-snap-align: start;
-}
-
 .product-grid { 
   display: grid; 
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
