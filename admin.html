@@ -1,1 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novucart Admin</title>
+  <link rel="stylesheet" href="style.css">
 
+  <!-- FIREBASE SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+  <style>
+    body { padding: 24px; }
+    .admin-card { background: #fff; border-radius: 16px; padding: 24px; max-width: 900px; margin: 0 auto; box-shadow: 0 4px 18px rgba(0,0,0,0.04); }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
+    input[type="text"], input[type="number"], input[type="email"], input[type="password"], textarea { width: 100%; padding: 10px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 0.95rem; }
+    .nav-tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; }
+    .tab-btn { background: #e8e8ed; border: none; padding: 8px 16px; border-radius: 980px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+    .tab-btn.active { background: #1d1d1f; color: #fff; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; font-size: 0.85rem; }
+    th { background: #f5f5f7; }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginSection" class="admin-card" style="max-width: 400px; text-align: center; margin-top: 60px;">
+    <h2 style="margin-bottom: 20px;">🔒 Admin Login</h2>
+    <div class="form-group" style="text-align:left;">
+      <label>Email</label>
+      <input type="email" id="adminEmail" placeholder="buycheapcarsonline@gmail.com">
+    </div>
+    <div class="form-group" style="text-align:left;">
+      <label>Password</label>
+      <input type="password" id="adminPassword" placeholder="••••••••">
+    </div>
+    <button class="btn-primary" onclick="attemptLogin()">Log In</button>
+  </div>
+
+  <!-- ADMIN DASHBOARD PANEL -->
+  <div id="dashboardSection" class="admin-card" style="display: none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+      <h2>⚙️ Novucart Dashboard</h2>
+      <div>
+        <a href="index.html" style="margin-right: 12px; color: #86868b; text-decoration: none; font-size: 0.85rem; font-weight: 600;">← Storefront</a>
+        <button class="btn-secondary" style="width: auto; padding: 6px 14px; font-size: 0.8rem;" onclick="logout()">Log Out</button>
+      </div>
+    </div>
+
+    <!-- TABS NAV -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('tabProducts', this)">📦 Products</button>
+      <button class="tab-btn" onclick="switchTab('tabSettings', this)">⚙️ Settings & Links</button>
+      <button class="tab-btn" onclick="switchTab('tabBanner', this)">📢 Pop-Up Banner</button>
+      <button class="tab-btn" onclick="switchTab('tabOrders', this)">📋 Orders</button>
+    </div>
+
+    <!-- TAB 1: PRODUCTS -->
+    <div id="tabProducts" class="tab-content active">
+      <h3>Manage Inventory</h3>
+      <form id="productForm" style="background:#f5f5f7; padding:16px; border-radius:12px; margin: 16px 0;">
+        <div class="form-group"><label>Title</label><input type="text" id="pTitle" required></div>
+        <div style="display:flex; gap:12px;">
+          <div class="form-group" style="flex:1;"><label>Price ($)</label><input type="number" id="pPrice" step="0.01" required></div>
+          <div class="form-group" style="flex:1;"><label>Stock</label><input type="number" id="pStock" required></div>
+        </div>
+        <div class="form-group"><label>Image URL</label><input type="text" id="pImage"></div>
+        <div class="form-group"><label>Video Preview URL (Optional)</label><input type="text" id="pVideo"></div>
+        <div class="form-group"><label>Description</label><textarea id="pDesc" rows="2"></textarea></div>
+        <button type="button" class="btn-primary" onclick="saveProduct()">Save Product</button>
+      </form>
+
+      <table>
+        <thead><tr><th>Title</th><th>Price</th><th>Stock</th><th>Action</th></tr></thead>
+        <tbody id="adminProductTable"><tr><td colspan="4">Loading products...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- TAB 2: SETTINGS -->
+    <div id="tabSettings" class="tab-content">
+      <h3>Store Configuration</h3>
+      <div class="form-group"><label>Site Title</label><input type="text" id="cfgSiteTitle"></div>
+      <div class="form-group"><label>Top Announcement Bar</label><input type="text" id="cfgAnnouncement"></div>
+      <div class="form-group"><label>Hero Headline Text</label><input type="text" id="cfgHero"></div>
+      <div class="form-group"><label>Custom Card Payment Redirect URL</label><input type="text" id="cfgCardUrl" placeholder="https://checkout.stripe.com/..."></div>
+      <div class="form-group"><label>Notification Store Email</label><input type="email" id="cfgStoreEmail" value="buycheapcarsonline@gmail.com"></div>
+      <div class="form-group"><label>WhatsApp Contact Link</label><input type="text" id="cfgWhatsapp"></div>
+      <button class="btn-primary" onclick="saveStoreSettings()">Save Settings</button>
+    </div>
+
+    <!-- TAB 3: POP-UP BANNER -->
+    <div id="tabBanner" class="tab-content">
+      <h3>Pop-Up Promotional Banner Control</h3>
+      <div class="form-group" style="display:flex; gap:10px; align-items:center;">
+        <input type="checkbox" id="cfgBannerEnabled" style="width:auto;">
+        <label for="cfgBannerEnabled" style="margin:0;">Enable Pop-Up Banner</label>
+      </div>
+      <div class="form-group"><label>Banner Title</label><input type="text" id="cfgBannerTitle"></div>
+      <div class="form-group"><label>Banner Description</label><input type="text" id="cfgBannerDesc"></div>
+      <div class="form-group"><label>Button Label</label><input type="text" id="cfgBannerBtnText"></div>
+      <div class="form-group"><label>Button Redirect Link</label><input type="text" id="cfgBannerLink"></div>
+      <button class="btn-primary" onclick="saveStoreSettings()">Save Banner Controls</button>
+    </div>
+
+    <!-- TAB 4: ORDERS -->
+    <div id="tabOrders" class="tab-content">
+      <h3>Pay-On-Delivery Customer Orders</h3>
+      <table>
+        <thead><tr><th>Customer</th><th>Phone</th><th>Item</th><th>Address</th></tr></thead>
+        <tbody id="adminOrdersTable"><tr><td colspan="4">Loading orders...</td></tr></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initAdminPanel();
+    });
+  </script>
+</body>
+</html>
