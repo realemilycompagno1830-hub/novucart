@@ -298,7 +298,10 @@ function applyFrontendSettingsDOM(data) {
     if (document.getElementById('header-contact-btn')) document.getElementById('header-contact-btn').href = data.whatsapp;
     if (document.getElementById('footer-whatsapp-link')) document.getElementById('footer-whatsapp-link').href = data.whatsapp;
   }
-  if (data.email && document.getElementById('footer-email-text')) document.getElementById('footer-email-text').textContent = data.email;
+  if (data.email) {
+    if (document.getElementById('footer-email-text')) document.getElementById('footer-email-text').textContent = data.email;
+    if (document.getElementById('footer-email-link')) document.getElementById('footer-email-link').href = `mailto:${data.email}`;
+  }
   if (data.footerBrandDesc && document.getElementById('footer-brand-desc')) document.getElementById('footer-brand-desc').textContent = data.footerBrandDesc;
   if (data.footerCareTitle && document.getElementById('footer-care-title')) document.getElementById('footer-care-title').textContent = data.footerCareTitle;
   if (data.footerText && document.getElementById('footer-copyright-text')) document.getElementById('footer-copyright-text').textContent = data.footerText;
