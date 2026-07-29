@@ -20,12 +20,12 @@
       <form id="admin-login-form">
         <div class="form-group">
           <label for="admin-email">Email Address</label>
-          <input type="email" id="admin-email" placeholder="admin@novucart.com" required>
+          <input type="email" id="admin-email" placeholder="admin@novucart.com" autocomplete="email" required>
         </div>
 
         <div class="form-group">
           <label for="admin-password">Password</label>
-          <input type="password" id="admin-password" placeholder="••••••••" required>
+          <input type="password" id="admin-password" placeholder="••••••••" autocomplete="current-password" required>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block">Log In</button>
@@ -43,17 +43,17 @@
       </div>
       <div>
         <a href="index.html" style="margin-right:15px; text-decoration:none; font-weight:600; color:var(--text-muted);">← View Site</a>
-        <button class="btn btn-outline" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
+        <button type="button" class="btn btn-outline" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
       </div>
     </header>
 
     <!-- Navigation Tabs -->
     <div class="admin-nav-tabs">
-      <button class="tab-btn active" onclick="switchAdminTab('products-tab', this)"><i class="fa-solid fa-box"></i> Products</button>
-      <button class="tab-btn" onclick="switchAdminTab('categories-tab', this)"><i class="fa-solid fa-list"></i> Categories</button>
-      <button class="tab-btn" onclick="switchAdminTab('settings-tab', this)"><i class="fa-solid fa-sliders"></i> Full Site Customizer</button>
-      <button class="tab-btn" onclick="switchAdminTab('promo-tab', this)"><i class="fa-solid fa-rectangle-ad"></i> Side Ad Banner</button>
-      <button class="tab-btn" onclick="switchAdminTab('orders-tab', this)"><i class="fa-solid fa-receipt"></i> Orders</button>
+      <button type="button" class="tab-btn active" onclick="switchAdminTab('products-tab', this)"><i class="fa-solid fa-box"></i> Products</button>
+      <button type="button" class="tab-btn" onclick="switchAdminTab('categories-tab', this)"><i class="fa-solid fa-list"></i> Categories</button>
+      <button type="button" class="tab-btn" onclick="switchAdminTab('settings-tab', this)"><i class="fa-solid fa-sliders"></i> Full Site Customizer</button>
+      <button type="button" class="tab-btn" onclick="switchAdminTab('promo-tab', this)"><i class="fa-solid fa-rectangle-ad"></i> Side Ad Banner</button>
+      <button type="button" class="tab-btn" onclick="switchAdminTab('orders-tab', this)"><i class="fa-solid fa-receipt"></i> Orders</button>
     </div>
 
     <!-- TAB 1: Products -->
@@ -64,7 +64,7 @@
             <h3>Product Inventory</h3>
             <p class="text-secondary">Manage items, descriptions, stock, categories, and media.</p>
           </div>
-          <button class="btn btn-primary" id="open-product-modal-btn">+ Add Product</button>
+          <button type="button" class="btn btn-primary" id="open-product-modal-btn">+ Add Product</button>
         </div>
         
         <div class="table-responsive">
@@ -182,7 +182,7 @@
           <div class="form-group"><label>Ad Image URL</label><input type="text" id="promo-ad-image"></div>
           <div class="form-group"><label>Button Text</label><input type="text" id="promo-ad-btn-text"></div>
           <div class="form-group"><label>Button Target URL</label><input type="text" id="promo-ad-btn-link"></div>
-          <button type="submit" class="btn btn-danger">Save Side Ad (Red Action Button)</button>
+          <button type="submit" class="btn btn-danger">Save Side Ad</button>
         </form>
       </div>
     </div>
@@ -216,7 +216,7 @@
     <div class="admin-card login-box" style="max-width: 500px; width:90%;">
       <div class="card-header-flex">
         <h3 id="modal-title">Add New Product</h3>
-        <button class="btn btn-outline" id="close-product-modal-btn" style="padding: 4px 10px;">✕</button>
+        <button type="button" class="btn btn-outline" id="close-product-modal-btn" style="padding: 4px 10px;">✕</button>
       </div>
 
       <form id="product-form">
@@ -255,12 +255,12 @@
   </div>
 
   <script>
-    function switchAdminTab(tabId, btnElement) {
+    window.switchAdminTab = function(tabId, btnElement) {
       document.querySelectorAll('.admin-tab-content').forEach(c => c.style.display = 'none');
       document.querySelectorAll('.admin-nav-tabs .tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(tabId).style.display = 'block';
       btnElement.classList.add('active');
-    }
+    };
   </script>
 
   <script type="module" src="app.js"></script>
