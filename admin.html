@@ -51,6 +51,7 @@
     <div class="admin-nav-tabs">
       <button class="tab-btn active" onclick="switchAdminTab('products-tab', this)"><i class="fa-solid fa-box"></i> Products</button>
       <button class="tab-btn" onclick="switchAdminTab('categories-tab', this)"><i class="fa-solid fa-list"></i> Categories</button>
+      <button class="tab-btn" onclick="switchAdminTab('hero-reel-tab', this)"><i class="fa-solid fa-images"></i> Hero Image Reel</button>
       <button class="tab-btn" onclick="switchAdminTab('settings-tab', this)"><i class="fa-solid fa-sliders"></i> Full Site Customizer</button>
       <button class="tab-btn" onclick="switchAdminTab('promo-tab', this)"><i class="fa-solid fa-rectangle-ad"></i> Side Ad Banner</button>
       <button class="tab-btn" onclick="switchAdminTab('orders-tab', this)"><i class="fa-solid fa-receipt"></i> Orders</button>
@@ -89,7 +90,7 @@
     <div class="admin-tab-content" id="categories-tab" style="display: none;">
       <div class="admin-card">
         <h3>Category Manager</h3>
-        <p class="text-secondary" style="margin-bottom:15px;">Create and edit store categories.</p>
+        <p class="text-secondary" style="margin-bottom:15px;">Create, rename, reorder, and delete store categories.</p>
         
         <form id="category-form" style="display:flex; gap:10px; margin-bottom:20px;">
           <input type="text" id="new-category-name" placeholder="New Category Name" required style="flex:1;">
@@ -99,6 +100,7 @@
         <table class="admin-table">
           <thead>
             <tr>
+              <th>Order / Reorder</th>
               <th>Category Name</th>
               <th>Actions</th>
             </tr>
@@ -108,7 +110,31 @@
       </div>
     </div>
 
-    <!-- TAB 3: Customizer & Text Links -->
+    <!-- TAB 3: Hero Image Reel Manager -->
+    <div class="admin-tab-content" id="hero-reel-tab" style="display: none;">
+      <div class="admin-card">
+        <h3>Hero Image / Video Reel Manager</h3>
+        <p class="text-secondary" style="margin-bottom:20px;">Add media items and control their display sequence on the homepage hero background.</p>
+        
+        <form id="hero-reel-form" style="display:flex; gap:10px; margin-bottom:20px;">
+          <input type="text" id="new-reel-url" placeholder="Paste Image or MP4 Video URL" required style="flex:1;">
+          <button type="submit" class="btn btn-primary">+ Add Reel Media</button>
+        </form>
+
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Sequence / Order</th>
+              <th>Media Preview / URL</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-hero-reel-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: Customizer & Text Links -->
     <div class="admin-tab-content" id="settings-tab" style="display: none;">
       <div class="admin-card">
         <h3>Full Site Text & Logo Customizer</h3>
@@ -159,6 +185,7 @@
           <div class="form-group"><label>Catalog Subheading</label><input type="text" id="setting-catalog-subheading"></div>
           <div class="form-group"><label>Store Email (Receives Pay-on-Delivery Orders)</label><input type="email" id="setting-email"></div>
           <div class="form-group"><label>WhatsApp Contact Link</label><input type="text" id="setting-whatsapp"></div>
+          <div class="form-group"><label>Footer Brand Title</label><input type="text" id="setting-footer-brand-title"></div>
           <div class="form-group"><label>Footer Brand Description</label><input type="text" id="setting-footer-brand-desc"></div>
           <div class="form-group"><label>Footer Customer Care Heading</label><input type="text" id="setting-footer-care-title"></div>
           <div class="form-group"><label>Footer Copyright Text</label><input type="text" id="setting-footer-text"></div>
@@ -168,7 +195,7 @@
       </div>
     </div>
 
-    <!-- TAB 4: Pop-Up Side Ad Banner -->
+    <!-- TAB 5: Pop-Up Side Ad Banner -->
     <div class="admin-tab-content" id="promo-tab" style="display: none;">
       <div class="admin-card">
         <h3>Side Ad Banner Manager</h3>
@@ -187,10 +214,13 @@
       </div>
     </div>
 
-    <!-- TAB 5: Orders -->
+    <!-- TAB 6: Orders -->
     <div class="admin-tab-content" id="orders-tab" style="display: none;">
       <div class="admin-card">
-        <h3>Logged Customer Orders</h3>
+        <div class="card-header-flex">
+          <h3>Logged Customer Orders</h3>
+          <button class="btn btn-danger" id="clear-all-orders-btn" style="font-size: 0.8rem; padding: 6px 12px;">Clear All Orders</button>
+        </div>
         <div class="table-responsive">
           <table class="admin-table">
             <thead>
@@ -201,6 +231,7 @@
                 <th>Address</th>
                 <th>Method / Promo</th>
                 <th>Total</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="admin-orders-list"></tbody>
