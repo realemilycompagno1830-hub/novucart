@@ -82,7 +82,6 @@ body {
   display: flex;
   align-items: center;
   text-decoration: none;
-  gap: 10px;
 }
 
 .brand-logo-img {
@@ -103,53 +102,6 @@ body {
   align-items: center; 
   gap: 12px; 
   flex-wrap: wrap; 
-}
-
-/* NAVBAR PRODUCT MEDIA SLIDER */
-.product-navbar-slider {
-  background: #F8FAFC;
-  border-bottom: 1px solid var(--border-color);
-  padding: 10px 16px;
-}
-
-.product-slider-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: thin;
-  padding-bottom: 6px;
-}
-
-.product-slider-item {
-  flex: 0 0 auto;
-  width: 180px;
-  background: #FFF;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 8px;
-  scroll-snap-align: start;
-  text-align: center;
-}
-
-.product-slider-item img, 
-.product-slider-item video {
-  width: 100%;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 6px;
-  margin-bottom: 6px;
-}
-
-.product-slider-title {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .category-nav {
@@ -242,6 +194,21 @@ body {
   margin-bottom: 24px; 
 }
 
+/* CAROUSEL / SLIDER DISPLAY MODE */
+.product-slider-container {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 16px;
+}
+
+.product-slider-container .product-card {
+  min-width: 280px;
+  max-width: 320px;
+  scroll-snap-align: start;
+}
+
 .product-grid { 
   display: grid; 
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
@@ -288,14 +255,10 @@ body {
   justify-content: space-between; 
 }
 
-.footer-col {
-  flex: 1 1 250px;
-}
-
 .footer-col h3, .footer-col h4 { margin-bottom: 8px; }
 .footer-col p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
 .footer-col a { color: var(--primary-color); text-decoration: none; }
-.footer-bottom { max-width: 1200px; margin: 20px auto 0 auto; border-top: 1px solid var(--border-color); padding-top: 16px; font-size: 0.8rem; color: var(--text-muted); text-align: center; }
+.footer-bottom { max-width: 1200px; margin: 20px auto 0 auto; border-top: 1px solid var(--border-color); padding-top: 16px; font-size: 0.8rem; color: var(--text-muted); }
 
 /* CART & MODAL OVERLAYS */
 .cart-drawer-overlay, .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
