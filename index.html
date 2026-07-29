@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="site-title-tag">Store</title>
+  <title id="site-title-tag">Novucart | Home of Luxury</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -15,63 +15,54 @@
   <!-- Main Store Header -->
   <header class="main-header">
     <div class="header-container">
+      <!-- Left: Brand Logo & Name -->
       <a href="index.html" class="logo-area" id="store-logo-link">
         <img id="logo-img" src="" class="brand-logo-img" style="display:none;" alt="Logo">
         <span id="logo-text" class="brand-name"></span>
       </a>
 
+      <!-- Center: Main Navigation -->
       <nav class="nav-links">
         <a href="#catalog" class="nav-item" id="nav-catalog-text">Catalog</a>
+      </nav>
+
+      <!-- Right: Contact & Cart Trigger -->
+      <div class="header-actions">
         <a href="#" id="header-contact-btn" class="nav-item contact-btn" target="_blank">
           <i class="fa-brands fa-whatsapp"></i> <span id="header-contact-text">Contact</span>
         </a>
-        <button class="cart-trigger" id="open-cart-btn" aria-label="Open Cart">
+        <button class="cart-trigger" id="open-cart-btn" aria-label="Open Shopping Cart">
           <i class="fa-solid fa-cart-shopping"></i>
           <span class="cart-count" id="cart-count">0</span>
         </button>
-      </nav>
+      </div>
     </div>
   </header>
 
-  <!-- Hero Banner -->
+  <!-- Hero Section with Integrated Background Media Slider -->
   <section class="hero-section">
+    <!-- Dynamic Background Image/Media Carousel Overlay -->
+    <div class="hero-bg-slider" id="hero-bg-slider">
+      <div class="hero-bg-slide active" style="background-image: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80');"></div>
+      <div class="hero-bg-slide" style="background-image: url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1600&q=80');"></div>
+      <div class="hero-bg-slide" style="background-image: url('https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1600&q=80');"></div>
+    </div>
+    
+    <div class="hero-overlay"></div>
+
+    <!-- Hero Content Overlay -->
     <div class="hero-content">
-      <h1 id="hero-headline-text"></h1>
-      <p id="hero-subtext"></p>
-      <a href="#catalog" class="btn btn-primary btn-large" id="hero-btn-text">Shop Now</a>
+      <h1 id="hero-headline-text">Welcome to Novucart</h1>
+      <p id="hero-subtext">Home of Luxury</p>
+      <a href="#catalog" class="btn btn-primary btn-large" id="hero-btn-text">Explore Catalog</a>
     </div>
   </section>
 
-  <!-- FEATURED PRODUCT SHOWCASE SLIDER / GALLERY -->
-  <section class="showcase-slider-section">
-    <div class="showcase-container">
-      <div class="showcase-header">
-        <div>
-          <h3>Featured Showcase</h3>
-          <p class="text-secondary">Explore our highlighted collection in real-time</p>
-        </div>
-        <div class="slider-controls">
-          <button class="slider-arrow-btn" id="slider-prev-btn" aria-label="Previous Slide">
-            <i class="fa-solid fa-chevron-left"></i>
-          </button>
-          <button class="slider-arrow-btn" id="slider-next-btn" aria-label="Next Slide">
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-        </div>
-      </div>
-
-      <div class="product-slider-container" id="featured-showcase-slider">
-        <!-- Rendered dynamically by app.js -->
-        <div class="loading-spinner">Loading showcase gallery...</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Video & Product Catalog -->
+  <!-- Product Catalog -->
   <main class="store-container" id="catalog">
     <div class="section-title">
-      <h2 id="catalog-heading-text">Our Products</h2>
-      <p class="text-secondary" id="catalog-subheading-text">Browse through our full inventory below</p>
+      <h2 id="catalog-heading-text">Our Collection</h2>
+      <p class="text-secondary" id="catalog-subheading-text">Browse through our available items</p>
     </div>
 
     <!-- Dynamic Category Filter Tabs -->
@@ -85,37 +76,37 @@
     </div>
   </main>
 
-  <!-- Footer -->
+  <!-- Optimized Responsive Footer -->
   <footer class="main-footer">
     <div class="footer-container">
       <div class="footer-col footer-col-brand">
-        <h3 id="footer-brand-title"></h3>
-        <p id="footer-brand-desc"></p>
+        <h3 id="footer-brand-title">Novucart</h3>
+        <p id="footer-brand-desc">Your ultimate destination for luxury items and exclusive deals.</p>
       </div>
 
       <div class="footer-col footer-col-nav">
-        <h4>Quick Links</h4>
+        <h4>Navigation</h4>
         <ul>
-          <li><a href="#catalog">Catalog</a></li>
-          <li><a href="#featured-showcase-slider">Featured Showcase</a></li>
+          <li><a href="#catalog">Shop Catalog</a></li>
+          <li><a href="#announcement-text">Announcements</a></li>
         </ul>
       </div>
 
       <div class="footer-col footer-col-contact">
-        <h4 id="footer-care-title">Customer Care</h4>
-        <p>
+        <h4 id="footer-care-title">Contact & Support</h4>
+        <div class="footer-contact-item">
           <a href="#" id="footer-whatsapp-link" target="_blank">
             <i class="fa-brands fa-whatsapp"></i> <span id="footer-whatsapp-text">Contact on WhatsApp</span>
           </a>
-        </p>
-        <p class="footer-email-row">
-          <i class="fa-solid fa-envelope"></i> <span id="footer-email-text"></span>
-        </p>
+        </div>
+        <div class="footer-contact-item">
+          <i class="fa-solid fa-envelope"></i> <span id="footer-email-text">support@novucart.com</span>
+        </div>
       </div>
     </div>
 
     <div class="footer-bottom">
-      <p id="footer-copyright-text"></p>
+      <p id="footer-copyright-text">© 2026 Novucart. All rights reserved.</p>
     </div>
   </footer>
 
@@ -138,7 +129,7 @@
     </div>
   </aside>
 
-  <!-- CHECKOUT MODAL -->
+  <!-- Checkout Modal -->
   <div class="modal-overlay" id="checkout-modal" style="display: none;">
     <div class="modal-card">
       <div class="modal-header">
@@ -167,7 +158,6 @@
           <input type="text" id="cust-alt-contact" placeholder="Optional contact handles or notes">
         </div>
 
-        <!-- Promo Code Box -->
         <div class="form-group">
           <label for="cust-promo-code">Promo / Discount Code</label>
           <input type="text" id="cust-promo-code" placeholder="Enter promo code (Optional)">
@@ -190,7 +180,7 @@
     </div>
   </div>
 
-  <!-- Non-Blocking Side Ad Box -->
+  <!-- Side Promotional Ad Box -->
   <div class="promo-ad-sidebox" id="frontend-promo-ad" style="display: none;">
     <button class="promo-ad-close" id="close-promo-ad">✕</button>
     <img id="promo-ad-img" src="" style="display:none; width:100%; border-radius:8px; margin-bottom:10px; max-height:120px; object-fit:cover;" alt="Promo">
@@ -198,6 +188,21 @@
     <p id="promo-ad-body"></p>
     <a href="#" id="promo-ad-link-btn" class="btn btn-ad-action btn-block">Claim Offer</a>
   </div>
+
+  <!-- Simple Automatic Hero Background Rotator Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const slides = document.querySelectorAll('.hero-bg-slide');
+      if (slides.length > 1) {
+        let currentSlide = 0;
+        setInterval(() => {
+          slides[currentSlide].classList.remove('active');
+          currentSlide = (currentSlide + 1) % slides.length;
+          slides[currentSlide].classList.add('active');
+        }, 5000); // Transitions every 5 seconds
+      }
+    });
+  </script>
 
   <script type="module" src="app.js"></script>
 </body>
