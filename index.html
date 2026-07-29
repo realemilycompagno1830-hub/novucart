@@ -3,109 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="site-title-tag">Novucart | Home of Luxury</title>
+  <title id="site-title-tag"></title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="site-body">
 
   <!-- Top Announcement Bar -->
-  <div class="announcement-bar" id="announcement-text">Free Express Delivery on Luxury Orders</div>
+  <div class="announcement-bar" id="announcement-text"></div>
 
   <!-- Main Store Header -->
   <header class="main-header">
     <div class="header-container">
-      <!-- Left: Brand Logo & Name -->
       <a href="index.html" class="logo-area" id="store-logo-link">
         <img id="logo-img" src="" class="brand-logo-img" style="display:none;" alt="Logo">
-        <span id="logo-text" class="brand-name">Novucart</span>
+        <span id="logo-text" class="brand-name"></span>
       </a>
 
-      <!-- Center: Navigation -->
       <nav class="nav-links">
-        <a href="#catalog" class="nav-item">Catalog</a>
-      </nav>
-
-      <!-- Right: Action Items -->
-      <div class="header-actions">
-        <a href="https://wa.me/1234567890" id="header-contact-btn" class="nav-item contact-btn" target="_blank">
-          <i class="fa-brands fa-whatsapp"></i> <span id="header-contact-text">Contact</span>
+        <a href="#catalog" class="nav-item" id="nav-catalog-text"></a>
+        <a href="#" id="header-contact-btn" class="nav-item contact-btn" target="_blank">
+          <i class="fa-brands fa-whatsapp"></i> <span id="header-contact-text"></span>
         </a>
-        <button class="cart-trigger" id="open-cart-btn" aria-label="Open Shopping Cart">
+        <button class="cart-trigger" id="open-cart-btn">
           <i class="fa-solid fa-cart-shopping"></i>
           <span class="cart-count" id="cart-count">0</span>
         </button>
-      </div>
+      </nav>
     </div>
   </header>
 
-  <!-- Hero Section with Background Slider -->
+  <!-- Hero Section with Integrated Product/Video Showcase Slider Background -->
   <section class="hero-section">
-    <div class="hero-bg-slider" id="hero-bg-slider">
-      <div class="hero-bg-slide active" style="background-image: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80');"></div>
-      <div class="hero-bg-slide" style="background-image: url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1600&q=80');"></div>
-      <div class="hero-bg-slide" style="background-image: url('https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1600&q=80');"></div>
-    </div>
-    
-    <div class="hero-overlay"></div>
-
+    <div class="hero-product-slider-bg" id="hero-product-slider"></div>
     <div class="hero-content">
-      <h1 id="hero-headline-text">Welcome to Novucart</h1>
-      <p id="hero-subtext">Home of Luxury</p>
-      <a href="#catalog" class="btn btn-primary btn-large" id="hero-btn-text">Explore Catalog</a>
+      <h1 id="hero-headline-text"></h1>
+      <p id="hero-subtext"></p>
+      <a href="#catalog" class="btn btn-primary btn-large" id="hero-btn-text"></a>
     </div>
   </section>
 
-  <!-- Main Product Catalog -->
+  <!-- Product Catalog -->
   <main class="store-container" id="catalog">
     <div class="section-title">
-      <h2>Our Collection</h2>
-      <p class="text-secondary">Browse through our available luxury items</p>
+      <h2 id="catalog-heading-text"></h2>
+      <p class="text-secondary" id="catalog-subheading-text"></p>
     </div>
 
-    <!-- Product Grid Container -->
+    <!-- Dynamic Category Filter Tabs -->
+    <div class="category-nav" id="category-filter-bar">
+      <button class="cat-btn active" onclick="filterCategory('All')">All</button>
+    </div>
+
+    <!-- Product Grid or Slider Container -->
     <div class="product-grid" id="frontend-product-list">
-      <!-- Items dynamically populated via JavaScript -->
+      <div class="loading-spinner">Loading products...</div>
     </div>
   </main>
 
-  <!-- Clean Horizontal Responsive Footer -->
+  <!-- Footer (Fully Responsive & Optimized for Mobile, Tablets, Laptops) -->
   <footer class="main-footer">
     <div class="footer-container">
-      <div class="footer-col footer-col-brand">
-        <h3 id="footer-brand-title">Novucart</h3>
-        <p id="footer-brand-desc">Your ultimate destination for luxury items and exclusive deals.</p>
+      <div class="footer-col">
+        <h3 id="footer-brand-title"></h3>
+        <p id="footer-brand-desc"></p>
       </div>
-
-      <div class="footer-col footer-col-nav">
-        <h4>Navigation</h4>
-        <ul>
-          <li><a href="#catalog">Shop Catalog</a></li>
-          <li><a href="admin.html" target="_blank">Admin Portal</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-col footer-col-contact">
-        <h4>Contact & Support</h4>
-        <div class="footer-contact-item">
-          <a href="#" id="footer-whatsapp-link" target="_blank">
-            <i class="fa-brands fa-whatsapp"></i> <span id="footer-whatsapp-text">Contact on WhatsApp</span>
-          </a>
-        </div>
-        <div class="footer-contact-item">
-          <i class="fa-solid fa-envelope"></i> <span id="footer-email-text">support@novucart.com</span>
-        </div>
+      <div class="footer-col">
+        <h4 id="footer-care-title"></h4>
+        <p><a href="#" id="footer-whatsapp-link" target="_blank"><i class="fa-brands fa-whatsapp"></i> <span id="footer-whatsapp-text">Contact on WhatsApp</span></a></p>
+        <p><i class="fa-solid fa-envelope"></i> <span id="footer-email-text"></span></p>
       </div>
     </div>
-
     <div class="footer-bottom">
-      <p id="footer-copyright-text">© 2026 Novucart. All rights reserved.</p>
+      <p id="footer-copyright-text"></p>
     </div>
   </footer>
 
   <!-- Slide-out Cart Drawer -->
   <div class="cart-drawer-overlay" id="cart-overlay" style="display:none;"></div>
-  <aside class="cart-drawer" id="cart-drawer">
+  <div class="cart-drawer" id="cart-drawer">
     <div class="cart-header">
       <h3>Your Shopping Bag</h3>
       <button class="close-cart-btn" id="close-cart-btn">✕</button>
@@ -120,17 +96,68 @@
       </div>
       <button class="btn btn-primary btn-block" id="checkout-btn">Proceed to Checkout</button>
     </div>
-  </aside>
-
-  <!-- Side Promotional Box -->
-  <div class="promo-ad-sidebox" id="frontend-promo-ad" style="display: none;">
-    <button class="promo-ad-close" id="close-promo-ad">✕</button>
-    <img id="promo-ad-img" src="" style="display:none; width:100%; border-radius:8px; margin-bottom:10px; max-height:120px; object-fit:cover;" alt="Promo">
-    <h4 id="promo-ad-heading">Exclusive Deal</h4>
-    <p id="promo-ad-body">Check out our latest luxury arrivals today.</p>
-    <a href="#catalog" id="promo-ad-link-btn" class="btn btn-ad-action btn-block">Claim Offer</a>
   </div>
 
-  <script src="app.js"></script>
+  <!-- CHECKOUT MODAL -->
+  <div class="modal-overlay" id="checkout-modal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Checkout Information</h3>
+        <button class="close-btn" id="close-checkout-modal-btn">✕</button>
+      </div>
+      <form id="checkout-form">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="cust-name" placeholder="John Doe" required>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="cust-email" placeholder="john@example.com" required>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="cust-phone" placeholder="+1234567890" required>
+        </div>
+        <div class="form-group">
+          <label>Delivery Address</label>
+          <input type="text" id="cust-address" placeholder="123 Main St, City" required>
+        </div>
+        <div class="form-group">
+          <label>Alternative Contact Means (WhatsApp/Telegram/Social)</label>
+          <input type="text" id="cust-alt-contact" placeholder="Optional contact handles or notes">
+        </div>
+
+        <div class="form-group">
+          <label>Promo / Discount Code</label>
+          <input type="text" id="cust-promo-code" placeholder="Enter promo code (Optional)">
+        </div>
+
+        <div class="form-group" style="margin-top: 18px;">
+          <label><strong>Select Payment Method:</strong></label>
+          <div style="display: flex; gap: 12px; margin-top: 8px;">
+            <label style="font-weight: normal; cursor: pointer;">
+              <input type="radio" name="payment-method" value="card" checked> Pay via Card
+            </label>
+            <label style="font-weight: normal; cursor: pointer;">
+              <input type="radio" name="payment-method" value="pod"> Pay on Delivery
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 15px;">Complete & Proceed</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Side Ad Box -->
+  <div class="promo-ad-sidebox" id="frontend-promo-ad" style="display: none;">
+    <button class="promo-ad-close" id="close-promo-ad">✕</button>
+    <img id="promo-ad-img" src="" style="display:none; width:100%; border-radius:8px; margin-bottom:10px; max-height:120px; object-fit:cover;">
+    <h4 id="promo-ad-heading"></h4>
+    <p id="promo-ad-body"></p>
+    <a href="#" id="promo-ad-link-btn" class="btn btn-ad-action btn-block">Claim Offer</a>
+  </div>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>
