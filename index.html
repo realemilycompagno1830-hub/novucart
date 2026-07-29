@@ -1,35 +1,58 @@
-<!-- HEADER NAV LINKS -->
-<nav class="nav-links">
-  <a id="nav-catalog-link" href="#catalog" class="dynamic-text"></a>
-  <a id="nav-contact-link" href="#contact" class="dynamic-text"></a>
-</nav>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novucart</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<!-- HERO SECTION -->
-<section class="hero">
-  <div class="hero-content">
-    <h1 id="hero-headline" class="dynamic-text"></h1>
-    <p id="hero-subtext" class="dynamic-text"></p>
-    <a id="hero-btn" href="#catalog" class="btn btn-primary dynamic-text"></a>
-  </div>
-</section>
+  <!-- TOP ANNOUNCEMENT BAR -->
+  <div id="top-announcement-bar" class="announcement-bar dynamic-text"></div>
 
-<!-- CATALOG SECTION HEADINGS -->
-<section id="catalog" class="catalog-section">
-  <h2 id="catalog-heading" class="dynamic-text"></h2>
-  <p id="catalog-subheading" class="dynamic-text"></p>
-  <div id="product-grid" class="product-grid">
-    <!-- Products render here dynamic -->
-  </div>
-</section>
+  <!-- HEADER / NAVBAR -->
+  <header class="navbar">
+    <div class="logo-container">
+      <a href="#">
+        <img id="site-logo-img" src="" alt="Logo" style="display:none;">
+        <span id="site-logo-text" class="brand-name">Novucart</span>
+      </a>
+    </div>
+    <nav class="nav-links">
+      <a id="nav-catalog-link" href="#catalog" class="dynamic-text"></a>
+      <a id="nav-contact-link" href="#contact" class="dynamic-text"></a>
+    </nav>
+  </header>
 
-<!-- ANNOUNCEMENT BANNER (TOP) -->
-<div id="top-announcement-bar" class="announcement-bar dynamic-text"></div>
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1 id="hero-headline" class="dynamic-text"></h1>
+      <p id="hero-subtext" class="dynamic-text"></p>
+      <a id="hero-btn" href="#catalog" class="btn btn-primary dynamic-text"></a>
+    </div>
+  </section>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-content">
-    <p id="footer-brand-desc" class="dynamic-text"></p>
-    <h4 id="footer-care-title" class="dynamic-text"></h4>
-    <p id="footer-copyright" class="dynamic-text"></p>
-  </div>
-</footer>
+  <!-- CATALOG SECTION -->
+  <section id="catalog" class="catalog-section">
+    <h2 id="catalog-heading" class="dynamic-text"></h2>
+    <p id="catalog-subheading" class="dynamic-text"></p>
+    <div id="product-grid" class="product-grid">
+      <!-- Products render here -->
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-content" id="contact">
+      <p id="footer-brand-desc" class="dynamic-text"></p>
+      <h4 id="footer-care-title" class="dynamic-text"></h4>
+      <p id="footer-copyright" class="dynamic-text"></p>
+    </div>
+  </footer>
+
+  <!-- Firebase Script Import -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
