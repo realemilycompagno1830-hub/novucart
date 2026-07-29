@@ -23,6 +23,7 @@ let cardPaymentLink = "";
 let storeEmail = "";
 let heroSlideTimer = null;
 let currentHeroIndex = 0;
+let heroSlidesList = [];
 
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('frontend-product-list')) {
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFrontendProducts();
     loadFrontendSettings();
     loadFrontendPromoAd();
+    loadHeroSlides();
     setupCartAndCheckout();
   }
 });
@@ -47,6 +49,7 @@ onAuthStateChanged(auth, (user) => {
     loadAdminOrders();
     loadSiteSettings();
     loadPromoAdSettings();
+    loadHeroSlides();
   } else {
     if (document.getElementById('login-section')) document.getElementById('login-section').style.display = 'flex';
     if (document.getElementById('dashboard-section')) document.getElementById('dashboard-section').style.display = 'none';
@@ -104,8 +107,15 @@ function renderAdminCategoryTable() {
   categoriesList.forEach((cat, idx) => {
     tbody.innerHTML += `
       <tr>
+        <td>
+          <button class="btn btn-outline" style="padding:2px 6px;" onclick="moveCategory(${idx}, 'up')" ${idx===0?'disabled':''}>▲</button>
+          <button class="btn btn-outline" style="padding:2px 6px;" onclick="moveCategory(${idx}, 'down')" ${idx===categoriesList.length-1?'disabled':''}>▼</button>
+        </td>
         <td><strong>${cat}</strong></td>
-        <td><button class="btn btn-outline" style="color:red; padding:4px 8px;" onclick="deleteCategory(${idx})">Delete</button></td>
+        <td>
+          <button class="btn btn-outline" style="padding:4px 8px;" onclick="renameCategory(${idx})">Rename</button>
+          <button class="btn btn-outline" style="color:red; padding:4px 8px;" onclick="deleteCategory(${idx})">Delete</button>
+        </td>
       </tr>
     `;
   });
@@ -121,6 +131,52 @@ window.deleteCategory = async (idx) => {
   categoriesList.splice(idx, 1);
   await setDoc(doc(db, "settings", "categories"), { list: categoriesList });
   loadCategories();
+};
+
+// Reorder a category up or down in the list. Order here drives both the
+// category filter tabs and the dropdown order on the frontend.
+window.moveCategory = async (idx, direction) => {
+  const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+  if (targetIdx < 0 || targetIdx >= categoriesList.length) return;
+  const temp = categoriesList[idx];
+  categoriesList[idx] = categoriesList[targetIdx];
+  categoriesList[targetIdx] = temp;
+  await setDoc(doc(db, "settings", "categories"), { list: categoriesList });
+  loadCategories();
+  loadFrontendProducts();
+};
+
+// Rename a category in place. Also updates every existing product that
+// used the old category name so nothing gets silently uncategorized.
+window.renameCategory = async (idx) => {
+  const oldName = categoriesList[idx];
+  const input = prompt("Rename category:", oldName);
+  if (input === null) return;
+  const newName = input.trim();
+  if (!newName || newName === oldName) return;
+  if (categoriesList.includes(newName)) {
+    alert("A category with that name already exists.");
+    return;
+  }
+
+  categoriesList[idx] = newName;
+  if (activeCategoryFilter === oldName) activeCategoryFilter = newName;
+  await setDoc(doc(db, "settings", "categories"), { list: categoriesList });
+
+  try {
+    const snapshot = await getDocs(collection(db, "products"));
+    const updates = [];
+    snapshot.forEach(d => {
+      if (d.data().category === oldName) {
+        updates.push(updateDoc(doc(db, "products", d.id), { category: newName }));
+      }
+    });
+    await Promise.all(updates);
+  } catch(e) {}
+
+  loadCategories();
+  loadAdminProducts();
+  loadFrontendProducts();
 };
 
 const categoryForm = document.getElementById('category-form');
@@ -183,11 +239,10 @@ if (productForm) {
   });
 }
 
-// FRONTEND FUNCTIONS & AUTO-SLIDING HERO REEL
+// FRONTEND PRODUCT CATALOG
 async function loadFrontendProducts() {
   const container = document.getElementById('frontend-product-list');
-  const heroSlider = document.getElementById('hero-product-slider');
-  if (!container && !heroSlider) return;
+  if (!container) return;
 
   try {
     const snapshot = await getDocs(collection(db, "products"));
@@ -195,67 +250,145 @@ async function loadFrontendProducts() {
     snapshot.forEach(d => products.push({ id: d.id, ...d.data() }));
     products.sort((a,b) => (a.order || 0) - (b.order || 0));
 
-    // Populate Hero Showcase Auto-Sliding Reel
-    if (heroSlider) {
-      heroSlider.innerHTML = "";
-      if (products.length > 0) {
-        products.forEach((p, index) => {
-          const slideDiv = document.createElement('div');
-          slideDiv.className = `hero-slide-item ${index === 0 ? 'active' : ''}`;
-          const isVideo = p.image && (p.image.toLowerCase().endsWith('.mp4') || p.image.toLowerCase().includes('video'));
-          slideDiv.innerHTML = isVideo
-            ? `<video src="${p.image}" autoplay muted loop playsinline class="hero-slide-media"></video>`
-            : `<img src="${p.image || 'https://via.placeholder.com/600'}" alt="${p.title}" class="hero-slide-media">`;
-          heroSlider.appendChild(slideDiv);
-        });
-
-        // Initialize Automatic Sliding Interval (every 3.5 seconds)
-        if (heroSlideTimer) clearInterval(heroSlideTimer);
-        currentHeroIndex = 0;
-        const slides = heroSlider.querySelectorAll('.hero-slide-item');
-        if (slides.length > 1) {
-          heroSlideTimer = setInterval(() => {
-            slides[currentHeroIndex].classList.remove('active');
-            currentHeroIndex = (currentHeroIndex + 1) % slides.length;
-            slides[currentHeroIndex].classList.add('active');
-          }, 3500);
-        }
-      }
+    container.innerHTML = "";
+    let filteredProducts = products;
+    if (activeCategoryFilter !== "All") {
+      filteredProducts = products.filter(p => p.category === activeCategoryFilter);
     }
 
-    if (container) {
-      container.innerHTML = "";
-      let filteredProducts = products;
-      if (activeCategoryFilter !== "All") {
-        filteredProducts = products.filter(p => p.category === activeCategoryFilter);
-      }
-
-      if (filteredProducts.length === 0) {
-        container.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>No items available in this view.</p>";
-        return;
-      }
-
-      filteredProducts.forEach(p => {
-        const card = document.createElement('div');
-        card.className = "product-card";
-        const isVideo = p.image && (p.image.toLowerCase().endsWith('.mp4') || p.image.toLowerCase().includes('video'));
-
-        const mediaHtml = isVideo 
-          ? `<video src="${p.image}" class="product-media" autoplay muted loop playsinline></video>`
-          : `<img src="${p.image || 'https://via.placeholder.com/250'}" class="product-media" alt="${p.title}">`;
-
-        card.innerHTML = `
-          ${mediaHtml}
-          <h3>${p.title}</h3>
-          <span class="stock-tag">${p.stock > 0 ? `${p.stock} in stock` : 'Out of stock'}</span>
-          <p>${p.desc || 'High quality item available for immediate order.'}</p>
-          <div class="price">$${parseFloat(p.price).toFixed(2)}</div>
-          <button class="btn btn-primary btn-block" onclick="addToCart('${p.id}', '${p.title}', ${p.price}, '${p.image}')">Add to Bag</button>
-        `;
-        container.appendChild(card);
-      });
+    if (filteredProducts.length === 0) {
+      container.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>No items available in this view.</p>";
+      return;
     }
+
+    filteredProducts.forEach(p => {
+      const card = document.createElement('div');
+      card.className = "product-card";
+      const isVideo = p.image && (p.image.toLowerCase().endsWith('.mp4') || p.image.toLowerCase().includes('video'));
+
+      const mediaHtml = isVideo 
+        ? `<video src="${p.image}" class="product-media" autoplay muted loop playsinline></video>`
+        : `<img src="${p.image || 'https://via.placeholder.com/250'}" class="product-media" alt="${p.title}">`;
+
+      card.innerHTML = `
+        ${mediaHtml}
+        <h3>${p.title}</h3>
+        <span class="stock-tag">${p.stock > 0 ? `${p.stock} in stock` : 'Out of stock'}</span>
+        <p>${p.desc || 'High quality item available for immediate order.'}</p>
+        <div class="price">$${parseFloat(p.price).toFixed(2)}</div>
+        <button class="btn btn-primary btn-block" onclick="addToCart('${p.id}', '${p.title}', ${p.price}, '${p.image}')">Add to Bag</button>
+      `;
+      container.appendChild(card);
+    });
   } catch (err) { if (container) container.innerHTML = "<p>Error loading catalog.</p>"; }
+}
+
+// HERO SLIDER (independent of the product catalog, fully admin-controlled)
+async function loadHeroSlides() {
+  const heroSlider = document.getElementById('hero-product-slider');
+  const adminTable = document.getElementById('admin-hero-slides-list');
+  if (!heroSlider && !adminTable) return;
+
+  try {
+    const docSnap = await getDoc(doc(db, "settings", "heroSlides"));
+    heroSlidesList = (docSnap.exists() && Array.isArray(docSnap.data().slides)) ? docSnap.data().slides : [];
+  } catch(e) { heroSlidesList = []; }
+
+  renderFrontendHeroSlider();
+  renderAdminHeroSlidesTable();
+}
+
+function renderFrontendHeroSlider() {
+  const heroSlider = document.getElementById('hero-product-slider');
+  if (!heroSlider) return;
+
+  heroSlider.innerHTML = "";
+  if (heroSlideTimer) { clearInterval(heroSlideTimer); heroSlideTimer = null; }
+  if (heroSlidesList.length === 0) return;
+
+  heroSlidesList.forEach((slide, index) => {
+    const slideDiv = document.createElement('div');
+    slideDiv.className = `hero-slide-item ${index === 0 ? 'active' : ''}`;
+    const isVideo = slide.image && (slide.image.toLowerCase().endsWith('.mp4') || slide.image.toLowerCase().includes('video'));
+    slideDiv.innerHTML = isVideo
+      ? `<video src="${slide.image}" autoplay muted loop playsinline class="hero-slide-media"></video>`
+      : `<img src="${slide.image || 'https://via.placeholder.com/600'}" alt="Hero slide" class="hero-slide-media">`;
+    heroSlider.appendChild(slideDiv);
+  });
+
+  currentHeroIndex = 0;
+  const slides = heroSlider.querySelectorAll('.hero-slide-item');
+  if (slides.length > 1) {
+    heroSlideTimer = setInterval(() => {
+      slides[currentHeroIndex].classList.remove('active');
+      currentHeroIndex = (currentHeroIndex + 1) % slides.length;
+      slides[currentHeroIndex].classList.add('active');
+    }, 3500);
+  }
+}
+
+function renderAdminHeroSlidesTable() {
+  const tbody = document.getElementById('admin-hero-slides-list');
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  if (heroSlidesList.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="3" class="text-secondary">No hero slides yet. Add one above.</td></tr>`;
+    return;
+  }
+
+  heroSlidesList.forEach((slide, index) => {
+    const isVideo = slide.image && (slide.image.toLowerCase().endsWith('.mp4') || slide.image.toLowerCase().includes('video'));
+    const mediaTag = isVideo
+      ? `<video src="${slide.image}" width="70" height="45" muted style="border-radius:6px; object-fit:cover;"></video>`
+      : `<img src="${slide.image}" width="70" height="45" style="border-radius:6px; object-fit:cover;">`;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <button class="btn btn-outline" style="padding:2px 6px;" onclick="moveHeroSlide(${index}, 'up')" ${index===0?'disabled':''}>▲</button>
+        <button class="btn btn-outline" style="padding:2px 6px;" onclick="moveHeroSlide(${index}, 'down')" ${index===heroSlidesList.length-1?'disabled':''}>▼</button>
+      </td>
+      <td>${mediaTag}</td>
+      <td><button class="btn btn-outline" style="padding:4px 8px; color:red;" onclick="deleteHeroSlide(${index})">Delete</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function saveHeroSlides() {
+  await setDoc(doc(db, "settings", "heroSlides"), { slides: heroSlidesList });
+}
+
+window.moveHeroSlide = async (idx, direction) => {
+  const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+  if (targetIdx < 0 || targetIdx >= heroSlidesList.length) return;
+  const temp = heroSlidesList[idx];
+  heroSlidesList[idx] = heroSlidesList[targetIdx];
+  heroSlidesList[targetIdx] = temp;
+  await saveHeroSlides();
+  renderAdminHeroSlidesTable();
+};
+
+window.deleteHeroSlide = async (idx) => {
+  if (!confirm("Remove this hero slide?")) return;
+  heroSlidesList.splice(idx, 1);
+  await saveHeroSlides();
+  renderAdminHeroSlidesTable();
+};
+
+const heroSlideForm = document.getElementById('hero-slide-form');
+if (heroSlideForm) {
+  heroSlideForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const imageInput = document.getElementById('new-hero-slide-image');
+    const image = imageInput.value.trim();
+    if (!image) return;
+    heroSlidesList.push({ image });
+    await saveHeroSlides();
+    imageInput.value = "";
+    renderAdminHeroSlidesTable();
+  });
 }
 
 function applyFrontendSettingsDOM(data) {
@@ -284,7 +417,6 @@ function applyFrontendSettingsDOM(data) {
   }
 
   if (data.siteTitle && document.getElementById('site-title-tag')) document.getElementById('site-title-tag').textContent = data.siteTitle;
-  if (data.siteTitle && document.getElementById('footer-brand-title')) document.getElementById('footer-brand-title').textContent = data.siteTitle;
   if (data.announcement && document.getElementById('announcement-text')) document.getElementById('announcement-text').textContent = data.announcement;
   if (data.navCatalog && document.getElementById('nav-catalog-text')) document.getElementById('nav-catalog-text').textContent = data.navCatalog;
   if (data.navContact && document.getElementById('header-contact-text')) document.getElementById('header-contact-text').textContent = data.navContact;
@@ -302,6 +434,9 @@ function applyFrontendSettingsDOM(data) {
     if (document.getElementById('footer-email-text')) document.getElementById('footer-email-text').textContent = data.email;
     if (document.getElementById('footer-email-link')) document.getElementById('footer-email-link').href = `mailto:${data.email}`;
   }
+  // Footer brand title now has its own dedicated setting instead of
+  // silently reusing the <title> tag / logo text setting.
+  if (data.footerBrandTitle && document.getElementById('footer-brand-title')) document.getElementById('footer-brand-title').textContent = data.footerBrandTitle;
   if (data.footerBrandDesc && document.getElementById('footer-brand-desc')) document.getElementById('footer-brand-desc').textContent = data.footerBrandDesc;
   if (data.footerCareTitle && document.getElementById('footer-care-title')) document.getElementById('footer-care-title').textContent = data.footerCareTitle;
   if (data.footerText && document.getElementById('footer-copyright-text')) document.getElementById('footer-copyright-text').textContent = data.footerText;
@@ -591,6 +726,7 @@ if (settingsForm) {
         catalogSubheading: document.getElementById('setting-catalog-subheading').value,
         whatsapp: document.getElementById('setting-whatsapp').value,
         email: document.getElementById('setting-email').value,
+        footerBrandTitle: document.getElementById('setting-footer-brand-title').value,
         footerBrandDesc: document.getElementById('setting-footer-brand-desc').value,
         footerCareTitle: document.getElementById('setting-footer-care-title').value,
         footerText: document.getElementById('setting-footer-text').value
@@ -656,6 +792,7 @@ async function loadSiteSettings() {
       if (document.getElementById('setting-catalog-subheading')) document.getElementById('setting-catalog-subheading').value = data.catalogSubheading || '';
       if (document.getElementById('setting-whatsapp')) document.getElementById('setting-whatsapp').value = data.whatsapp || '';
       if (document.getElementById('setting-email')) document.getElementById('setting-email').value = data.email || '';
+      if (document.getElementById('setting-footer-brand-title')) document.getElementById('setting-footer-brand-title').value = data.footerBrandTitle || '';
       if (document.getElementById('setting-footer-brand-desc')) document.getElementById('setting-footer-brand-desc').value = data.footerBrandDesc || '';
       if (document.getElementById('setting-footer-care-title')) document.getElementById('setting-footer-care-title').value = data.footerCareTitle || '';
       if (document.getElementById('setting-footer-text')) document.getElementById('setting-footer-text').value = data.footerText || '';
@@ -670,7 +807,7 @@ async function loadAdminOrders() {
     const snapshot = await getDocs(collection(db, "orders"));
     container.innerHTML = "";
     if (snapshot.empty) {
-      container.innerHTML = `<tr><td colspan="6">No orders placed yet.</td></tr>`;
+      container.innerHTML = `<tr><td colspan="7">No orders placed yet.</td></tr>`;
       return;
     }
     snapshot.forEach(docSnap => {
@@ -683,8 +820,17 @@ async function loadAdminOrders() {
         <td>${o.address || 'N/A'}</td>
         <td>${o.paymentMethod || 'N/A'}<br><small>Promo: ${o.promoCode || 'None'}</small></td>
         <td>$${o.total || '0.00'}</td>
+        <td><button class="btn btn-outline" style="padding:4px 8px; color:red;" onclick="deleteOrder('${docSnap.id}')">Delete</button></td>
       `;
       container.appendChild(tr);
     });
   } catch(e) {}
 }
+
+window.deleteOrder = async (id) => {
+  if (!confirm("Delete this order? This cannot be undone.")) return;
+  try {
+    await deleteDoc(doc(db, "orders", id));
+    loadAdminOrders();
+  } catch(e) { alert("Failed to delete order."); }
+};
