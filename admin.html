@@ -1,299 +1,268 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Novucart | Admin Control Panel</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novucart | Admin Control Panel</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="admin-page-bg">
 
-  <!-- LOGIN OVERLAY -->
-  <div class="admin-login-overlay" id="login-section" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:2000;">
-    <div class="admin-card login-box" style="width:90%; max-width:400px; padding:30px;">
-      <div class="login-header" style="text-align:center; margin-bottom:20px;">
-        <h2><i class="fa-solid fa-lock"></i> Admin Login</h2>
-        <p class="text-secondary">Enter credentials to access dashboard.</p>
-      </div>
+  <!-- LOGIN OVERLAY -->
+  <div class="admin-login-overlay" id="login-section" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:2000;">
+    <div class="admin-card login-box" style="width:90%; max-width:400px; padding:30px;">
+      <div class="login-header" style="text-align:center; margin-bottom:20px;">
+        <h2><i class="fa-solid fa-lock"></i> Admin Login</h2>
+        <p class="text-secondary">Enter credentials to access dashboard.</p>
+      </div>
 
-      <form id="admin-login-form">
-        <div class="form-group">
-          <label for="admin-email">Email Address</label>
-          <input type="email" id="admin-email" placeholder="admin@novucart.com" required>
-        </div>
+      <form id="admin-login-form">
+        <div class="form-group">
+          <label for="admin-email">Email Address</label>
+          <input type="email" id="admin-email" placeholder="admin@novucart.com" required>
+        </div>
 
-        <div class="form-group">
-          <label for="admin-password">Password</label>
-          <input type="password" id="admin-password" placeholder="••••••••" required>
-        </div>
+        <div class="form-group">
+          <label for="admin-password">Password</label>
+          <input type="password" id="admin-password" placeholder="••••••••" required>
+        </div>
 
-        <button type="submit" class="btn btn-primary btn-block">Log In</button>
-      </form>
-      <p id="login-error" class="error-msg" style="color: red; margin-top: 10px; text-align: center;"></p>
-    </div>
-  </div>
+        <button type="submit" class="btn btn-primary btn-block">Log In</button>
+      </form>
+      <p id="login-error" class="error-msg" style="color: red; margin-top: 10px; text-align: center;"></p>
+    </div>
+  </div>
 
-  <!-- DASHBOARD MAIN CONTAINER -->
-  <div class="admin-wrapper" id="dashboard-section" style="display: none;">
-    
-    <header class="admin-navbar">
-      <div class="admin-brand">
-        <h2><i class="fa-solid fa-bag-shopping"></i> Novucart Control Panel</h2>
-      </div>
-      <div>
-        <a href="index.html" style="margin-right:15px; text-decoration:none; font-weight:600; color:var(--text-muted);">← View Site</a>
-        <button class="btn btn-outline" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
-      </div>
-    </header>
+  <!-- DASHBOARD MAIN CONTAINER -->
+  <div class="admin-wrapper" id="dashboard-section" style="display: none;">
+    
+    <header class="admin-navbar">
+      <div class="admin-brand">
+        <h2><i class="fa-solid fa-bag-shopping"></i> Novucart Control Panel</h2>
+      </div>
+      <div>
+        <a href="index.html" style="margin-right:15px; text-decoration:none; font-weight:600; color:var(--text-muted);">← View Site</a>
+        <button class="btn btn-outline" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
+      </div>
+    </header>
 
-    <!-- Navigation Tabs -->
-    <div class="admin-nav-tabs">
-      <button class="tab-btn active" onclick="switchAdminTab('products-tab', this)"><i class="fa-solid fa-box"></i> Products</button>
-      <button class="tab-btn" onclick="switchAdminTab('categories-tab', this)"><i class="fa-solid fa-list"></i> Categories</button>
-      <button class="tab-btn" onclick="switchAdminTab('hero-reel-tab', this)"><i class="fa-solid fa-images"></i> Hero Image Reel</button>
-      <button class="tab-btn" onclick="switchAdminTab('settings-tab', this)"><i class="fa-solid fa-sliders"></i> Full Site Customizer</button>
-      <button class="tab-btn" onclick="switchAdminTab('promo-tab', this)"><i class="fa-solid fa-rectangle-ad"></i> Side Ad Banner</button>
-      <button class="tab-btn" onclick="switchAdminTab('orders-tab', this)"><i class="fa-solid fa-receipt"></i> Orders</button>
-    </div>
+    <!-- Navigation Tabs -->
+    <div class="admin-nav-tabs">
+      <button class="tab-btn active" onclick="switchAdminTab('products-tab', this)"><i class="fa-solid fa-box"></i> Products</button>
+      <button class="tab-btn" onclick="switchAdminTab('categories-tab', this)"><i class="fa-solid fa-list"></i> Categories</button>
+      <button class="tab-btn" onclick="switchAdminTab('settings-tab', this)"><i class="fa-solid fa-sliders"></i> Full Site Customizer</button>
+      <button class="tab-btn" onclick="switchAdminTab('promo-tab', this)"><i class="fa-solid fa-rectangle-ad"></i> Side Ad Banner</button>
+      <button class="tab-btn" onclick="switchAdminTab('orders-tab', this)"><i class="fa-solid fa-receipt"></i> Orders</button>
+    </div>
 
-    <!-- TAB 1: Products -->
-    <div class="admin-tab-content active-content" id="products-tab">
-      <div class="admin-card">
-        <div class="card-header-flex">
-          <div>
-            <h3>Product Inventory</h3>
-            <p class="text-secondary">Manage items, descriptions, stock, categories, and media.</p>
-          </div>
-          <button class="btn btn-primary" id="open-product-modal-btn">+ Add Product</button>
-        </div>
-        
-        <div class="table-responsive">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Reorder</th>
-                <th>Media</th>
-                <th>Title & Category</th>
-                <th>Price ($)</th>
-                <th>In Stock</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="admin-product-list"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <!-- TAB 1: Products -->
+    <div class="admin-tab-content active-content" id="products-tab">
+      <div class="admin-card">
+        <div class="card-header-flex">
+          <div>
+            <h3>Product Inventory</h3>
+            <p class="text-secondary">Manage items, descriptions, stock, categories, and media.</p>
+          </div>
+          <button class="btn btn-primary" id="open-product-modal-btn">+ Add Product</button>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Reorder</th>
+                <th>Media</th>
+                <th>Title & Category</th>
+                <th>Price ($)</th>
+                <th>In Stock</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-product-list"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-    <!-- TAB 2: Categories -->
-    <div class="admin-tab-content" id="categories-tab" style="display: none;">
-      <div class="admin-card">
-        <h3>Category Manager</h3>
-        <p class="text-secondary" style="margin-bottom:15px;">Create, rename, reorder, and delete store categories.</p>
-        
-        <form id="category-form" style="display:flex; gap:10px; margin-bottom:20px;">
-          <input type="text" id="new-category-name" placeholder="New Category Name" required style="flex:1;">
-          <button type="submit" class="btn btn-primary">+ Add Category</button>
-        </form>
+    <!-- TAB 2: Categories -->
+    <div class="admin-tab-content" id="categories-tab" style="display: none;">
+      <div class="admin-card">
+        <h3>Category Manager</h3>
+        <p class="text-secondary" style="margin-bottom:15px;">Create and edit store categories.</p>
+        
+        <form id="category-form" style="display:flex; gap:10px; margin-bottom:20px;">
+          <input type="text" id="new-category-name" placeholder="New Category Name" required style="flex:1;">
+          <button type="submit" class="btn btn-primary">+ Add Category</button>
+        </form>
 
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Order / Reorder</th>
-              <th>Category Name</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="admin-categories-list"></tbody>
-        </table>
-      </div>
-    </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Category Name</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-categories-list"></tbody>
+        </table>
+      </div>
+    </div>
 
-    <!-- TAB 3: Hero Image Reel Manager -->
-    <div class="admin-tab-content" id="hero-reel-tab" style="display: none;">
-      <div class="admin-card">
-        <h3>Hero Image / Video Reel Manager</h3>
-        <p class="text-secondary" style="margin-bottom:20px;">Add media items and control their display sequence on the homepage hero background.</p>
-        
-        <form id="hero-reel-form" style="display:flex; gap:10px; margin-bottom:20px;">
-          <input type="text" id="new-reel-url" placeholder="Paste Image or MP4 Video URL" required style="flex:1;">
-          <button type="submit" class="btn btn-primary">+ Add Reel Media</button>
-        </form>
+    <!-- TAB 3: Customizer & Text Links -->
+    <div class="admin-tab-content" id="settings-tab" style="display: none;">
+      <div class="admin-card">
+        <h3>Full Site Text & Logo Customizer</h3>
+        <p class="text-secondary" style="margin-bottom:20px;">Edit every label on your homepage. No hardcoded text.</p>
+        
+        <form id="site-settings-form">
+          <div class="form-group">
+            <label style="color: var(--primary-color);">Custom Card Payment Link</label>
+            <input type="url" id="setting-card-payment-link" placeholder="https://checkout.stripe.com/pay/..." required>
+          </div>
+          
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
+          
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div class="form-group">
+              <label>Site Title Tag</label>
+              <input type="text" id="setting-site-title">
+            </div>
+            <div class="form-group">
+              <label>Display Logo Type</label>
+              <select id="setting-logo-type">
+                <option value="text">Text Logo</option>
+                <option value="image">Image / SVG Logo</option>
+              </select>
+            </div>
+          </div>
 
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Sequence / Order</th>
-              <th>Media Preview / URL</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="admin-hero-reel-list"></tbody>
-        </table>
-      </div>
-    </div>
+          <div class="form-group">
+            <label>Brand Logo Image / SVG URL</label>
+            <input type="text" id="setting-logo-url">
+          </div>
 
-    <!-- TAB 4: Customizer & Text Links -->
-    <div class="admin-tab-content" id="settings-tab" style="display: none;">
-      <div class="admin-card">
-        <h3>Full Site Text & Logo Customizer</h3>
-        <p class="text-secondary" style="margin-bottom:20px;">Edit every label on your homepage. No hardcoded text.</p>
-        
-        <form id="site-settings-form">
-          <div class="form-group">
-            <label style="color: var(--primary-color);">Custom Card Payment Link</label>
-            <input type="url" id="setting-card-payment-link" placeholder="https://checkout.stripe.com/pay/..." required>
-          </div>
-          
-          <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
-          
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-            <div class="form-group">
-              <label>Site Title Tag</label>
-              <input type="text" id="setting-site-title">
-            </div>
-            <div class="form-group">
-              <label>Display Logo Type</label>
-              <select id="setting-logo-type">
-                <option value="text">Text Logo</option>
-                <option value="image">Image / SVG Logo</option>
-              </select>
-            </div>
-          </div>
+          <div class="form-group">
+            <label>Catalog Layout Mode</label>
+            <select id="setting-catalog-mode">
+              <option value="grid">Standard Grid</option>
+              <option value="slider">Interactive Horizontal Slider Mode</option>
+            </select>
+          </div>
 
-          <div class="form-group">
-            <label>Brand Logo Image / SVG URL</label>
-            <input type="text" id="setting-logo-url">
-          </div>
+          <div class="form-group"><label>Top Announcement Text</label><input type="text" id="setting-announcement"></div>
+          <div class="form-group"><label>Header Nav Shop Link Label</label><input type="text" id="setting-nav-catalog"></div>
+          <div class="form-group"><label>Header Contact Link Label</label><input type="text" id="setting-nav-contact"></div>
+          <div class="form-group"><label>Hero Headline</label><input type="text" id="setting-hero-headline"></div>
+          <div class="form-group"><label>Hero Subtext</label><input type="text" id="setting-hero-subtext"></div>
+          <div class="form-group"><label>Hero Button Text</label><input type="text" id="setting-hero-btn-text"></div>
+          <div class="form-group"><label>Catalog Heading</label><input type="text" id="setting-catalog-heading"></div>
+          <div class="form-group"><label>Catalog Subheading</label><input type="text" id="setting-catalog-subheading"></div>
+          <div class="form-group"><label>Store Email (Receives Pay-on-Delivery Orders)</label><input type="email" id="setting-email"></div>
+          <div class="form-group"><label>WhatsApp Contact Link</label><input type="text" id="setting-whatsapp"></div>
+          <div class="form-group"><label>Footer Brand Description</label><input type="text" id="setting-footer-brand-desc"></div>
+          <div class="form-group"><label>Footer Customer Care Heading</label><input type="text" id="setting-footer-care-title"></div>
+          <div class="form-group"><label>Footer Copyright Text</label><input type="text" id="setting-footer-text"></div>
+          
+          <button type="submit" class="btn btn-primary" style="margin-top:10px;">Save All Customizations</button>
+        </form>
+      </div>
+    </div>
 
-          <div class="form-group">
-            <label>Catalog Layout Mode</label>
-            <select id="setting-catalog-mode">
-              <option value="grid">Standard Grid</option>
-              <option value="slider">Interactive Horizontal Slider Mode</option>
-            </select>
-          </div>
+    <!-- TAB 4: Pop-Up Side Ad Banner -->
+    <div class="admin-tab-content" id="promo-tab" style="display: none;">
+      <div class="admin-card">
+        <h3>Side Ad Banner Manager</h3>
+        <form id="promo-ad-form">
+          <div class="form-group" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+            <label style="margin: 0;">Show Side Ad on Website:</label>
+            <input type="checkbox" id="promo-ad-active" style="width: 20px; height: 20px;">
+          </div>
+          <div class="form-group"><label>Ad Title</label><input type="text" id="promo-ad-title"></div>
+          <div class="form-group"><label>Ad Description</label><input type="text" id="promo-ad-desc"></div>
+          <div class="form-group"><label>Ad Image URL</label><input type="text" id="promo-ad-image"></div>
+          <div class="form-group"><label>Button Text</label><input type="text" id="promo-ad-btn-text"></div>
+          <div class="form-group"><label>Button Target URL</label><input type="text" id="promo-ad-btn-link"></div>
+          <button type="submit" class="btn btn-danger">Save Side Ad (Red Action Button)</button>
+        </form>
+      </div>
+    </div>
 
-          <div class="form-group"><label>Top Announcement Text</label><input type="text" id="setting-announcement"></div>
-          <div class="form-group"><label>Header Nav Shop Link Label</label><input type="text" id="setting-nav-catalog"></div>
-          <div class="form-group"><label>Header Contact Link Label</label><input type="text" id="setting-nav-contact"></div>
-          <div class="form-group"><label>Hero Headline</label><input type="text" id="setting-hero-headline"></div>
-          <div class="form-group"><label>Hero Subtext</label><input type="text" id="setting-hero-subtext"></div>
-          <div class="form-group"><label>Hero Button Text</label><input type="text" id="setting-hero-btn-text"></div>
-          <div class="form-group"><label>Catalog Heading</label><input type="text" id="setting-catalog-heading"></div>
-          <div class="form-group"><label>Catalog Subheading</label><input type="text" id="setting-catalog-subheading"></div>
-          <div class="form-group"><label>Store Email (Receives Pay-on-Delivery Orders)</label><input type="email" id="setting-email"></div>
-          <div class="form-group"><label>WhatsApp Contact Link</label><input type="text" id="setting-whatsapp"></div>
-          <div class="form-group"><label>Footer Brand Title</label><input type="text" id="setting-footer-brand-title"></div>
-          <div class="form-group"><label>Footer Brand Description</label><input type="text" id="setting-footer-brand-desc"></div>
-          <div class="form-group"><label>Footer Customer Care Heading</label><input type="text" id="setting-footer-care-title"></div>
-          <div class="form-group"><label>Footer Copyright Text</label><input type="text" id="setting-footer-text"></div>
-          
-          <button type="submit" class="btn btn-primary" style="margin-top:10px;">Save All Customizations</button>
-        </form>
-      </div>
-    </div>
+    <!-- TAB 5: Orders -->
+    <div class="admin-tab-content" id="orders-tab" style="display: none;">
+      <div class="admin-card">
+        <h3>Logged Customer Orders</h3>
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Email / Phone</th>
+                <th>Address</th>
+                <th>Method / Promo</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="admin-orders-list"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-    <!-- TAB 5: Pop-Up Side Ad Banner -->
-    <div class="admin-tab-content" id="promo-tab" style="display: none;">
-      <div class="admin-card">
-        <h3>Side Ad Banner Manager</h3>
-        <form id="promo-ad-form">
-          <div class="form-group" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-            <label style="margin: 0;">Show Side Ad on Website:</label>
-            <input type="checkbox" id="promo-ad-active" style="width: 20px; height: 20px;">
-          </div>
-          <div class="form-group"><label>Ad Title</label><input type="text" id="promo-ad-title"></div>
-          <div class="form-group"><label>Ad Description</label><input type="text" id="promo-ad-desc"></div>
-          <div class="form-group"><label>Ad Image URL</label><input type="text" id="promo-ad-image"></div>
-          <div class="form-group"><label>Button Text</label><input type="text" id="promo-ad-btn-text"></div>
-          <div class="form-group"><label>Button Target URL</label><input type="text" id="promo-ad-btn-link"></div>
-          <button type="submit" class="btn btn-danger">Save Side Ad (Red Action Button)</button>
-        </form>
-      </div>
-    </div>
+  </div>
 
-    <!-- TAB 6: Orders -->
-    <div class="admin-tab-content" id="orders-tab" style="display: none;">
-      <div class="admin-card">
-        <div class="card-header-flex">
-          <h3>Logged Customer Orders</h3>
-          <button class="btn btn-danger" id="clear-all-orders-btn" style="font-size: 0.8rem; padding: 6px 12px;">Clear All Orders</button>
-        </div>
-        <div class="table-responsive">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Name</th>
-                <th>Email / Phone</th>
-                <th>Address</th>
-                <th>Method / Promo</th>
-                <th>Total</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="admin-orders-list"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+  <!-- ADD / EDIT PRODUCT MODAL -->
+  <div class="modal-overlay" id="product-modal" style="display: none;">
+    <div class="admin-card login-box" style="max-width: 500px; width:90%;">
+      <div class="card-header-flex">
+        <h3 id="modal-title">Add New Product</h3>
+        <button class="btn btn-outline" id="close-product-modal-btn" style="padding: 4px 10px;">✕</button>
+      </div>
 
-  </div>
+      <form id="product-form">
+        <input type="hidden" id="modal-product-id">
+        <div class="form-group">
+          <label>Product Title</label>
+          <input type="text" id="modal-product-title" required>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="modal-product-category"></select>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="modal-product-desc">
+        </div>
+        <div class="form-group">
+          <label>Price ($)</label>
+          <input type="number" step="0.01" id="modal-product-price" required>
+        </div>
+        <div class="form-group">
+          <label>Stock Quantity Available</label>
+          <input type="number" id="modal-product-stock" required>
+        </div>
+        <div class="form-group">
+          <label>Media URL (Image or MP4 Video)</label>
+          <input type="text" id="modal-product-image" required>
+        </div>
+        <div class="form-group">
+          <label>Badge Tag</label>
+          <input type="text" id="modal-product-badge" placeholder="In Stock">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Save Product</button>
+      </form>
+    </div>
+  </div>
 
-  <!-- ADD / EDIT PRODUCT MODAL -->
-  <div class="modal-overlay" id="product-modal" style="display: none;">
-    <div class="admin-card login-box" style="max-width: 500px; width:90%;">
-      <div class="card-header-flex">
-        <h3 id="modal-title">Add New Product</h3>
-        <button class="btn btn-outline" id="close-product-modal-btn" style="padding: 4px 10px;">✕</button>
-      </div>
+  <script>
+    function switchAdminTab(tabId, btnElement) {
+      document.querySelectorAll('.admin-tab-content').forEach(c => c.style.display = 'none');
+      document.querySelectorAll('.admin-nav-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).style.display = 'block';
+      btnElement.classList.add('active');
+    }
+  </script>
 
-      <form id="product-form">
-        <input type="hidden" id="modal-product-id">
-        <div class="form-group">
-          <label>Product Title</label>
-          <input type="text" id="modal-product-title" required>
-        </div>
-        <div class="form-group">
-          <label>Category</label>
-          <select id="modal-product-category"></select>
-        </div>
-        <div class="form-group">
-          <label>Description</label>
-          <input type="text" id="modal-product-desc">
-        </div>
-        <div class="form-group">
-          <label>Price ($)</label>
-          <input type="number" step="0.01" id="modal-product-price" required>
-        </div>
-        <div class="form-group">
-          <label>Stock Quantity Available</label>
-          <input type="number" id="modal-product-stock" required>
-        </div>
-        <div class="form-group">
-          <label>Media URL (Image or MP4 Video)</label>
-          <input type="text" id="modal-product-image" required>
-        </div>
-        <div class="form-group">
-          <label>Badge Tag</label>
-          <input type="text" id="modal-product-badge" placeholder="In Stock">
-        </div>
-        <button type="submit" class="btn btn-primary btn-block">Save Product</button>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    function switchAdminTab(tabId, btnElement) {
-      document.querySelectorAll('.admin-tab-content').forEach(c => c.style.display = 'none');
-      document.querySelectorAll('.admin-nav-tabs .tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById(tabId).style.display = 'block';
-      btnElement.classList.add('active');
-    }
-  </script>
-
-  <script type="module" src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
