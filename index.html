@@ -1,178 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="site-title-tag"></title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="site-title-tag"></title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="site-body">
 
-  <!-- 1. Top Announcement Bar -->
-  <div class="announcement-bar" id="announcement-text"></div>
+  <!-- 1. Top Announcement Bar -->
+  <div class="announcement-bar" id="announcement-text"></div>
 
-  <!-- 2. Main Store Header -->
-  <header class="main-header">
-    <div class="header-container">
-      <a href="index.html" class="logo-area" id="store-logo-link">
-        <img id="logo-img" src="" class="brand-logo-img" style="display:none;" alt="Logo">
-        <span id="logo-text" class="brand-name"></span>
-      </a>
+  <!-- 2. Main Store Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <a href="index.html" class="logo-area" id="store-logo-link">
+        <img id="logo-img" src="" class="brand-logo-img" style="display:none;" alt="Logo">
+        <span id="logo-text" class="brand-name"></span>
+      </a>
 
-      <nav class="nav-links">
-        <a href="#catalog" class="nav-item" id="nav-catalog-text"></a>
-        <a href="#" id="header-contact-btn" class="nav-item contact-btn" target="_blank">
-          <i class="fa-brands fa-whatsapp"></i> <span id="header-contact-text"></span>
-        </a>
-        <button class="cart-trigger" id="open-cart-btn">
-          <i class="fa-solid fa-cart-shopping"></i>
-          <span class="cart-count" id="cart-count">0</span>
-        </button>
-      </nav>
-    </div>
-  </header>
+      <nav class="nav-links">
+        <a href="#catalog" class="nav-item" id="nav-catalog-text"></a>
+        <a href="#" id="header-contact-btn" class="nav-item contact-btn" target="_blank">
+          <i class="fa-brands fa-whatsapp"></i> <span id="header-contact-text"></span>
+        </a>
+        <button class="cart-trigger" id="open-cart-btn">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span class="cart-count" id="cart-count">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
 
-  <!-- 3. Hero Section with Auto-Sliding Product Reel Background -->
-  <section class="hero-section">
-    <div class="hero-product-slider-bg" id="hero-product-slider"></div>
-    <div class="hero-content">
-      <h1 id="hero-headline-text"></h1>
-      <p id="hero-subtext"></p>
-      <a href="#catalog" class="btn btn-primary btn-large" id="hero-btn-text"></a>
-    </div>
-  </section>
+  <!-- 3. Hero Section with Auto-Sliding Product Reel Background -->
+  <section class="hero-section">
+    <div class="hero-product-slider-bg" id="hero-product-slider"></div>
+    <div class="hero-content">
+      <h1 id="hero-headline-text"></h1>
+      <p id="hero-subtext"></p>
+      <a href="#catalog" class="btn btn-primary btn-large" id="hero-btn-text"></a>
+    </div>
+  </section>
 
-  <!-- 4. Product Catalog Section -->
-  <main class="store-container" id="catalog">
-    <div class="section-title">
-      <h2 id="catalog-heading-text"></h2>
-      <p class="text-secondary" id="catalog-subheading-text"></p>
-    </div>
+  <!-- 4. Product Catalog Section -->
+  <main class="store-container" id="catalog">
+    <div class="section-title">
+      <h2 id="catalog-heading-text"></h2>
+      <p class="text-secondary" id="catalog-subheading-text"></p>
+    </div>
 
-    <!-- Dynamic Category Filter Tabs -->
-    <div class="category-nav" id="category-filter-bar">
-      <button class="cat-btn active" onclick="filterCategory('All')">All</button>
-    </div>
+    <!-- Dynamic Category Filter Tabs -->
+    <div class="category-nav" id="category-filter-bar">
+      <button class="cat-btn active" onclick="filterCategory('All')">All</button>
+    </div>
 
-    <!-- Product Grid or Slider Container -->
-    <div class="product-grid" id="frontend-product-list">
-      <div class="loading-spinner">Loading products...</div>
-    </div>
-  </main>
+    <!-- Product Grid or Slider Container -->
+    <div class="product-grid" id="frontend-product-list">
+      <div class="loading-spinner">Loading products...</div>
+    </div>
+  </main>
 
-  <!-- 5. Corrected Professional Footer -->
-  <footer class="site-footer">
-    <div class="footer-container">
-      <!-- Column 1: Brand / Info -->
-      <div class="footer-col footer-brand-col">
-        <h3 id="footer-brand-title"></h3>
-        <p id="footer-brand-desc"></p>
-      </div>
+  <!-- 5. Corrected Professional Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <!-- Column 1: Brand / Info -->
+      <div class="footer-col footer-brand-col">
+        <h3 id="footer-brand-title">Novucart</h3>
+        <p id="footer-brand-desc">Your trusted destination for exclusive offers and premium vehicle promotions.</p>
+      </div>
 
-      <!-- Column 2: Customer Support Links -->
-      <div class="footer-col footer-support-col">
-        <h4 id="footer-care-title">Support</h4>
-        <ul class="footer-links">
-          <li>
-            <a href="#" id="footer-whatsapp-link" target="_blank">
-              <i class="fab fa-whatsapp"></i> <span id="footer-whatsapp-text">Contact on WhatsApp</span>
-            </a>
-          </li>
-          <li>
-            <a href="mailto:buycheapcarsonline@gmail.com" id="footer-email-link">
-              <i class="far fa-envelope"></i> <span id="footer-email-text">buycheapcarsonline@gmail.com</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-    
-    <!-- Bottom Copyright Bar -->
-    <div class="footer-bottom">
-      <p id="footer-copyright-text">&copy; 2026 novucart.store inc. All rights reserved.</p>
-    </div>
-  </footer>
+      <!-- Column 2: Customer Support Links -->
+      <div class="footer-col footer-support-col">
+        <h4 id="footer-care-title">Support</h4>
+        <ul class="footer-links">
+          <li>
+            <a href="#" id="footer-whatsapp-link" target="_blank">
+              <i class="fab fa-whatsapp"></i> <span id="footer-whatsapp-text">Contact on WhatsApp</span>
+            </a>
+          </li>
+          <li>
+            <a href="mailto:buycheapcarsonline@gmail.com" id="footer-email-link">
+              <i class="far fa-envelope"></i> <span id="footer-email-text">buycheapcarsonline@gmail.com</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <!-- Bottom Copyright Bar -->
+    <div class="footer-bottom">
+      <p id="footer-copyright-text">&copy; 2026 novucart.store inc. All rights reserved.</p>
+    </div>
+  </footer>
 
-  <!-- Slide-out Cart Drawer -->
-  <div class="cart-drawer-overlay" id="cart-overlay" style="display:none;"></div>
-  <div class="cart-drawer" id="cart-drawer">
-    <div class="cart-header">
-      <h3>Your Shopping Bag</h3>
-      <button class="close-cart-btn" id="close-cart-btn">✕</button>
-    </div>
-    <div class="cart-items-body" id="cart-items-container">
-      <p class="empty-cart-msg">Your bag is empty.</p>
-    </div>
-    <div class="cart-footer">
-      <div class="cart-total-row">
-        <span>Total:</span>
-        <span id="cart-total-price">$0.00</span>
-      </div>
-      <button class="btn btn-primary btn-block" id="checkout-btn">Proceed to Checkout</button>
-    </div>
-  </div>
+  <!-- Slide-out Cart Drawer -->
+  <div class="cart-drawer-overlay" id="cart-overlay" style="display:none;"></div>
+  <div class="cart-drawer" id="cart-drawer">
+    <div class="cart-header">
+      <h3>Your Shopping Bag</h3>
+      <button class="close-cart-btn" id="close-cart-btn">✕</button>
+    </div>
+    <div class="cart-items-body" id="cart-items-container">
+      <p class="empty-cart-msg">Your bag is empty.</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total-row">
+        <span>Total:</span>
+        <span id="cart-total-price">$0.00</span>
+      </div>
+      <button class="btn btn-primary btn-block" id="checkout-btn">Proceed to Checkout</button>
+    </div>
+  </div>
 
-  <!-- CHECKOUT MODAL -->
-  <div class="modal-overlay" id="checkout-modal" style="display: none;">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Checkout Information</h3>
-        <button class="close-btn" id="close-checkout-modal-btn">✕</button>
-      </div>
-      <form id="checkout-form">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="cust-name" placeholder="John Doe" required>
-        </div>
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="cust-email" placeholder="john@example.com" required>
-        </div>
-        <div class="form-group">
-          <label>Phone Number</label>
-          <input type="tel" id="cust-phone" placeholder="+1234567890" required>
-        </div>
-        <div class="form-group">
-          <label>Delivery Address</label>
-          <input type="text" id="cust-address" placeholder="123 Main St, City" required>
-        </div>
-        <div class="form-group">
-          <label>Alternative Contact Means (WhatsApp/Telegram/Social)</label>
-          <input type="text" id="cust-alt-contact" placeholder="Optional contact handles or notes">
-        </div>
+  <!-- CHECKOUT MODAL -->
+  <div class="modal-overlay" id="checkout-modal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Checkout Information</h3>
+        <button class="close-btn" id="close-checkout-modal-btn">✕</button>
+      </div>
+      <form id="checkout-form">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="cust-name" placeholder="John Doe" required>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="cust-email" placeholder="john@example.com" required>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="cust-phone" placeholder="+1234567890" required>
+        </div>
+        <div class="form-group">
+          <label>Delivery Address</label>
+          <input type="text" id="cust-address" placeholder="123 Main St, City" required>
+        </div>
+        <div class="form-group">
+          <label>Alternative Contact Means (WhatsApp/Telegram/Social)</label>
+          <input type="text" id="cust-alt-contact" placeholder="Optional contact handles or notes">
+        </div>
 
-        <div class="form-group">
-          <label>Promo / Discount Code</label>
-          <input type="text" id="cust-promo-code" placeholder="Enter promo code (Optional)">
-        </div>
+        <div class="form-group">
+          <label>Promo / Discount Code</label>
+          <input type="text" id="cust-promo-code" placeholder="Enter promo code (Optional)">
+        </div>
 
-        <div class="form-group" style="margin-top: 18px;">
-          <label><strong>Select Payment Method:</strong></label>
-          <div style="display: flex; gap: 12px; margin-top: 8px;">
-            <label style="font-weight: normal; cursor: pointer;">
-              <input type="radio" name="payment-method" value="card" checked> Pay via Card
-            </label>
-            <label style="font-weight: normal; cursor: pointer;">
-              <input type="radio" name="payment-method" value="pod"> Pay on Delivery
-            </label>
-          </div>
-        </div>
+        <div class="form-group" style="margin-top: 18px;">
+          <label><strong>Select Payment Method:</strong></label>
+          <div style="display: flex; gap: 12px; margin-top: 8px;">
+            <label style="font-weight: normal; cursor: pointer;">
+              <input type="radio" name="payment-method" value="card" checked> Pay via Card
+            </label>
+            <label style="font-weight: normal; cursor: pointer;">
+              <input type="radio" name="payment-method" value="pod"> Pay on Delivery
+            </label>
+          </div>
+        </div>
 
-        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 15px;">Complete & Proceed</button>
-      </form>
-    </div>
-  </div>
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 15px;">Complete & Proceed</button>
+      </form>
+    </div>
+  </div>
 
-  <!-- Side Ad Box -->
-  <div class="promo-ad-sidebox" id="frontend-promo-ad" style="display: none;">
-    <button class="promo-ad-close" id="close-promo-ad">✕</button>
-    <img id="promo-ad-img" src="" style="display:none; width:100%; border-radius:8px; margin-bottom:10px; max-height:120px; object-fit:cover;">
-    <h4 id="promo-ad-heading"></h4>
-    <p id="promo-ad-body"></p>
-    <a href="#" id="promo-ad-link-btn" class="btn btn-ad-action btn-block">Claim Offer</a>
-  </div>
+  <!-- Side Ad Box -->
+  <div class="promo-ad-sidebox" id="frontend-promo-ad" style="display: none;">
+    <button class="promo-ad-close" id="close-promo-ad">✕</button>
+    <img id="promo-ad-img" src="" style="display:none; width:100%; border-radius:8px; margin-bottom:10px; max-height:120px; object-fit:cover;">
+    <h4 id="promo-ad-heading"></h4>
+    <p id="promo-ad-body"></p>
+    <a href="#" id="promo-ad-link-btn" class="btn btn-ad-action btn-block">Claim Offer</a>
+  </div>
 
-  <script type="module" src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
