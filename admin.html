@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charse="UTF-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Novucart Admin</title>
+
+  <!-- FIREBASE SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: #F8FAFC; color: #0F172A; padding: 20px; }
@@ -30,7 +35,7 @@
     .btn-save { background: #FF6B1F; color: white; border: none; padding: 12px 24px; font-size: 0.95rem; font-weight: 700; border-radius: 8px; cursor: pointer; }
     .btn-save:hover { background: #E55A10; }
 
-    /* TABLES & LISTS */
+    /* TABLES */
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { border: 1px solid #E2E8F0; padding: 10px; text-align: left; font-size: 0.88rem; }
     th { background: #F8FAFC; }
@@ -78,10 +83,10 @@
         <label>Description</label>
         <textarea id="prodDesc" rows="2" placeholder="Item details..."></textarea>
       </div>
-      <button type="button" class="btn-save" onclick="saveProduct()">Save Product</button>
+      <button type="button" class="btn-save" onclick="saveProduct()">Save Product to Firebase</button>
     </form>
 
-    <h4>Current Catalog</h4>
+    <h4>Current Catalog (Firebase)</h4>
     <table>
       <thead>
         <tr>
@@ -91,7 +96,9 @@
           <th>Action</th>
         </tr>
       </thead>
-      <tbody id="adminProductTable"></tbody>
+      <tbody id="adminProductTable">
+        <tr><td colspan="4" style="text-align:center;">Loading products from Firebase...</td></tr>
+      </tbody>
     </table>
   </div>
 
@@ -160,6 +167,12 @@
 </div>
 
 <script>
+  // --- PASTE YOUR FIREBASE CONFIG HERE IF APPLICABLE ---
+  // If you have a firebaseConfig object, initialize it here:
+  // const firebaseConfig = { ... };
+  // firebase.initializeApp(firebaseConfig);
+  // const db = firebase.firestore();
+
   // TAB SWITCHING LOGIC
   function switchTab(tabId, btn) {
     document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
@@ -169,7 +182,6 @@
     btn.classList.add('active');
   }
 
-  // INITIAL LOAD
   document.addEventListener('DOMContentLoaded', () => {
     loadSettings();
     renderAdminProducts();
@@ -201,6 +213,36 @@
 
   // PRODUCTS MANAGEMENT
   function renderAdminProducts() {
+    // Checks Firebase if connected, otherwise falls back gracefully
+    if (typeof db !== 'undefined') {
+      db.collection('products').get().then((snapshot) => {
+        const tbody = document.getElementById('adminProductTable');
+        if (snapshot.empty) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No products found in Firebase.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = '';
+        snapshot.forEach((doc) => {
+          const p = doc.data();
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>${p.title}</strong></td>
+              <td>$${parseFloat(p.price).toFixed(2)}</td>
+              <td>${p.stock}</td>
+              <td><button onclick="deleteProduct('${doc.id}')" style="color:red; background:none; border:none; cursor:pointer;">Delete</button></td>
+            </tr>
+          `;
+        });
+      }).catch(err => {
+        console.error("Firebase read error:", err);
+        fallbackLocalProducts();
+      });
+    } else {
+      fallbackLocalProducts();
+    }
+  }
+
+  function fallbackLocalProducts() {
     const products = JSON.parse(localStorage.getItem('novucart_products')) || [];
     const tbody = document.getElementById('adminProductTable');
     if(!tbody) return;
@@ -232,30 +274,44 @@
       return;
     }
 
-    const products = JSON.parse(localStorage.getItem('novucart_products')) || [];
-    const newProd = {
-      id: 'prod_' + Date.now(),
+    const productData = {
       title,
       price: parseFloat(price),
       stock: parseInt(stock) || 0,
       image: image || 'https://via.placeholder.com/150',
-      description
+      description,
+      createdAt: new Date().toISOString()
     };
 
-    products.push(newProd);
-    localStorage.setItem('novucart_products', JSON.stringify(products));
-    renderAdminProducts();
-    
-    // Clear Form
-    document.getElementById('productForm').reset();
-    alert('Product added successfully!');
+    if (typeof db !== 'undefined') {
+      db.collection('products').add(productData).then(() => {
+        renderAdminProducts();
+        document.getElementById('productForm').reset();
+        alert('Product added to Firebase!');
+      }).catch(err => {
+        alert('Firebase save failed: ' + err.message);
+      });
+    } else {
+      const products = JSON.parse(localStorage.getItem('novucart_products')) || [];
+      products.push({ id: 'prod_' + Date.now(), ...productData });
+      localStorage.setItem('novucart_products', JSON.stringify(products));
+      renderAdminProducts();
+      document.getElementById('productForm').reset();
+      alert('Product saved locally!');
+    }
   }
 
   function deleteProduct(id) {
-    let products = JSON.parse(localStorage.getItem('novucart_products')) || [];
-    products = products.filter(p => p.id !== id);
-    localStorage.setItem('novucart_products', JSON.stringify(products));
-    renderAdminProducts();
+    if (typeof db !== 'undefined') {
+      db.collection('products').doc(id).delete().then(() => {
+        renderAdminProducts();
+      });
+    } else {
+      let products = JSON.parse(localStorage.getItem('novucart_products')) || [];
+      products = products.filter(p => p.id !== id);
+      localStorage.setItem('novucart_products', JSON.stringify(products));
+      renderAdminProducts();
+    }
   }
 
   function saveBannerSettings() {
