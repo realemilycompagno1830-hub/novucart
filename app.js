@@ -16,11 +16,13 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentProductsList = [];
-let categoriesList = ["Men's Clothing", "Electronics", "Women's Wear"];
+let categoriesList = ["Men's Clothing", "Electronics", "Women's Wear", "Laptops"];
 let activeCategoryFilter = "All";
 let cart = [];
 let cardPaymentLink = "";
 let storeEmail = "";
+let heroSlideTimer = null;
+let currentHeroIndex = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('frontend-product-list')) {
@@ -181,7 +183,7 @@ if (productForm) {
   });
 }
 
-// FRONTEND FUNCTIONS & HERO SLIDER INTEGRATION
+// FRONTEND FUNCTIONS & AUTO-SLIDING HERO REEL
 async function loadFrontendProducts() {
   const container = document.getElementById('frontend-product-list');
   const heroSlider = document.getElementById('hero-product-slider');
@@ -193,19 +195,31 @@ async function loadFrontendProducts() {
     snapshot.forEach(d => products.push({ id: d.id, ...d.data() }));
     products.sort((a,b) => (a.order || 0) - (b.order || 0));
 
-    // Populate Hero Showcase Menu Slider
+    // Populate Hero Showcase Auto-Sliding Reel
     if (heroSlider) {
       heroSlider.innerHTML = "";
       if (products.length > 0) {
-        products.forEach(p => {
+        products.forEach((p, index) => {
           const slideDiv = document.createElement('div');
-          slideDiv.className = "hero-slide-item";
+          slideDiv.className = `hero-slide-item ${index === 0 ? 'active' : ''}`;
           const isVideo = p.image && (p.image.toLowerCase().endsWith('.mp4') || p.image.toLowerCase().includes('video'));
           slideDiv.innerHTML = isVideo
             ? `<video src="${p.image}" autoplay muted loop playsinline class="hero-slide-media"></video>`
             : `<img src="${p.image || 'https://via.placeholder.com/600'}" alt="${p.title}" class="hero-slide-media">`;
           heroSlider.appendChild(slideDiv);
         });
+
+        // Initialize Automatic Sliding Interval (every 3.5 seconds)
+        if (heroSlideTimer) clearInterval(heroSlideTimer);
+        currentHeroIndex = 0;
+        const slides = heroSlider.querySelectorAll('.hero-slide-item');
+        if (slides.length > 1) {
+          heroSlideTimer = setInterval(() => {
+            slides[currentHeroIndex].classList.remove('active');
+            currentHeroIndex = (currentHeroIndex + 1) % slides.length;
+            slides[currentHeroIndex].classList.add('active');
+          }, 3500);
+        }
       }
     }
 
@@ -227,7 +241,7 @@ async function loadFrontendProducts() {
         const isVideo = p.image && (p.image.toLowerCase().endsWith('.mp4') || p.image.toLowerCase().includes('video'));
 
         const mediaHtml = isVideo 
-          ? `<video src="${p.image}" class="product-media" controls autoplay muted loop playsinline></video>`
+          ? `<video src="${p.image}" class="product-media" autoplay muted loop playsinline></video>`
           : `<img src="${p.image || 'https://via.placeholder.com/250'}" class="product-media" alt="${p.title}">`;
 
         card.innerHTML = `
