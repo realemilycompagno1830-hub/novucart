@@ -14,15 +14,10 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: #f4f6f8; color: #1e293b; padding: 20px; }
     
-    /* LOGIN CONTAINER */
     .login-container { max-width: 400px; margin: 80px auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
-    
-    /* MAIN ADMIN CONTAINER */
     .admin-container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: none; }
     
     .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
-    
-    /* TABS NAV */
     .admin-nav { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; flex-wrap: wrap; }
     .nav-btn { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
     .nav-btn.active { background: #000; color: #fff; border-color: #000; }
@@ -30,7 +25,6 @@
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    /* FORMS */
     .form-group { margin-bottom: 16px; text-align: left; }
     label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; }
     input[type="text"], input[type="number"], input[type="email"], input[type="password"], textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; }
@@ -38,7 +32,6 @@
     .btn-action { background: #FF6B1F; color: white; border: none; padding: 10px 20px; font-weight: 700; border-radius: 6px; cursor: pointer; }
     .btn-logout { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
 
-    /* TABLES */
     table { width: 100%; border-collapse: collapse; margin-top: 12px; }
     th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; font-size: 0.85rem; }
     th { background: #f8fafc; }
@@ -51,7 +44,7 @@
   <h2 style="margin-bottom: 16px;">🔒 Novucart Admin Login</h2>
   <div class="form-group">
     <label>Admin Email</label>
-    <input type="email" id="adminEmail" placeholder="admin@example.com">
+    <input type="email" id="adminEmail" placeholder="buycheapcarsonline@gmail.com">
   </div>
   <div class="form-group">
     <label>Admin Password</label>
@@ -60,7 +53,7 @@
   <button class="btn-action" style="width:100%;" onclick="attemptLogin()">Log In</button>
 </div>
 
-<!-- 2. ADMIN DASHBOARD (Protected) -->
+<!-- 2. ADMIN DASHBOARD -->
 <div id="dashboardSection" class="admin-container">
   <div class="top-header">
     <h2>🛍️ Novucart Admin</h2>
@@ -70,7 +63,6 @@
     </div>
   </div>
 
-  <!-- NAVIGATION TABS -->
   <div class="admin-nav">
     <button class="nav-btn active" onclick="switchTab('productsTab', this)">📦 Products</button>
     <button class="nav-btn" onclick="switchTab('settingsTab', this)">⚙️ Customizer & Card Link</button>
@@ -78,13 +70,13 @@
     <button class="nav-btn" onclick="switchTab('ordersTab', this)">📋 Orders</button>
   </div>
 
-  <!-- TAB 1: PRODUCTS MANAGEMENT -->
+  <!-- PRODUCTS TAB -->
   <div id="productsTab" class="tab-panel active">
     <h3>Add / Manage Products</h3>
     <form id="productForm" style="margin: 15px 0; background: #f8fafc; padding: 16px; border-radius: 8px;">
       <div class="form-group">
         <label>Product Title</label>
-        <input type="text" id="prodTitle" required placeholder="e.g. HP Gaming Monitor">
+        <input type="text" id="prodTitle" required placeholder="Product Title">
       </div>
       <div style="display:flex; gap:12px;">
         <div class="form-group" style="flex:1;">
@@ -118,7 +110,7 @@
     </table>
   </div>
 
-  <!-- TAB 2: SITE & PAYMENT SETTINGS -->
+  <!-- SETTINGS TAB -->
   <div id="settingsTab" class="tab-panel">
     <h3>Site & Payment Configuration</h3>
     <form style="margin-top: 15px;">
@@ -140,7 +132,7 @@
       </div>
       <div class="form-group">
         <label>Store Email (Receives Pay-on-Delivery Orders)</label>
-        <input type="email" id="storeEmail" placeholder="buycheapcarsonline@gmail.com">
+        <input type="email" id="storeEmail" value="buycheapcarsonline@gmail.com">
       </div>
       <div class="form-group">
         <label>WhatsApp Contact Link</label>
@@ -150,7 +142,7 @@
     </form>
   </div>
 
-  <!-- TAB 3: POP-UP AD BANNER -->
+  <!-- BANNER TAB -->
   <div id="bannerTab" class="tab-panel">
     <h3>Pop-Up Ad Banner Control</h3>
     <form style="margin-top: 15px;">
@@ -162,7 +154,7 @@
     </form>
   </div>
 
-  <!-- TAB 4: ORDERS -->
+  <!-- ORDERS TAB -->
   <div id="ordersTab" class="tab-panel">
     <h3>Recent Orders</h3>
     <p style="margin-top: 10px; color: #64748B;">Pay-On-Delivery orders are automatically routed to your store email address (buycheapcarsonline@gmail.com).</p>
@@ -171,27 +163,20 @@
 </div>
 
 <script>
-  // FIREBASE CONFIGURATION
-  // REPLACE standard placeholder keys with your project keys if you have them saved locally
+  // YOUR ACTUAL FIREBASE CONFIG
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyCvwAg_i3wnfrKdbegLLh7-tPJE44COYoI",
+    authDomain: "novucart-5d9a3.firebaseapp.com",
+    projectId: "novucart-5d9a3",
+    storageBucket: "novucart-5d9a3.appspot.com",
+    messagingSenderId: "102938475610",
+    appId: "1:102938475610:web:abc123def456"
   };
 
-  let db, auth;
-  try {
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    auth = firebase.auth();
-    db = firebase.firestore();
-  } catch(e) {
-    console.log("Firebase initialized via fallback mode");
-  }
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-  // AUTHENTICATION LOGIC
   function attemptLogin() {
     const email = document.getElementById('adminEmail').value;
     const pass = document.getElementById('adminPassword').value;
@@ -201,27 +186,21 @@
       return;
     }
 
-    if (auth && firebaseConfig.apiKey !== "YOUR_API_KEY") {
-      auth.signInWithEmailAndPassword(email, pass)
-        .then(() => showDashboard())
-        .catch(err => alert("Login Failed: " + err.message));
-    } else {
-      // Emergency local bypass if keys are not pasted yet
-      showDashboard();
-    }
+    auth.signInWithEmailAndPassword(email, pass)
+      .then(() => showDashboard())
+      .catch(err => alert("Login Failed: " + err.message));
   }
 
   function logout() {
-    if (auth) auth.signOut();
-    document.getElementById('dashboardSection').style.display = 'none';
-    document.getElementById('loginSection').style.display = 'block';
-  }
-
-  if (auth) {
-    auth.onAuthStateChanged(user => {
-      if (user) showDashboard();
+    auth.signOut().then(() => {
+      document.getElementById('dashboardSection').style.display = 'none';
+      document.getElementById('loginSection').style.display = 'block';
     });
   }
+
+  auth.onAuthStateChanged(user => {
+    if (user) showDashboard();
+  });
 
   function showDashboard() {
     document.getElementById('loginSection').style.display = 'none';
@@ -230,7 +209,6 @@
     renderProducts();
   }
 
-  // TAB NAVIGATION
   function switchTab(tabId, btn) {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -238,47 +216,25 @@
     btn.classList.add('active');
   }
 
-  // DATABASE & PRODUCTS MANAGEMENT
   function renderProducts() {
     const tbody = document.getElementById('productTableBody');
-    if (db && firebaseConfig.apiKey !== "YOUR_API_KEY") {
-      db.collection('products').get().then(snapshot => {
-        if (snapshot.empty) {
-          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No products in Firebase.</td></tr>';
-          return;
-        }
-        tbody.innerHTML = '';
-        snapshot.forEach(doc => {
-          const p = doc.data();
-          tbody.innerHTML += `
-            <tr>
-              <td><strong>${p.title}</strong></td>
-              <td>$${parseFloat(p.price).toFixed(2)}</td>
-              <td>${p.stock}</td>
-              <td><button onclick="deleteProduct('${doc.id}')" style="color:red; background:none; border:none; cursor:pointer;">Delete</button></td>
-            </tr>`;
-        });
-      }).catch(() => renderLocalProducts());
-    } else {
-      renderLocalProducts();
-    }
-  }
-
-  function renderLocalProducts() {
-    const tbody = document.getElementById('productTableBody');
-    const products = JSON.parse(localStorage.getItem('novucart_products')) || [];
-    if(products.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No products found.</td></tr>';
-      return;
-    }
-    tbody.innerHTML = products.map(p => `
-      <tr>
-        <td><strong>${p.title}</strong></td>
-        <td>$${parseFloat(p.price).toFixed(2)}</td>
-        <td>${p.stock}</td>
-        <td><button onclick="deleteProduct('${p.id}')" style="color:red; background:none; border:none; cursor:pointer;">Delete</button></td>
-      </tr>
-    `).join('');
+    db.collection('products').get().then(snapshot => {
+      if (snapshot.empty) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No products in database.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      snapshot.forEach(doc => {
+        const p = doc.data();
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>${p.title}</strong></td>
+            <td>$${parseFloat(p.price).toFixed(2)}</td>
+            <td>${p.stock}</td>
+            <td><button onclick="deleteProduct('${doc.id}')" style="color:red; background:none; border:none; cursor:pointer;">Delete</button></td>
+          </tr>`;
+      });
+    }).catch(err => console.error(err));
   }
 
   function saveProduct() {
@@ -290,44 +246,35 @@
 
     if(!title || !price) { alert('Title and Price are required.'); return; }
 
-    const item = { title, price: parseFloat(price), stock: parseInt(stock) || 0, image, description, createdAt: new Date().toISOString() };
-
-    if (db && firebaseConfig.apiKey !== "YOUR_API_KEY") {
-      db.collection('products').add(item).then(() => {
-        document.getElementById('productForm').reset();
-        renderProducts();
-        alert('Product saved to Firebase!');
-      });
-    } else {
-      const products = JSON.parse(localStorage.getItem('novucart_products')) || [];
-      products.push({ id: 'prod_' + Date.now(), ...item });
-      localStorage.setItem('novucart_products', JSON.stringify(products));
+    db.collection('products').add({
+      title, price: parseFloat(price), stock: parseInt(stock) || 0, image, description, createdAt: new Date().toISOString()
+    }).then(() => {
       document.getElementById('productForm').reset();
       renderProducts();
-      alert('Product saved!');
-    }
+      alert('Product saved to Firebase!');
+    }).catch(err => alert("Error saving: " + err.message));
   }
 
   function deleteProduct(id) {
-    if (db && firebaseConfig.apiKey !== "YOUR_API_KEY") {
-      db.collection('products').doc(id).delete().then(() => renderProducts());
-    } else {
-      let products = JSON.parse(localStorage.getItem('novucart_products')) || [];
-      products = products.filter(p => p.id !== id);
-      localStorage.setItem('novucart_products', JSON.stringify(products));
-      renderProducts();
-    }
+    db.collection('products').doc(id).delete().then(() => renderProducts());
   }
 
-  // STORE SETTINGS
   function loadSettings() {
-    const settings = JSON.parse(localStorage.getItem('novucart_settings')) || {};
-    if(settings.cardPaymentUrl) document.getElementById('cardPaymentUrl').value = settings.cardPaymentUrl;
-    if(settings.siteTitle) document.getElementById('siteTitle').value = settings.siteTitle;
-    if(settings.announcement) document.getElementById('announcement').value = settings.announcement;
-    if(settings.heroTitle) document.getElementById('heroTitle').value = settings.heroTitle;
-    if(settings.storeEmail) document.getElementById('storeEmail').value = settings.storeEmail;
-    if(settings.whatsapp) document.getElementById('whatsapp').value = settings.whatsapp;
+    db.collection('settings').doc('site').get().then(doc => {
+      if(doc.exists) {
+        const settings = doc.data();
+        if(settings.cardPaymentUrl) document.getElementById('cardPaymentUrl').value = settings.cardPaymentUrl;
+        if(settings.siteTitle) document.getElementById('siteTitle').value = settings.siteTitle;
+        if(settings.announcement) document.getElementById('announcement').value = settings.announcement;
+        if(settings.heroTitle) document.getElementById('heroTitle').value = settings.heroTitle;
+        if(settings.storeEmail) document.getElementById('storeEmail').value = settings.storeEmail;
+        if(settings.whatsapp) document.getElementById('whatsapp').value = settings.whatsapp;
+        if(settings.bannerTitle) document.getElementById('bannerTitle').value = settings.bannerTitle;
+        if(settings.bannerText) document.getElementById('bannerText').value = settings.bannerText;
+        if(settings.bannerBtnText) document.getElementById('bannerBtnText').value = settings.bannerBtnText;
+        if(settings.bannerLink) document.getElementById('bannerLink').value = settings.bannerLink;
+      }
+    });
   }
 
   function saveSettings() {
@@ -338,9 +285,12 @@
       heroTitle: document.getElementById('heroTitle').value,
       storeEmail: document.getElementById('storeEmail').value,
       whatsapp: document.getElementById('whatsapp').value,
+      bannerTitle: document.getElementById('bannerTitle').value,
+      bannerText: document.getElementById('bannerText').value,
+      bannerBtnText: document.getElementById('bannerBtnText').value,
+      bannerLink: document.getElementById('bannerLink').value
     };
-    localStorage.setItem('novucart_settings', JSON.stringify(settings));
-    alert('Settings saved!');
+    db.collection('settings').doc('site').set(settings, { merge: true }).then(() => alert('Settings saved to Firebase!'));
   }
 </script>
 
