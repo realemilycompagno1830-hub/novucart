@@ -18,11 +18,12 @@
   <header class="main-header">
     <div class="header-container">
       <a href="index.html" class="logo-area" id="store-logo-link">
+        <img id="logo-img" src="" class="brand-logo-img" style="display:none;" alt="Logo">
         <span id="logo-text" class="brand-name">Novucart</span>
       </a>
 
       <nav class="nav-links">
-        <a href="#catalog" class="nav-item">Shop Catalog</a>
+        <a href="#catalog" class="nav-item" id="nav-catalog-text">Shop Catalog</a>
         <a href="#" id="header-contact-btn" class="nav-item contact-btn" target="_blank">
           <i class="fa-brands fa-whatsapp"></i> <span id="header-contact-text">Contact Us</span>
         </a>
@@ -39,17 +40,23 @@
     <div class="hero-content">
       <h1 id="hero-headline-text">Discover Extraordinary Products</h1>
       <p id="hero-subtext">Shop curated selections at unbeatable prices on Novucart.</p>
-      <a href="#catalog" class="btn btn-primary btn-large">Explore Catalog</a>
+      <a href="#catalog" class="btn btn-primary btn-large" id="hero-btn-text">Explore Catalog</a>
     </div>
   </section>
 
   <!-- Video & Product Catalog -->
   <main class="store-container" id="catalog">
     <div class="section-title">
-      <h2>Featured Catalog</h2>
-      <p class="text-secondary">Explore item videos, descriptions, and current availability</p>
+      <h2 id="catalog-heading-text">Featured Catalog</h2>
+      <p class="text-secondary" id="catalog-subheading-text">Explore item videos, descriptions, and current availability</p>
     </div>
 
+    <!-- Dynamic Category Filter Tabs -->
+    <div class="category-nav" id="category-filter-bar">
+      <button class="cat-btn active" onclick="filterCategory('All')">All</button>
+    </div>
+
+    <!-- Product Grid or Slider Container -->
     <div class="product-grid" id="frontend-product-list">
       <div class="loading-spinner">Loading products...</div>
     </div>
@@ -60,10 +67,10 @@
     <div class="footer-container">
       <div class="footer-col">
         <h3 id="footer-brand-title">Novucart</h3>
-        <p>Guaranteed premium quality & direct delivery.</p>
+        <p id="footer-brand-desc">Guaranteed premium quality & direct delivery.</p>
       </div>
       <div class="footer-col">
-        <h4>Customer Care</h4>
+        <h4 id="footer-care-title">Customer Care</h4>
         <p><a href="#" id="footer-whatsapp-link" target="_blank"><i class="fa-brands fa-whatsapp"></i> <span id="footer-whatsapp-text">Contact on WhatsApp</span></a></p>
         <p><i class="fa-solid fa-envelope"></i> <span id="footer-email-text">support@novucart.com</span></p>
       </div>
@@ -92,7 +99,7 @@
     </div>
   </div>
 
-  <!-- CHECKOUT MODAL (CARD & PAY ON DELIVERY OPTIONS) -->
+  <!-- CHECKOUT MODAL (WITH PROMO CODE FIELD) -->
   <div class="modal-overlay" id="checkout-modal" style="display: none;">
     <div class="modal-card">
       <div class="modal-header">
@@ -119,6 +126,12 @@
         <div class="form-group">
           <label>Alternative Contact Means (WhatsApp/Telegram/Social)</label>
           <input type="text" id="cust-alt-contact" placeholder="Optional contact handles or notes">
+        </div>
+
+        <!-- Promo Code Box -->
+        <div class="form-group">
+          <label>Promo / Discount Code</label>
+          <input type="text" id="cust-promo-code" placeholder="Enter promo code (Optional)">
         </div>
 
         <div class="form-group" style="margin-top: 18px;">
