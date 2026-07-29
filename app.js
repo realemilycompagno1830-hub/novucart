@@ -1,690 +1,826 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, deleteDoc, setDoc, updateDoc, getDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCvwAg_i3wnfrKdbegLLh7-tPJE44COYoI",
-  authDomain: "novucart-5d9a3.firebaseapp.com",
-  projectId: "novucart-5d9a3",
-  storageBucket: "novucart-5d9a3.appspot.com",
-  messagingSenderId: "102938475610",
-  appId: "1:102938475610:web:abc123def456"
+// Default Initial State Data
+const DEFAULT_SETTINGS = {
+  cardPaymentLink: "https://checkout.stripe.com/pay/sample",
+  siteTitle: "Novucart | Exclusive Vehicle Promotions",
+  logoType: "text",
+  logoUrl: "",
+  catalogMode: "grid",
+  announcement: "🔥 Exclusive US Market Vehicle Promotions & Giveaways — Limited Time Only!",
+  navCatalog: "View Catalog",
+  navContact: "WhatsApp Support",
+  heroHeadline: "WELCOME TO NOVUCART",
+  heroSubtext: "Your trusted destination for exclusive offers and premium vehicle promotions.",
+  heroBtnText: "Explore Catalog",
+  catalogHeading: "Featured Vehicles & Inventory",
+  catalogSubheading: "Browse our handpicked inventory available for immediate purchase or booking.",
+  email: "buycheapcarsonline@gmail.com",
+  whatsapp: "https://wa.me/1234567890",
+  footerBrandTitle: "Novucart",
+  footerBrandDesc: "Your trusted destination for exclusive offers and premium vehicle promotions.",
+  footerCareTitle: "Support",
+  footerText: "© 2026 novucart.store inc. All rights reserved."
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const DEFAULT_CATEGORIES = ["Sedans", "SUVs", "Luxury", "Electric"];
 
-let currentProductsList = [];
-let categoriesList = ["Men's Clothing", "Electronics", "Women's Wear", "Laptops"];
-let activeCategoryFilter = "All";
-let cart = [];
-let cardPaymentLink = "";
-let storeEmail = "";
-let heroSlideTimer = null;
-let currentHeroIndex = 0;
+const DEFAULT_HERO_REEL = [
+  "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1200&q=80"
+];
 
-document.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('frontend-product-list')) {
-    loadCategories();
-    loadFrontendProducts();
-    loadFrontendSettings();
-    loadFrontendPromoAd();
-    setupCartAndCheckout();
+const DEFAULT_PRODUCTS = [
+  {
+    id: "prod-1",
+    title: "Tesla Model Y Performance",
+    category: "Electric",
+    desc: "Brand new electric crossover with instant dual-motor acceleration and autopilot.",
+    price: 48999,
+    stock: 5,
+    image: "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=600&q=80",
+    badge: "In Stock"
+  },
+  {
+    id: "prod-2",
+    title: "Toyota Camry SE",
+    category: "Sedans",
+    desc: "Reliable, fuel-efficient midsize sedan with modern safety tech and sleek styling.",
+    price: 26500,
+    stock: 8,
+    image: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=600&q=80",
+    badge: "Best Seller"
+  },
+  {
+    id: "prod-3",
+    title: "Ford Explorer Limited",
+    category: "SUVs",
+    desc: "Spacious 3-row family SUV equipped with premium leather seating and advanced towing.",
+    price: 39999,
+    stock: 3,
+    image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80",
+    badge: "Hot Deal"
+  }
+];
+
+const DEFAULT_PROMO_AD = {
+  active: true,
+  title: "Special Vehicle Giveaway!",
+  desc: "Register your details today to qualify for our nationwide Tesla & SUV promotional event.",
+  image: "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=400&q=80",
+  btnText: "Claim Entry Now",
+  btnLink: "#catalog"
+};
+
+// LocalStorage Helper Management
+function getStorage(key, fallback) {
+  const data = localStorage.getItem("novucart_" + key);
+  return data ? JSON.parse(data) : fallback;
+}
+
+function setStorage(key, value) {
+  localStorage.setItem("novucart_" + key, JSON.stringify(value));
+}
+
+// Initializers
+let siteSettings = getStorage("settings", DEFAULT_SETTINGS);
+let categories = getStorage("categories", DEFAULT_CATEGORIES);
+let heroReel = getStorage("heroReel", DEFAULT_HERO_REEL);
+let products = getStorage("products", DEFAULT_PRODUCTS);
+let promoAd = getStorage("promoAd", DEFAULT_PROMO_AD);
+let orders = getStorage("orders", []);
+let cart = getStorage("cart", []);
+let currentCategoryFilter = "All";
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.body.classList.contains("admin-page-bg")) {
+    initAdminPanel();
+  } else {
+    initStorefront();
   }
 });
 
-// AUTHENTICATION
-const loginForm = document.getElementById('admin-login-form');
-const logoutBtn = document.getElementById('logout-btn');
-
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    if (document.getElementById('login-section')) document.getElementById('login-section').style.display = 'none';
-    if (document.getElementById('dashboard-section')) document.getElementById('dashboard-section').style.display = 'block';
-    loadCategories();
-    loadAdminProducts();
-    loadAdminOrders();
-    loadSiteSettings();
-    loadPromoAdSettings();
-  } else {
-    if (document.getElementById('login-section')) document.getElementById('login-section').style.display = 'flex';
-    if (document.getElementById('dashboard-section')) document.getElementById('dashboard-section').style.display = 'none';
-  }
-});
-
-if (loginForm) {
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    try {
-      await signInWithEmailAndPassword(auth, document.getElementById('admin-email').value, document.getElementById('admin-password').value);
-    } catch (err) {
-      if (document.getElementById('login-error')) document.getElementById('login-error').textContent = "Invalid credentials.";
-    }
-  });
+/* ==========================================================
+   FRONTEND LOGIC
+   ========================================================== */
+function initStorefront() {
+  renderSiteContent();
+  renderCategoryFilterBar();
+  renderFrontendProducts();
+  renderHeroSlider();
+  renderPromoAdBox();
+  setupCartAndCheckout();
 }
 
-if (logoutBtn) logoutBtn.addEventListener('click', () => signOut(auth));
-
-// CATEGORY MANAGEMENT
-async function loadCategories() {
-  try {
-    const docSnap = await getDoc(doc(db, "settings", "categories"));
-    if (docSnap.exists() && docSnap.data().list) {
-      categoriesList = docSnap.data().list;
-    }
-  } catch(e) {}
-  renderCategoryTabs();
-  renderCategorySelectOptions();
-  renderAdminCategoryTable();
-}
-
-function renderCategoryTabs() {
-  const bar = document.getElementById('category-filter-bar');
-  if (!bar) return;
-  bar.innerHTML = `<button class="cat-btn ${activeCategoryFilter === 'All' ? 'active' : ''}" onclick="filterCategory('All')">All</button>`;
-  categoriesList.forEach(cat => {
-    bar.innerHTML += `<button class="cat-btn ${activeCategoryFilter === cat ? 'active' : ''}" onclick="filterCategory('${cat}')">${cat}</button>`;
-  });
-}
-
-function renderCategorySelectOptions() {
-  const select = document.getElementById('modal-product-category');
-  if (!select) return;
-  select.innerHTML = `<option value="Uncategorized">Uncategorized</option>`;
-  categoriesList.forEach(cat => {
-    select.innerHTML += `<option value="${cat}">${cat}</option>`;
-  });
-}
-
-function renderAdminCategoryTable() {
-  const tbody = document.getElementById('admin-categories-list');
-  if (!tbody) return;
-  tbody.innerHTML = "";
-  categoriesList.forEach((cat, idx) => {
-    tbody.innerHTML += `
-      <tr>
-        <td><strong>${cat}</strong></td>
-        <td><button class="btn btn-outline" style="color:red; padding:4px 8px;" onclick="deleteCategory(${idx})">Delete</button></td>
-      </tr>
-    `;
-  });
-}
-
-window.filterCategory = (cat) => {
-  activeCategoryFilter = cat;
-  renderCategoryTabs();
-  loadFrontendProducts();
-};
-
-window.deleteCategory = async (idx) => {
-  categoriesList.splice(idx, 1);
-  await setDoc(doc(db, "settings", "categories"), { list: categoriesList });
-  loadCategories();
-};
-
-const categoryForm = document.getElementById('category-form');
-if (categoryForm) {
-  categoryForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('new-category-name').value.trim();
-    if (name && !categoriesList.includes(name)) {
-      categoriesList.push(name);
-      await setDoc(doc(db, "settings", "categories"), { list: categoriesList });
-      document.getElementById('new-category-name').value = "";
-      loadCategories();
-    }
-  });
-}
-
-// ADD / EDIT PRODUCT MODAL
-const productModal = document.getElementById('product-modal');
-const openModalBtn = document.getElementById('open-product-modal-btn');
-const closeModalBtn = document.getElementById('close-product-modal-btn');
-const productForm = document.getElementById('product-form');
-
-if (openModalBtn) {
-  openModalBtn.addEventListener('click', () => {
-    if (document.getElementById('modal-title')) document.getElementById('modal-title').textContent = "Add New Product";
-    if (document.getElementById('modal-product-id')) document.getElementById('modal-product-id').value = "";
-    if (productForm) productForm.reset();
-    renderCategorySelectOptions();
-    if (productModal) productModal.style.display = 'flex';
-  });
-}
-
-if (closeModalBtn) {
-  closeModalBtn.addEventListener('click', () => { if (productModal) productModal.style.display = 'none'; });
-}
-
-if (productForm) {
-  productForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('modal-product-id').value;
-    const title = document.getElementById('modal-product-title').value.trim();
-    const category = document.getElementById('modal-product-category').value;
-    const desc = document.getElementById('modal-product-desc').value.trim();
-    const price = parseFloat(document.getElementById('modal-product-price').value);
-    const stock = parseInt(document.getElementById('modal-product-stock').value) || 0;
-    const image = document.getElementById('modal-product-image').value.trim();
-    const badge = document.getElementById('modal-product-badge').value.trim() || 'In Stock';
-
-    try {
-      if (id) {
-        await updateDoc(doc(db, "products", id), { title, category, desc, price, stock, image, badge });
-      } else {
-        const newDocRef = doc(collection(db, "products"));
-        await setDoc(newDocRef, { title, category, desc, price, stock, image, badge, order: currentProductsList.length + 1 });
-      }
-      if (productModal) productModal.style.display = 'none';
-      productForm.reset();
-      loadAdminProducts();
-    } catch (err) { alert("Failed to save product."); }
-  });
-}
-
-// FRONTEND FUNCTIONS & AUTO-SLIDING HERO REEL
-async function loadFrontendProducts() {
-  const container = document.getElementById('frontend-product-list');
-  const heroSlider = document.getElementById('hero-product-slider');
-  if (!container && !heroSlider) return;
-
-  try {
-    const snapshot = await getDocs(collection(db, "products"));
-    let products = [];
-    snapshot.forEach(d => products.push({ id: d.id, ...d.data() }));
-    products.sort((a,b) => (a.order || 0) - (b.order || 0));
-
-    // Populate Hero Showcase Auto-Sliding Reel
-    if (heroSlider) {
-      heroSlider.innerHTML = "";
-      if (products.length > 0) {
-        products.forEach((p, index) => {
-          const slideDiv = document.createElement('div');
-          slideDiv.className = `hero-slide-item ${index === 0 ? 'active' : ''}`;
-          const isVideo = p.image && (p.image.toLowerCase().endsWith('.mp4') || p.image.toLowerCase().includes('video'));
-          slideDiv.innerHTML = isVideo
-            ? `<video src="${p.image}" autoplay muted loop playsinline class="hero-slide-media"></video>`
-            : `<img src="${p.image || 'https://via.placeholder.com/600'}" alt="${p.title}" class="hero-slide-media">`;
-          heroSlider.appendChild(slideDiv);
-        });
-
-        // Initialize Automatic Sliding Interval (every 3.5 seconds)
-        if (heroSlideTimer) clearInterval(heroSlideTimer);
-        currentHeroIndex = 0;
-        const slides = heroSlider.querySelectorAll('.hero-slide-item');
-        if (slides.length > 1) {
-          heroSlideTimer = setInterval(() => {
-            slides[currentHeroIndex].classList.remove('active');
-            currentHeroIndex = (currentHeroIndex + 1) % slides.length;
-            slides[currentHeroIndex].classList.add('active');
-          }, 3500);
-        }
-      }
-    }
-
-    if (container) {
-      container.innerHTML = "";
-      let filteredProducts = products;
-      if (activeCategoryFilter !== "All") {
-        filteredProducts = products.filter(p => p.category === activeCategoryFilter);
-      }
-
-      if (filteredProducts.length === 0) {
-        container.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>No items available in this view.</p>";
-        return;
-      }
-
-      filteredProducts.forEach(p => {
-        const card = document.createElement('div');
-        card.className = "product-card";
-        const isVideo = p.image && (p.image.toLowerCase().endsWith('.mp4') || p.image.toLowerCase().includes('video'));
-
-        const mediaHtml = isVideo 
-          ? `<video src="${p.image}" class="product-media" autoplay muted loop playsinline></video>`
-          : `<img src="${p.image || 'https://via.placeholder.com/250'}" class="product-media" alt="${p.title}">`;
-
-        card.innerHTML = `
-          ${mediaHtml}
-          <h3>${p.title}</h3>
-          <span class="stock-tag">${p.stock > 0 ? `${p.stock} in stock` : 'Out of stock'}</span>
-          <p>${p.desc || 'High quality item available for immediate order.'}</p>
-          <div class="price">$${parseFloat(p.price).toFixed(2)}</div>
-          <button class="btn btn-primary btn-block" onclick="addToCart('${p.id}', '${p.title}', ${p.price}, '${p.image}')">Add to Bag</button>
-        `;
-        container.appendChild(card);
-      });
-    }
-  } catch (err) { if (container) container.innerHTML = "<p>Error loading catalog.</p>"; }
-}
-
-function applyFrontendSettingsDOM(data) {
-  cardPaymentLink = data.cardPaymentLink || "";
-  storeEmail = data.email || "support@novucart.com";
-
-  if (data.catalogMode === 'slider') {
-    const catContainer = document.getElementById('frontend-product-list');
-    if (catContainer) {
-      catContainer.classList.remove('product-grid');
-      catContainer.classList.add('product-slider-container');
-    }
-  }
-
-  // Logo rendering
-  if (data.logoType === 'image' && data.logoUrl) {
-    if (document.getElementById('logo-img')) {
-      document.getElementById('logo-img').src = data.logoUrl;
-      document.getElementById('logo-img').style.display = 'inline-block';
-    }
-    if (document.getElementById('logo-text')) document.getElementById('logo-text').style.display = 'none';
-  } else if (data.siteTitle && document.getElementById('logo-text')) {
-    document.getElementById('logo-text').textContent = data.siteTitle;
-    document.getElementById('logo-text').style.display = 'inline-block';
-    if (document.getElementById('logo-img')) document.getElementById('logo-img').style.display = 'none';
-  }
-
-  if (data.siteTitle && document.getElementById('site-title-tag')) document.getElementById('site-title-tag').textContent = data.siteTitle;
-  if (data.siteTitle && document.getElementById('footer-brand-title')) document.getElementById('footer-brand-title').textContent = data.siteTitle;
-  if (data.announcement && document.getElementById('announcement-text')) document.getElementById('announcement-text').textContent = data.announcement;
-  if (data.navCatalog && document.getElementById('nav-catalog-text')) document.getElementById('nav-catalog-text').textContent = data.navCatalog;
-  if (data.navContact && document.getElementById('header-contact-text')) document.getElementById('header-contact-text').textContent = data.navContact;
-  if (data.heroHeadline && document.getElementById('hero-headline-text')) document.getElementById('hero-headline-text').textContent = data.heroHeadline;
-  if (data.heroSubtext && document.getElementById('hero-subtext')) document.getElementById('hero-subtext').textContent = data.heroSubtext;
-  if (data.heroBtnText && document.getElementById('hero-btn-text')) document.getElementById('hero-btn-text').textContent = data.heroBtnText;
-  if (data.catalogHeading && document.getElementById('catalog-heading-text')) document.getElementById('catalog-heading-text').textContent = data.catalogHeading;
-  if (data.catalogSubheading && document.getElementById('catalog-subheading-text')) document.getElementById('catalog-subheading-text').textContent = data.catalogSubheading;
+function renderSiteContent() {
+  document.getElementById("site-title-tag").textContent = siteSettings.siteTitle;
+  document.getElementById("announcement-text").textContent = siteSettings.announcement;
   
-  if (data.whatsapp) {
-    if (document.getElementById('header-contact-btn')) document.getElementById('header-contact-btn').href = data.whatsapp;
-    if (document.getElementById('footer-whatsapp-link')) document.getElementById('footer-whatsapp-link').href = data.whatsapp;
-  }
-  if (data.email) {
-    if (document.getElementById('footer-email-text')) document.getElementById('footer-email-text').textContent = data.email;
-    if (document.getElementById('footer-email-link')) document.getElementById('footer-email-link').href = `mailto:${data.email}`;
-  }
-  if (data.footerBrandDesc && document.getElementById('footer-brand-desc')) document.getElementById('footer-brand-desc').textContent = data.footerBrandDesc;
-  if (data.footerCareTitle && document.getElementById('footer-care-title')) document.getElementById('footer-care-title').textContent = data.footerCareTitle;
-  if (data.footerText && document.getElementById('footer-copyright-text')) document.getElementById('footer-copyright-text').textContent = data.footerText;
-}
-
-async function loadFrontendSettings() {
-  const cached = localStorage.getItem('novucart_frontend_settings');
-  if (cached) {
-    try { applyFrontendSettingsDOM(JSON.parse(cached)); } catch(e) {}
-  }
-  try {
-    const docSnap = await getDoc(doc(db, "settings", "general"));
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      applyFrontendSettingsDOM(data);
-      localStorage.setItem('novucart_frontend_settings', JSON.stringify(data));
-    }
-  } catch(e) {}
-}
-
-async function loadFrontendPromoAd() {
-  try {
-    const docSnap = await getDoc(doc(db, "settings", "promoAd"));
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      if (data.active) {
-        const adBox = document.getElementById('frontend-promo-ad');
-        if (document.getElementById('promo-ad-heading')) document.getElementById('promo-ad-heading').textContent = data.title || '';
-        if (document.getElementById('promo-ad-body')) document.getElementById('promo-ad-body').textContent = data.desc || '';
-        if (data.image) {
-          const img = document.getElementById('promo-ad-img');
-          if (img) { img.src = data.image; img.style.display = 'block'; }
-        }
-        if (data.btnText && document.getElementById('promo-ad-link-btn')) document.getElementById('promo-ad-link-btn').textContent = data.btnText;
-        if (data.btnLink && document.getElementById('promo-ad-link-btn')) document.getElementById('promo-ad-link-btn').href = data.btnLink;
-        
-        if (adBox) adBox.style.display = 'block';
-        if (document.getElementById('close-promo-ad')) document.getElementById('close-promo-ad').onclick = () => adBox.style.display = 'none';
-      }
-    }
-  } catch(e) {}
-}
-
-// CART & CHECKOUT SETUP
-function setupCartAndCheckout() {
-  const cartDrawer = document.getElementById('cart-drawer');
-  const cartOverlay = document.getElementById('cart-overlay');
-  const checkoutModal = document.getElementById('checkout-modal');
-  
-  if (document.getElementById('open-cart-btn')) {
-    document.getElementById('open-cart-btn').onclick = () => {
-      if (cartDrawer) cartDrawer.classList.add('open');
-      if (cartOverlay) cartOverlay.style.display = 'block';
-    };
-  }
-
-  const closeCart = () => {
-    if (cartDrawer) cartDrawer.classList.remove('open');
-    if (cartOverlay) cartOverlay.style.display = 'none';
-  };
-
-  if (document.getElementById('close-cart-btn')) document.getElementById('close-cart-btn').onclick = closeCart;
-  if (cartOverlay) cartOverlay.onclick = closeCart;
-
-  if (document.getElementById('checkout-btn')) {
-    document.getElementById('checkout-btn').onclick = () => {
-      if (cart.length === 0) { alert("Your cart is empty!"); return; }
-      closeCart();
-      if (checkoutModal) checkoutModal.style.display = 'flex';
-    };
-  }
-
-  if (document.getElementById('close-checkout-modal-btn')) {
-    document.getElementById('close-checkout-modal-btn').onclick = () => {
-      if (checkoutModal) checkoutModal.style.display = 'none';
-    };
-  }
-
-  const checkoutForm = document.getElementById('checkout-form');
-  if (checkoutForm) {
-    checkoutForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('cust-name').value;
-      const email = document.getElementById('cust-email').value;
-      const phone = document.getElementById('cust-phone').value;
-      const address = document.getElementById('cust-address').value;
-      const altContact = document.getElementById('cust-alt-contact').value || 'N/A';
-      const promoCode = document.getElementById('cust-promo-code').value || 'None';
-      const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
-
-      let total = cart.reduce((acc, i) => acc + (parseFloat(i.price) * i.qty), 0);
-      let itemsListStr = cart.map(i => `- ${i.title} (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}`).join('\n');
-
-      try {
-        await addDoc(collection(db, "orders"), {
-          name, email, phone, address, altContact, promoCode,
-          paymentMethod: paymentMethod === 'card' ? 'Pay via Card' : 'Pay on Delivery',
-          total: total.toFixed(2), items: cart, date: new Date().toLocaleDateString()
-        });
-
-        if (paymentMethod === 'card') {
-          if (!cardPaymentLink) {
-            alert("Card payment link has not been configured in the admin dashboard yet.");
-            return;
-          }
-          window.location.href = cardPaymentLink;
-        } else {
-          const subject = encodeURIComponent(`New Pay on Delivery Order from ${name}`);
-          const body = encodeURIComponent(`Customer Order Details:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nDelivery Address: ${address}\nAlt Contact: ${altContact}\nPromo Code: ${promoCode}\n\nItems Ordered:\n${itemsListStr}\n\nTotal Amount: $${total.toFixed(2)}`);
-          window.location.href = `mailto:${storeEmail}?subject=${subject}&body=${body}`;
-        }
-
-        cart = [];
-        updateCartUI();
-        if (checkoutModal) checkoutModal.style.display = 'none';
-        checkoutForm.reset();
-      } catch(err) { alert("Error placing order."); }
-    });
-  }
-}
-
-window.addToCart = (id, title, price, image) => {
-  const existing = cart.find(item => item.id === id);
-  if (existing) {
-    existing.qty += 1;
+  const logoImg = document.getElementById("logo-img");
+  const logoText = document.getElementById("logo-text");
+  if (siteSettings.logoType === "image" && siteSettings.logoUrl) {
+    logoImg.src = siteSettings.logoUrl;
+    logoImg.style.display = "block";
+    logoText.style.display = "none";
   } else {
-    cart.push({ id, title, price: parseFloat(price), image, qty: 1 });
+    logoImg.style.display = "none";
+    logoText.textContent = siteSettings.footerBrandTitle || "Novucart";
+    logoText.style.display = "inline";
   }
-  updateCartUI();
-  if (document.getElementById('cart-drawer')) document.getElementById('cart-drawer').classList.add('open');
-  if (document.getElementById('cart-overlay')) document.getElementById('cart-overlay').style.display = 'block';
-};
 
-window.changeQty = (idx, delta) => {
-  if (cart[idx]) {
-    cart[idx].qty += delta;
-    if (cart[idx].qty <= 0) cart.splice(idx, 1);
-  }
-  updateCartUI();
-};
+  document.getElementById("nav-catalog-text").textContent = siteSettings.navCatalog;
+  document.getElementById("header-contact-text").textContent = siteSettings.navContact;
+  document.getElementById("header-contact-btn").href = siteSettings.whatsapp;
 
-function updateCartUI() {
-  const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
-  if (document.getElementById('cart-count')) document.getElementById('cart-count').textContent = totalCount;
-  const container = document.getElementById('cart-items-container');
-  let total = 0;
-  if (!container) return;
+  document.getElementById("hero-headline-text").textContent = siteSettings.heroHeadline;
+  document.getElementById("hero-subtext").textContent = siteSettings.heroSubtext;
+  document.getElementById("hero-btn-text").textContent = siteSettings.heroBtnText;
 
-  if (cart.length === 0) {
-    container.innerHTML = `<p class="empty-cart-msg">Your bag is empty.</p>`;
-    if (document.getElementById('cart-total-price')) document.getElementById('cart-total-price').textContent = "$0.00";
+  document.getElementById("catalog-heading-text").textContent = siteSettings.catalogHeading;
+  document.getElementById("catalog-subheading-text").textContent = siteSettings.catalogSubheading;
+
+  document.getElementById("footer-brand-title").textContent = siteSettings.footerBrandTitle;
+  document.getElementById("footer-brand-desc").textContent = siteSettings.footerBrandDesc;
+  document.getElementById("footer-care-title").textContent = siteSettings.footerCareTitle;
+  document.getElementById("footer-whatsapp-link").href = siteSettings.whatsapp;
+  document.getElementById("footer-email-link").href = "mailto:" + siteSettings.email;
+  document.getElementById("footer-email-text").textContent = siteSettings.email;
+  document.getElementById("footer-copyright-text").textContent = siteSettings.footerText;
+}
+
+function renderHeroSlider() {
+  const sliderContainer = document.getElementById("hero-product-slider");
+  if (!sliderContainer) return;
+  
+  if (!heroReel || heroReel.length === 0) {
+    sliderContainer.innerHTML = "";
     return;
   }
 
-  container.innerHTML = "";
-  cart.forEach((item, idx) => {
-    const itemTotal = item.price * item.qty;
-    total += itemTotal;
-    const div = document.createElement('div');
-    div.style.cssText = "display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; gap:8px;";
-    div.innerHTML = `
-      <img src="${item.image}" width="40" height="40" style="border-radius:6px; object-fit:cover;">
-      <div style="flex:1;">
-        <strong style="font-size:0.85rem; display:block;">${item.title}</strong>
-        <span style="font-size:0.8rem; color:#64748B;">$${item.price.toFixed(2)}</span>
-      </div>
-      <div style="display:flex; align-items:center; gap:6px;">
-        <button class="qty-btn" onclick="changeQty(${idx}, -1)">-</button>
-        <span style="font-size:0.85rem; font-weight:bold;">${item.qty}</span>
-        <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
-      </div>
-    `;
-    container.appendChild(div);
-  });
+  sliderContainer.innerHTML = heroReel.map((url, idx) => `
+    <div class="hero-slide-item ${idx === 0 ? 'active' : ''}">
+      ${url.endsWith('.mp4') ? `<video src="${url}" autoplay muted loop class="hero-slide-media"></video>` : `<img src="${url}" class="hero-slide-media" alt="Hero Reel">`}
+    </div>
+  `).join('');
 
-  if (document.getElementById('cart-total-price')) document.getElementById('cart-total-price').textContent = `$${total.toFixed(2)}`;
+  if (heroReel.length > 1) {
+    let currentSlide = 0;
+    setInterval(() => {
+      const slides = sliderContainer.querySelectorAll('.hero-slide-item');
+      if (slides.length === 0) return;
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (currentSlide + 1) % slides.length;
+      slides[currentSlide].classList.add('active');
+    }, 4000);
+  }
 }
 
-// ADMIN DATA LOADERS
-async function loadAdminProducts() {
-  const container = document.getElementById('admin-product-list');
+function renderCategoryFilterBar() {
+  const filterBar = document.getElementById("category-filter-bar");
+  if (!filterBar) return;
+
+  let html = `<button class="cat-btn ${currentCategoryFilter === 'All' ? 'active' : ''}" onclick="filterCategory('All')">All</button>`;
+  categories.forEach(cat => {
+    html += `<button class="cat-btn ${currentCategoryFilter === cat ? 'active' : ''}" onclick="filterCategory('${cat}')">${cat}</button>`;
+  });
+  filterBar.innerHTML = html;
+}
+
+window.filterCategory = function(catName) {
+  currentCategoryFilter = catName;
+  renderCategoryFilterBar();
+  renderFrontendProducts();
+};
+
+function renderFrontendProducts() {
+  const container = document.getElementById("frontend-product-list");
   if (!container) return;
 
-  try {
-    const snapshot = await getDocs(collection(db, "products"));
-    container.innerHTML = "";
-    currentProductsList = [];
-    snapshot.forEach(d => currentProductsList.push({ id: d.id, ...d.data() }));
-    currentProductsList.sort((a,b) => (a.order || 0) - (b.order || 0));
+  const filtered = currentCategoryFilter === 'All' ? products : products.filter(p => p.category === currentCategoryFilter);
 
-    if (currentProductsList.length === 0) {
-      container.innerHTML = `<tr><td colspan="6" class="text-secondary">No products found. Add your first item!</td></tr>`;
-      return;
-    }
+  if (filtered.length === 0) {
+    container.innerHTML = `<p class="text-secondary" style="grid-column: 1/-1; text-align:center; padding:30px;">No vehicles found in this category.</p>`;
+    return;
+  }
 
-    currentProductsList.forEach((item, index) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>
-          <button class="btn btn-outline" style="padding:2px 6px;" onclick="moveProduct('${item.id}', 'up')" ${index===0?'disabled':''}>▲</button>
-          <button class="btn btn-outline" style="padding:2px 6px;" onclick="moveProduct('${item.id}', 'down')" ${index===currentProductsList.length-1?'disabled':''}>▼</button>
-        </td>
-        <td><img src="${item.image}" width="35" height="35" style="border-radius:6px; object-fit:cover;"></td>
-        <td><strong>${item.title}</strong><br><small style="color:#64748B;">Cat: ${item.category || 'Uncategorized'}</small></td>
-        <td>$${item.price}</td>
-        <td>${item.stock || 0}</td>
-        <td>
-          <button class="btn btn-outline" style="padding:4px 8px;" onclick="editProduct('${item.id}')">Edit</button>
-          <button class="btn btn-outline" style="padding:4px 8px; color:red;" onclick="deleteProduct('${item.id}')">Delete</button>
-        </td>
-      `;
-      container.appendChild(tr);
-    });
-  } catch(e) {}
+  if (siteSettings.catalogMode === 'slider') {
+    container.className = "product-slider-container";
+  } else {
+    container.className = "product-grid";
+  }
+
+  container.innerHTML = filtered.map(p => `
+    <div class="product-card">
+      ${p.image.endsWith('.mp4') ? `<video src="${p.image}" autoplay muted loop class="product-media"></video>` : `<img src="${p.image}" class="product-media" alt="${p.title}">`}
+      <div><span class="stock-tag">${p.badge || 'In Stock'} (${p.stock} available)</span></div>
+      <h3>${p.title}</h3>
+      <p>${p.desc || ''}</p>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto;">
+        <span class="price">$${Number(p.price).toLocaleString()}</span>
+        <button class="btn btn-primary" onclick="addToCart('${p.id}')"><i class="fa-solid fa-cart-plus"></i> Add to Bag</button>
+      </div>
+    </div>
+  `).join('');
 }
 
-window.editProduct = (id) => {
-  const product = currentProductsList.find(p => p.id === id);
-  if (!product) return;
+function renderPromoAdBox() {
+  const adBox = document.getElementById("frontend-promo-ad");
+  if (!adBox) return;
 
-  renderCategorySelectOptions();
-  if (document.getElementById('modal-title')) document.getElementById('modal-title').textContent = "Edit Product";
-  if (document.getElementById('modal-product-id')) document.getElementById('modal-product-id').value = product.id;
-  if (document.getElementById('modal-product-title')) document.getElementById('modal-product-title').value = product.title || '';
-  if (document.getElementById('modal-product-category')) document.getElementById('modal-product-category').value = product.category || 'Uncategorized';
-  if (document.getElementById('modal-product-desc')) document.getElementById('modal-product-desc').value = product.desc || '';
-  if (document.getElementById('modal-product-price')) document.getElementById('modal-product-price').value = product.price || '';
-  if (document.getElementById('modal-product-stock')) document.getElementById('modal-product-stock').value = product.stock || '';
-  if (document.getElementById('modal-product-image')) document.getElementById('modal-product-image').value = product.image || '';
-  if (document.getElementById('modal-product-badge')) document.getElementById('modal-product-badge').value = product.badge || '';
+  if (!promoAd.active) {
+    adBox.style.display = "none";
+    return;
+  }
 
-  if (productModal) productModal.style.display = 'flex';
+  document.getElementById("promo-ad-heading").textContent = promoAd.title;
+  document.getElementById("promo-ad-body").textContent = promoAd.desc;
+  const imgEl = document.getElementById("promo-ad-img");
+  if (promoAd.image) {
+    imgEl.src = promoAd.image;
+    imgEl.style.display = "block";
+  } else {
+    imgEl.style.display = "none";
+  }
+
+  const btnEl = document.getElementById("promo-ad-link-btn");
+  btnEl.textContent = promoAd.btnText;
+  btnEl.href = promoAd.btnLink;
+  adBox.style.display = "block";
+
+  document.getElementById("close-promo-ad").onclick = () => {
+    adBox.style.display = "none";
+  };
+}
+
+// Cart & Checkout Management
+window.addToCart = function(prodId) {
+  const prod = products.find(p => p.id === prodId);
+  if (!prod) return;
+
+  const existing = cart.find(item => item.id === prodId);
+  if (existing) {
+    if (existing.qty < prod.stock) {
+      existing.qty++;
+    } else {
+      alert("Maximum available stock reached.");
+      return;
+    }
+  } else {
+    cart.push({ ...prod, qty: 1 });
+  }
+
+  setStorage("cart", cart);
+  updateCartUI();
+  openCartDrawer();
 };
 
-window.moveProduct = async (id, direction) => {
-  const idx = currentProductsList.findIndex(p => p.id === id);
-  if (idx === -1) return;
-  const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
-  if (targetIdx < 0 || targetIdx >= currentProductsList.length) return;
+function updateCartUI() {
+  const countEl = document.getElementById("cart-count");
+  const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+  if (countEl) countEl.textContent = totalCount;
 
-  const a = currentProductsList[idx];
-  const b = currentProductsList[targetIdx];
+  const itemsContainer = document.getElementById("cart-items-container");
+  const totalPriceEl = document.getElementById("cart-total-price");
+  if (!itemsContainer) return;
 
-  await updateDoc(doc(db, "products", a.id), { order: targetIdx + 1 });
-  await updateDoc(doc(db, "products", b.id), { order: idx + 1 });
-  loadAdminProducts();
-  loadFrontendProducts();
+  if (cart.length === 0) {
+    itemsContainer.innerHTML = `<p class="empty-cart-msg">Your bag is empty.</p>`;
+    if (totalPriceEl) totalPriceEl.textContent = "$0.00";
+    return;
+  }
+
+  let total = 0;
+  itemsContainer.innerHTML = cart.map(item => {
+    total += item.price * item.qty;
+    return `
+      <div style="display:flex; gap:12px; margin-bottom:14px; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
+        <img src="${item.image}" style="width:60px; height:60px; object-fit:cover; border-radius:8px;" alt="">
+        <div style="flex:1;">
+          <h4 style="font-size:0.9rem; margin-bottom:2px;">${item.title}</h4>
+          <p style="font-size:0.8rem; color:var(--text-muted);">$${Number(item.price).toLocaleString()} x ${item.qty}</p>
+          <div style="display:flex; gap:6px; margin-top:4px;">
+            <button class="qty-btn" onclick="adjustQty('${item.id}', -1)">-</button>
+            <button class="qty-btn" onclick="adjustQty('${item.id}', 1)">+</button>
+          </div>
+        </div>
+        <button onclick="removeFromCart('${item.id}')" style="background:none; border:none; color:var(--accent-red); cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    `;
+  }).join('');
+
+  if (totalPriceEl) totalPriceEl.textContent = "$" + total.toLocaleString();
+}
+
+window.adjustQty = function(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  const prod = products.find(p => p.id === id);
+
+  item.qty += delta;
+  if (item.qty <= 0) {
+    cart = cart.filter(i => i.id !== id);
+  } else if (prod && item.qty > prod.stock) {
+    item.qty = prod.stock;
+    alert("Cannot exceed available stock limit.");
+  }
+
+  setStorage("cart", cart);
+  updateCartUI();
 };
 
-window.deleteProduct = async (id) => {
-  if (confirm("Delete this product?")) {
-    await deleteDoc(doc(db, "products", id));
-    loadAdminProducts();
-    loadFrontendProducts();
+window.removeFromCart = function(id) {
+  cart = cart.filter(i => i.id !== id);
+  setStorage("cart", cart);
+  updateCartUI();
+};
+
+function openCartDrawer() {
+  document.getElementById("cart-drawer")?.classList.add("open");
+  document.getElementById("cart-overlay")?.style.setProperty("display", "block");
+}
+
+function closeCartDrawer() {
+  document.getElementById("cart-drawer")?.classList.remove("open");
+  document.getElementById("cart-overlay")?.style.setProperty("display", "none");
+}
+
+function setupCartAndCheckout() {
+  document.getElementById("open-cart-btn")?.addEventListener("click", openCartDrawer);
+  document.getElementById("close-cart-btn")?.addEventListener("click", closeCartDrawer);
+  document.getElementById("cart-overlay")?.addEventListener("click", closeCartDrawer);
+
+  document.getElementById("checkout-btn")?.addEventListener("click", () => {
+    if (cart.length === 0) {
+      alert("Your shopping bag is empty.");
+      return;
+    }
+    closeCartDrawer();
+    document.getElementById("checkout-modal").style.display = "flex";
+  });
+
+  document.getElementById("close-checkout-modal-btn")?.addEventListener("click", () => {
+    document.getElementById("checkout-modal").style.display = "none";
+  });
+
+  document.getElementById("checkout-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("cust-name").value;
+    const email = document.getElementById("cust-email").value;
+    const phone = document.getElementById("cust-phone").value;
+    const address = document.getElementById("cust-address").value;
+    const altContact = document.getElementById("cust-alt-contact").value;
+    const promoCode = document.getElementById("cust-promo-code").value || "None";
+    const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+
+    const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+    const newOrder = {
+      id: "ord-" + Date.now(),
+      date: new Date().toLocaleDateString(),
+      name,
+      email,
+      phone,
+      address,
+      altContact,
+      promoCode,
+      method: paymentMethod === 'card' ? 'Pay via Card' : 'Pay on Delivery',
+      total,
+      items: [...cart]
+    };
+
+    orders.unshift(newOrder);
+    setStorage("orders", orders);
+
+    cart = [];
+    setStorage("cart", cart);
+    updateCartUI();
+
+    document.getElementById("checkout-modal").style.display = "none";
+    document.getElementById("checkout-form").reset();
+
+    if (paymentMethod === 'card') {
+      window.location.href = siteSettings.cardPaymentLink;
+    } else {
+      alert("Order successfully placed! Our team will contact you for delivery verification.");
+    }
+  });
+}
+
+
+/* ==========================================================
+   ADMIN PANEL LOGIC
+   ========================================================== */
+function initAdminPanel() {
+  const isLoggedIn = sessionStorage.getItem("novucart_admin_logged") === "true";
+  if (!isLoggedIn) {
+    document.getElementById("login-section").style.display = "flex";
+    document.getElementById("dashboard-section").style.display = "none";
+  } else {
+    document.getElementById("login-section").style.display = "none";
+    document.getElementById("dashboard-section").style.display = "block";
+    loadAdminDashboard();
+  }
+
+  document.getElementById("admin-login-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const emailInput = document.getElementById("admin-email").value;
+    const passInput = document.getElementById("admin-password").value;
+
+    if (emailInput === "admin@novucart.com" && passInput === "admin123") {
+      sessionStorage.setItem("novucart_admin_logged", "true");
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("dashboard-section").style.display = "block";
+      loadAdminDashboard();
+    } else {
+      document.getElementById("login-error").textContent = "Invalid administrator credentials (try admin@novucart.com / admin123)";
+    }
+  });
+
+  document.getElementById("logout-btn")?.addEventListener("click", () => {
+    sessionStorage.removeItem("novucart_admin_logged");
+    location.reload();
+  });
+}
+
+function loadAdminDashboard() {
+  renderAdminProducts();
+  renderAdminCategories();
+  renderAdminHeroReel();
+  renderAdminOrders();
+  populateSettingsForm();
+  populatePromoAdForm();
+  setupAdminProductModal();
+  setupAdminForms();
+}
+
+function renderAdminProducts() {
+  const tbody = document.getElementById("admin-product-list");
+  if (!tbody) return;
+
+  if (products.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;">No products in inventory.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = products.map((p, idx) => `
+    <tr>
+      <td>
+        <button class="qty-btn" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''} onclick="reorderProduct(${idx}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
+        <button class="qty-btn" ${idx === products.length - 1 ? 'disabled style="opacity:0.3;"' : ''} onclick="reorderProduct(${idx}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
+      </td>
+      <td><img src="${p.image}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;" alt=""></td>
+      <td><strong>${p.title}</strong><br><small style="color:var(--text-muted);">${p.category}</small></td>
+      <td>$${Number(p.price).toLocaleString()}</td>
+      <td><span style="color:${p.stock > 0 ? '#16A34A' : '#DC2626'}; font-weight:700;">${p.stock} units</span></td>
+      <td>
+        <button class="btn btn-outline" style="padding:4px 10px; font-size:0.8rem;" onclick="editProduct('${p.id}')">Edit</button>
+        <button class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem;" onclick="deleteProduct('${p.id}')">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+window.reorderProduct = function(index, direction) {
+  const targetIndex = index + direction;
+  if (targetIndex < 0 || targetIndex >= products.length) return;
+  const temp = products[index];
+  products[index] = products[targetIndex];
+  products[targetIndex] = temp;
+  setStorage("products", products);
+  renderAdminProducts();
+};
+
+function renderAdminCategories() {
+  const tbody = document.getElementById("admin-categories-list");
+  const select = document.getElementById("modal-product-category");
+  if (!tbody) return;
+
+  tbody.innerHTML = categories.map((cat, idx) => `
+    <tr>
+      <td>
+        <button class="qty-btn" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''} onclick="reorderCategory(${idx}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
+        <button class="qty-btn" ${idx === categories.length - 1 ? 'disabled style="opacity:0.3;"' : ''} onclick="reorderCategory(${idx}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
+      </td>
+      <td><input type="text" value="${cat}" id="cat-input-${idx}" style="padding:6px 10px; border:1px solid var(--border-color); border-radius:6px; width:220px;"></td>
+      <td>
+        <button class="btn btn-outline" style="padding:4px 10px; font-size:0.8rem;" onclick="saveCategoryEdit(${idx})">Save</button>
+        <button class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem;" onclick="deleteCategory('${cat}')">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+
+  if (select) {
+    select.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+  }
+}
+
+window.reorderCategory = function(index, direction) {
+  const targetIndex = index + direction;
+  if (targetIndex < 0 || targetIndex >= categories.length) return;
+  const temp = categories[index];
+  categories[index] = categories[targetIndex];
+  categories[targetIndex] = temp;
+  setStorage("categories", categories);
+  renderAdminCategories();
+};
+
+window.saveCategoryEdit = function(index) {
+  const inputVal = document.getElementById(`cat-input-${index}`).value.trim();
+  if (!inputVal) {
+    alert("Category name cannot be empty.");
+    return;
+  }
+  const oldName = categories[index];
+  if (categories.includes(inputVal) && inputVal !== oldName) {
+    alert("Category name already exists.");
+    return;
+  }
+
+  categories[index] = inputVal;
+  // Update associated products
+  products.forEach(p => {
+    if (p.category === oldName) p.category = inputVal;
+  });
+
+  setStorage("categories", categories);
+  setStorage("products", products);
+  renderAdminCategories();
+  alert("Category updated successfully!");
+};
+
+window.deleteCategory = function(catName) {
+  if (categories.length <= 1) {
+    alert("You must keep at least one category.");
+    return;
+  }
+  if (confirm(`Are you sure you want to delete category "${catName}"?`)) {
+    categories = categories.filter(c => c !== catName);
+    setStorage("categories", categories);
+    renderAdminCategories();
   }
 };
 
-const settingsForm = document.getElementById('site-settings-form');
-if (settingsForm) {
-  settingsForm.addEventListener('submit', async (e) => {
+function renderAdminHeroReel() {
+  const tbody = document.getElementById("admin-hero-reel-list");
+  if (!tbody) return;
+
+  if (heroReel.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:20px;">No background reel media added.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = heroReel.map((url, idx) => `
+    <tr>
+      <td>
+        <button class="qty-btn" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''} onclick="reorderHeroReel(${idx}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
+        <button class="qty-btn" ${idx === heroReel.length - 1 ? 'disabled style="opacity:0.3;"' : ''} onclick="reorderHeroReel(${idx}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
+        <span style="margin-left:8px; font-weight:600;">Position #${idx + 1}</span>
+      </td>
+      <td><div style="font-size:0.8rem; word-break:break-all; max-width:400px;">${url}</div></td>
+      <td>
+        <button class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem;" onclick="deleteHeroReelItem(${idx})">Remove</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+window.reorderHeroReel = function(index, direction) {
+  const targetIndex = index + direction;
+  if (targetIndex < 0 || targetIndex >= heroReel.length) return;
+  const temp = heroReel[index];
+  heroReel[index] = heroReel[targetIndex];
+  heroReel[targetIndex] = temp;
+  setStorage("heroReel", heroReel);
+  renderAdminHeroReel();
+};
+
+window.deleteHeroReelItem = function(index) {
+  heroReel.splice(index, 1);
+  setStorage("heroReel", heroReel);
+  renderAdminHeroReel();
+};
+
+function renderAdminOrders() {
+  const tbody = document.getElementById("admin-orders-list");
+  if (!tbody) return;
+
+  if (orders.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px;">No customer orders logged yet.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = orders.map(ord => `
+    <tr>
+      <td>${ord.date}</td>
+      <td><strong>${ord.name}</strong></td>
+      <td>${ord.email}<br><small>${ord.phone}</small></td>
+      <td>${ord.address}</td>
+      <td>${ord.method}<br><small style="color:var(--text-muted);">Promo: ${ord.promoCode}</small></td>
+      <td><strong>$${Number(ord.total).toLocaleString()}</strong></td>
+      <td>
+        <button class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem;" onclick="deleteOrder('${ord.id}')">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+window.deleteOrder = function(orderId) {
+  if (confirm("Are you sure you want to delete this order record?")) {
+    orders = orders.filter(o => o.id !== orderId);
+    setStorage("orders", orders);
+    renderAdminOrders();
+  }
+};
+
+document.getElementById("clear-all-orders-btn")?.addEventListener("click", () => {
+  if (confirm("Are you sure you want to delete all customer orders?")) {
+    orders = [];
+    setStorage("orders", orders);
+    renderAdminOrders();
+  }
+});
+
+function populateSettingsForm() {
+  document.getElementById("setting-card-payment-link").value = siteSettings.cardPaymentLink || "";
+  document.getElementById("setting-site-title").value = siteSettings.siteTitle || "";
+  document.getElementById("setting-logo-type").value = siteSettings.logoType || "text";
+  document.getElementById("setting-logo-url").value = siteSettings.logoUrl || "";
+  document.getElementById("setting-catalog-mode").value = siteSettings.catalogMode || "grid";
+  document.getElementById("setting-announcement").value = siteSettings.announcement || "";
+  document.getElementById("setting-nav-catalog").value = siteSettings.navCatalog || "";
+  document.getElementById("setting-nav-contact").value = siteSettings.navContact || "";
+  document.getElementById("setting-hero-headline").value = siteSettings.heroHeadline || "";
+  document.getElementById("setting-hero-subtext").value = siteSettings.heroSubtext || "";
+  document.getElementById("setting-hero-btn-text").value = siteSettings.heroBtnText || "";
+  document.getElementById("setting-catalog-heading").value = siteSettings.catalogHeading || "";
+  document.getElementById("setting-catalog-subheading").value = siteSettings.catalogSubheading || "";
+  document.getElementById("setting-email").value = siteSettings.email || "";
+  document.getElementById("setting-whatsapp").value = siteSettings.whatsapp || "";
+  document.getElementById("setting-footer-brand-title").value = siteSettings.footerBrandTitle || "";
+  document.getElementById("setting-footer-brand-desc").value = siteSettings.footerBrandDesc || "";
+  document.getElementById("setting-footer-care-title").value = siteSettings.footerCareTitle || "";
+  document.getElementById("setting-footer-text").value = siteSettings.footerText || "";
+}
+
+function populatePromoAdForm() {
+  document.getElementById("promo-ad-active").checked = promoAd.active;
+  document.getElementById("promo-ad-title").value = promoAd.title || "";
+  document.getElementById("promo-ad-desc").value = promoAd.desc || "";
+  document.getElementById("promo-ad-image").value = promoAd.image || "";
+  document.getElementById("promo-ad-btn-text").value = promoAd.btnText || "";
+  document.getElementById("promo-ad-btn-link").value = promoAd.btnLink || "";
+}
+
+function setupAdminProductModal() {
+  const modal = document.getElementById("product-modal");
+  document.getElementById("open-product-modal-btn")?.addEventListener("click", () => {
+    document.getElementById("modal-title").textContent = "Add New Product";
+    document.getElementById("product-form").reset();
+    document.getElementById("modal-product-id").value = "";
+    modal.style.display = "flex";
+  });
+
+  document.getElementById("close-product-modal-btn")?.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+}
+
+window.editProduct = function(id) {
+  const p = products.find(prod => prod.id === id);
+  if (!p) return;
+
+  document.getElementById("modal-title").textContent = "Edit Product";
+  document.getElementById("modal-product-id").value = p.id;
+  document.getElementById("modal-product-title").value = p.title;
+  document.getElementById("modal-product-category").value = p.category;
+  document.getElementById("modal-product-desc").value = p.desc;
+  document.getElementById("modal-product-price").value = p.price;
+  document.getElementById("modal-product-stock").value = p.stock;
+  document.getElementById("modal-product-image").value = p.image;
+  document.getElementById("modal-product-badge").value = p.badge || "";
+
+  document.getElementById("product-modal").style.display = "flex";
+};
+
+window.deleteProduct = function(id) {
+  if (confirm("Are you sure you want to delete this product?")) {
+    products = products.filter(p => p.id !== id);
+    setStorage("products", products);
+    renderAdminProducts();
+  }
+};
+
+function setupAdminForms() {
+  // Product Save Form
+  document.getElementById("product-form")?.addEventListener("submit", (e) => {
     e.preventDefault();
-    try {
-      let rawPayLink = document.getElementById('setting-card-payment-link').value.trim();
-      if (rawPayLink && !rawPayLink.startsWith('http://') && !rawPayLink.startsWith('https://')) {
-        rawPayLink = 'https://' + rawPayLink;
-      }
+    const id = document.getElementById("modal-product-id").value;
+    const title = document.getElementById("modal-product-title").value;
+    const category = document.getElementById("modal-product-category").value;
+    const desc = document.getElementById("modal-product-desc").value;
+    const price = parseFloat(document.getElementById("modal-product-price").value);
+    const stock = parseInt(document.getElementById("modal-product-stock").value);
+    const image = document.getElementById("modal-product-image").value;
+    const badge = document.getElementById("modal-product-badge").value;
 
-      let rawLogoUrl = document.getElementById('setting-logo-url').value.trim();
-      if (rawLogoUrl.includes('src=')) {
-        const match = rawLogoUrl.match(/src=['"]([^'"]+)['"]/);
-        if (match && match[1]) rawLogoUrl = match[1];
+    if (id) {
+      const p = products.find(prod => prod.id === id);
+      if (p) {
+        p.title = title;
+        p.category = category;
+        p.desc = desc;
+        p.price = price;
+        p.stock = stock;
+        p.image = image;
+        p.badge = badge;
       }
-
-      const updatedData = {
-        cardPaymentLink: rawPayLink,
-        siteTitle: document.getElementById('setting-site-title').value,
-        logoType: document.getElementById('setting-logo-type').value,
-        logoUrl: rawLogoUrl,
-        catalogMode: document.getElementById('setting-catalog-mode').value,
-        announcement: document.getElementById('setting-announcement').value,
-        navCatalog: document.getElementById('setting-nav-catalog').value,
-        navContact: document.getElementById('setting-nav-contact').value,
-        heroHeadline: document.getElementById('setting-hero-headline').value,
-        heroSubtext: document.getElementById('setting-hero-subtext').value,
-        heroBtnText: document.getElementById('setting-hero-btn-text').value,
-        catalogHeading: document.getElementById('setting-catalog-heading').value,
-        catalogSubheading: document.getElementById('setting-catalog-subheading').value,
-        whatsapp: document.getElementById('setting-whatsapp').value,
-        email: document.getElementById('setting-email').value,
-        footerBrandDesc: document.getElementById('setting-footer-brand-desc').value,
-        footerCareTitle: document.getElementById('setting-footer-care-title').value,
-        footerText: document.getElementById('setting-footer-text').value
+    } else {
+      const newProd = {
+        id: "prod-" + Date.now(),
+        title,
+        category,
+        desc,
+        price,
+        stock,
+        image,
+        badge: badge || "In Stock"
       };
+      products.push(newProd);
+    }
 
-      await setDoc(doc(db, "settings", "general"), updatedData, { merge: true });
-      localStorage.setItem('novucart_frontend_settings', JSON.stringify(updatedData));
-      alert("Settings and Payment Link updated successfully!");
-    } catch (err) { alert("Failed to save settings: " + err.message); }
+    setStorage("products", products);
+    renderAdminProducts();
+    document.getElementById("product-modal").style.display = "none";
   });
-}
 
-const promoForm = document.getElementById('promo-ad-form');
-if (promoForm) {
-  promoForm.addEventListener('submit', async (e) => {
+  // Category Add Form
+  document.getElementById("category-form")?.addEventListener("submit", (e) => {
     e.preventDefault();
-    try {
-      await setDoc(doc(db, "settings", "promoAd"), {
-        active: document.getElementById('promo-ad-active').checked,
-        title: document.getElementById('promo-ad-title').value,
-        desc: document.getElementById('promo-ad-desc').value,
-        image: document.getElementById('promo-ad-image').value,
-        btnText: document.getElementById('promo-ad-btn-text').value,
-        btnLink: document.getElementById('promo-ad-btn-link').value
-      });
-      alert("Side Ad settings updated!");
-    } catch (err) { alert("Failed to update Ad."); }
+    const name = document.getElementById("new-category-name").value.trim();
+    if (name && !categories.includes(name)) {
+      categories.push(name);
+      setStorage("categories", categories);
+      renderAdminCategories();
+      document.getElementById("category-form").reset();
+    } else {
+      alert("Category already exists or invalid name.");
+    }
   });
-}
 
-async function loadPromoAdSettings() {
-  try {
-    const docSnap = await getDoc(doc(db, "settings", "promoAd"));
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      if (document.getElementById('promo-ad-active')) document.getElementById('promo-ad-active').checked = data.active || false;
-      if (document.getElementById('promo-ad-title')) document.getElementById('promo-ad-title').value = data.title || '';
-      if (document.getElementById('promo-ad-desc')) document.getElementById('promo-ad-desc').value = data.desc || '';
-      if (document.getElementById('promo-ad-image')) document.getElementById('promo-ad-image').value = data.image || '';
-      if (document.getElementById('promo-ad-btn-text')) document.getElementById('promo-ad-btn-text').value = data.btnText || '';
-      if (document.getElementById('promo-ad-btn-link')) document.getElementById('promo-ad-btn-link').value = data.btnLink || '';
+  // Hero Reel Add Form
+  document.getElementById("hero-reel-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const url = document.getElementById("new-reel-url").value.trim();
+    if (url) {
+      heroReel.push(url);
+      setStorage("heroReel", heroReel);
+      renderAdminHeroReel();
+      document.getElementById("hero-reel-form").reset();
     }
-  } catch(e) {}
-}
+  });
 
-async function loadSiteSettings() {
-  try {
-    const docSnap = await getDoc(doc(db, "settings", "general"));
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      if (document.getElementById('setting-card-payment-link')) document.getElementById('setting-card-payment-link').value = data.cardPaymentLink || '';
-      if (document.getElementById('setting-site-title')) document.getElementById('setting-site-title').value = data.siteTitle || '';
-      if (document.getElementById('setting-logo-type')) document.getElementById('setting-logo-type').value = data.logoType || 'text';
-      if (document.getElementById('setting-logo-url')) document.getElementById('setting-logo-url').value = data.logoUrl || '';
-      if (document.getElementById('setting-catalog-mode')) document.getElementById('setting-catalog-mode').value = data.catalogMode || 'grid';
-      if (document.getElementById('setting-announcement')) document.getElementById('setting-announcement').value = data.announcement || '';
-      if (document.getElementById('setting-nav-catalog')) document.getElementById('setting-nav-catalog').value = data.navCatalog || '';
-      if (document.getElementById('setting-nav-contact')) document.getElementById('setting-nav-contact').value = data.navContact || '';
-      if (document.getElementById('setting-hero-headline')) document.getElementById('setting-hero-headline').value = data.heroHeadline || '';
-      if (document.getElementById('setting-hero-subtext')) document.getElementById('setting-hero-subtext').value = data.heroSubtext || '';
-      if (document.getElementById('setting-hero-btn-text')) document.getElementById('setting-hero-btn-text').value = data.heroBtnText || '';
-      if (document.getElementById('setting-catalog-heading')) document.getElementById('setting-catalog-heading').value = data.catalogHeading || '';
-      if (document.getElementById('setting-catalog-subheading')) document.getElementById('setting-catalog-subheading').value = data.catalogSubheading || '';
-      if (document.getElementById('setting-whatsapp')) document.getElementById('setting-whatsapp').value = data.whatsapp || '';
-      if (document.getElementById('setting-email')) document.getElementById('setting-email').value = data.email || '';
-      if (document.getElementById('setting-footer-brand-desc')) document.getElementById('setting-footer-brand-desc').value = data.footerBrandDesc || '';
-      if (document.getElementById('setting-footer-care-title')) document.getElementById('setting-footer-care-title').value = data.footerCareTitle || '';
-      if (document.getElementById('setting-footer-text')) document.getElementById('setting-footer-text').value = data.footerText || '';
-    }
-  } catch(e) {}
-}
+  // Site Settings Form
+  document.getElementById("site-settings-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    siteSettings = {
+      cardPaymentLink: document.getElementById("setting-card-payment-link").value,
+      siteTitle: document.getElementById("setting-site-title").value,
+      logoType: document.getElementById("setting-logo-type").value,
+      logoUrl: document.getElementById("setting-logo-url").value,
+      catalogMode: document.getElementById("setting-catalog-mode").value,
+      announcement: document.getElementById("setting-announcement").value,
+      navCatalog: document.getElementById("setting-nav-catalog").value,
+      navContact: document.getElementById("setting-nav-contact").value,
+      heroHeadline: document.getElementById("setting-hero-headline").value,
+      heroSubtext: document.getElementById("setting-hero-subtext").value,
+      heroBtnText: document.getElementById("setting-hero-btn-text").value,
+      catalogHeading: document.getElementById("setting-catalog-heading").value,
+      catalogSubheading: document.getElementById("setting-catalog-subheading").value,
+      email: document.getElementById("setting-email").value,
+      whatsapp: document.getElementById("setting-whatsapp").value,
+      footerBrandTitle: document.getElementById("setting-footer-brand-title").value,
+      footerBrandDesc: document.getElementById("setting-footer-brand-desc").value,
+      footerCareTitle: document.getElementById("setting-footer-care-title").value,
+      footerText: document.getElementById("setting-footer-text").value
+    };
 
-async function loadAdminOrders() {
-  const container = document.getElementById('admin-orders-list');
-  if (!container) return;
-  try {
-    const snapshot = await getDocs(collection(db, "orders"));
-    container.innerHTML = "";
-    if (snapshot.empty) {
-      container.innerHTML = `<tr><td colspan="6">No orders placed yet.</td></tr>`;
-      return;
-    }
-    snapshot.forEach(docSnap => {
-      const o = docSnap.data();
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${o.date || 'N/A'}</td>
-        <td><strong>${o.name || 'N/A'}</strong></td>
-        <td>${o.email || 'N/A'}<br><small>${o.phone || ''}</small></td>
-        <td>${o.address || 'N/A'}</td>
-        <td>${o.paymentMethod || 'N/A'}<br><small>Promo: ${o.promoCode || 'None'}</small></td>
-        <td>$${o.total || '0.00'}</td>
-      `;
-      container.appendChild(tr);
-    });
-  } catch(e) {}
+    setStorage("settings", siteSettings);
+    alert("All customizations saved successfully!");
+  });
+
+  // Promo Ad Form
+  document.getElementById("promo-ad-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    promoAd = {
+      active: document.getElementById("promo-ad-active").checked,
+      title: document.getElementById("promo-ad-title").value,
+      desc: document.getElementById("promo-ad-desc").value,
+      image: document.getElementById("promo-ad-image").value,
+      btnText: document.getElementById("promo-ad-btn-text").value,
+      btnLink: document.getElementById("promo-ad-btn-link").value
+    };
+
+    setStorage("promoAd", promoAd);
+    alert("Side ad banner updated successfully!");
+  });
 }
