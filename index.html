@@ -10,7 +10,7 @@
 <body class="site-body">
 
   <!-- Top Announcement Bar -->
-  <div class="announcement-bar" id="announcement-text"></div>
+  <div class="announcement-bar" id="announcement-text">Free Express Delivery on Luxury Orders</div>
 
   <!-- Main Store Header -->
   <header class="main-header">
@@ -18,17 +18,17 @@
       <!-- Left: Brand Logo & Name -->
       <a href="index.html" class="logo-area" id="store-logo-link">
         <img id="logo-img" src="" class="brand-logo-img" style="display:none;" alt="Logo">
-        <span id="logo-text" class="brand-name"></span>
+        <span id="logo-text" class="brand-name">Novucart</span>
       </a>
 
-      <!-- Center: Main Navigation -->
+      <!-- Center: Navigation -->
       <nav class="nav-links">
-        <a href="#catalog" class="nav-item" id="nav-catalog-text">Catalog</a>
+        <a href="#catalog" class="nav-item">Catalog</a>
       </nav>
 
-      <!-- Right: Contact & Cart Trigger -->
+      <!-- Right: Action Items -->
       <div class="header-actions">
-        <a href="#" id="header-contact-btn" class="nav-item contact-btn" target="_blank">
+        <a href="https://wa.me/1234567890" id="header-contact-btn" class="nav-item contact-btn" target="_blank">
           <i class="fa-brands fa-whatsapp"></i> <span id="header-contact-text">Contact</span>
         </a>
         <button class="cart-trigger" id="open-cart-btn" aria-label="Open Shopping Cart">
@@ -39,9 +39,8 @@
     </div>
   </header>
 
-  <!-- Hero Section with Integrated Background Media Slider -->
+  <!-- Hero Section with Background Slider -->
   <section class="hero-section">
-    <!-- Dynamic Background Image/Media Carousel Overlay -->
     <div class="hero-bg-slider" id="hero-bg-slider">
       <div class="hero-bg-slide active" style="background-image: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80');"></div>
       <div class="hero-bg-slide" style="background-image: url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1600&q=80');"></div>
@@ -50,7 +49,6 @@
     
     <div class="hero-overlay"></div>
 
-    <!-- Hero Content Overlay -->
     <div class="hero-content">
       <h1 id="hero-headline-text">Welcome to Novucart</h1>
       <p id="hero-subtext">Home of Luxury</p>
@@ -58,25 +56,20 @@
     </div>
   </section>
 
-  <!-- Product Catalog -->
+  <!-- Main Product Catalog -->
   <main class="store-container" id="catalog">
     <div class="section-title">
-      <h2 id="catalog-heading-text">Our Collection</h2>
-      <p class="text-secondary" id="catalog-subheading-text">Browse through our available items</p>
-    </div>
-
-    <!-- Dynamic Category Filter Tabs -->
-    <div class="category-nav" id="category-filter-bar">
-      <button class="cat-btn active" data-category="All">All</button>
+      <h2>Our Collection</h2>
+      <p class="text-secondary">Browse through our available luxury items</p>
     </div>
 
     <!-- Product Grid Container -->
     <div class="product-grid" id="frontend-product-list">
-      <div class="loading-spinner">Loading products...</div>
+      <!-- Items dynamically populated via JavaScript -->
     </div>
   </main>
 
-  <!-- Optimized Responsive Footer -->
+  <!-- Clean Horizontal Responsive Footer -->
   <footer class="main-footer">
     <div class="footer-container">
       <div class="footer-col footer-col-brand">
@@ -88,12 +81,12 @@
         <h4>Navigation</h4>
         <ul>
           <li><a href="#catalog">Shop Catalog</a></li>
-          <li><a href="#announcement-text">Announcements</a></li>
+          <li><a href="admin.html" target="_blank">Admin Portal</a></li>
         </ul>
       </div>
 
       <div class="footer-col footer-col-contact">
-        <h4 id="footer-care-title">Contact & Support</h4>
+        <h4>Contact & Support</h4>
         <div class="footer-contact-item">
           <a href="#" id="footer-whatsapp-link" target="_blank">
             <i class="fa-brands fa-whatsapp"></i> <span id="footer-whatsapp-text">Contact on WhatsApp</span>
@@ -129,81 +122,15 @@
     </div>
   </aside>
 
-  <!-- Checkout Modal -->
-  <div class="modal-overlay" id="checkout-modal" style="display: none;">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Checkout Information</h3>
-        <button class="close-btn" id="close-checkout-modal-btn">✕</button>
-      </div>
-      <form id="checkout-form">
-        <div class="form-group">
-          <label for="cust-name">Full Name</label>
-          <input type="text" id="cust-name" placeholder="John Doe" required>
-        </div>
-        <div class="form-group">
-          <label for="cust-email">Email Address</label>
-          <input type="email" id="cust-email" placeholder="john@example.com" required>
-        </div>
-        <div class="form-group">
-          <label for="cust-phone">Phone Number</label>
-          <input type="tel" id="cust-phone" placeholder="+1234567890" required>
-        </div>
-        <div class="form-group">
-          <label for="cust-address">Delivery Address</label>
-          <input type="text" id="cust-address" placeholder="123 Main St, City" required>
-        </div>
-        <div class="form-group">
-          <label for="cust-alt-contact">Alternative Contact Means (WhatsApp/Telegram/Social)</label>
-          <input type="text" id="cust-alt-contact" placeholder="Optional contact handles or notes">
-        </div>
-
-        <div class="form-group">
-          <label for="cust-promo-code">Promo / Discount Code</label>
-          <input type="text" id="cust-promo-code" placeholder="Enter promo code (Optional)">
-        </div>
-
-        <div class="form-group" style="margin-top: 18px;">
-          <label><strong>Select Payment Method:</strong></label>
-          <div class="radio-group">
-            <label>
-              <input type="radio" name="payment-method" value="card" checked> Pay via Card
-            </label>
-            <label>
-              <input type="radio" name="payment-method" value="pod"> Pay on Delivery
-            </label>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 15px;">Complete & Proceed</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Side Promotional Ad Box -->
+  <!-- Side Promotional Box -->
   <div class="promo-ad-sidebox" id="frontend-promo-ad" style="display: none;">
     <button class="promo-ad-close" id="close-promo-ad">✕</button>
     <img id="promo-ad-img" src="" style="display:none; width:100%; border-radius:8px; margin-bottom:10px; max-height:120px; object-fit:cover;" alt="Promo">
-    <h4 id="promo-ad-heading"></h4>
-    <p id="promo-ad-body"></p>
-    <a href="#" id="promo-ad-link-btn" class="btn btn-ad-action btn-block">Claim Offer</a>
+    <h4 id="promo-ad-heading">Exclusive Deal</h4>
+    <p id="promo-ad-body">Check out our latest luxury arrivals today.</p>
+    <a href="#catalog" id="promo-ad-link-btn" class="btn btn-ad-action btn-block">Claim Offer</a>
   </div>
 
-  <!-- Simple Automatic Hero Background Rotator Script -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const slides = document.querySelectorAll('.hero-bg-slide');
-      if (slides.length > 1) {
-        let currentSlide = 0;
-        setInterval(() => {
-          slides[currentSlide].classList.remove('active');
-          currentSlide = (currentSlide + 1) % slides.length;
-          slides[currentSlide].classList.add('active');
-        }, 5000); // Transitions every 5 seconds
-      }
-    });
-  </script>
-
-  <script type="module" src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
