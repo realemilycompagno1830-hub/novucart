@@ -3,150 +3,143 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="site-title-tag">Novucart | Premium Store</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title id="pageTitle">Novucart</title>
+
+  <!-- FIREBASE SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f8fafc; color: #0f172a; }
+
+    /* ANNOUNCEMENT BAR */
+    .announcement-bar { background: #000; color: #fff; text-align: center; padding: 8px 16px; font-size: 0.85rem; font-weight: 600; }
+
+    /* NAVBAR */
+    header { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .brand-logo { font-size: 1.4rem; font-weight: 800; text-decoration: none; color: #0f172a; }
+
+    /* HERO SECTION */
+    .hero { background: #1e293b; color: #fff; padding: 60px 24px; text-align: center; }
+    .hero h1 { font-size: 2.2rem; margin-bottom: 12px; }
+
+    /* PRODUCT GRID */
+    .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
+    
+    .product-card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 16px; transition: transform 0.2s; }
+    .product-card:hover { transform: translateY(-4px); }
+    .product-image { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; }
+    .product-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 6px; }
+    .product-price { font-weight: 800; color: #FF6B1F; font-size: 1.1rem; margin-bottom: 12px; }
+    
+    .btn-buy { background: #000; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: 700; width: 100%; cursor: pointer; }
+    .btn-buy:hover { background: #334155; }
+  </style>
 </head>
-<body class="site-body">
+<body>
 
-  <!-- Top Announcement Bar -->
-  <div class="announcement-bar" id="announcement-text">
-    📢 Welcome to Novucart — Premium Deals Delivered Worldwide!
-  </div>
+  <!-- TOP ANNOUNCEMENT -->
+  <div class="announcement-bar" id="topAnnouncement">📢 Welcome to Novucart!</div>
 
-  <!-- Main Store Header -->
-  <header class="main-header">
-    <div class="header-container">
-      <a href="index.html" class="logo-area" id="store-logo-link">
-        <span id="logo-text" class="brand-name">Novucart</span>
-      </a>
-
-      <nav class="nav-links">
-        <a href="#catalog" class="nav-item">Shop Catalog</a>
-        <a href="#" id="header-contact-btn" class="nav-item contact-btn" target="_blank">
-          <i class="fa-brands fa-whatsapp"></i> <span id="header-contact-text">Contact Us</span>
-        </a>
-        <button class="cart-trigger" id="open-cart-btn">
-          <i class="fa-solid fa-cart-shopping"></i>
-          <span class="cart-count" id="cart-count">0</span>
-        </button>
-      </nav>
-    </div>
+  <!-- NAVIGATION -->
+  <header>
+    <a href="index.html" class="brand-logo" id="siteLogo">Novucart</a>
+    <a href="admin.html" style="color: #64748b; text-decoration: none; font-size: 0.85rem; font-weight: 600;">Admin Area</a>
   </header>
 
-  <!-- Hero Banner -->
-  <section class="hero-section">
-    <div class="hero-content">
-      <h1 id="hero-headline-text">Discover Extraordinary Products</h1>
-      <p id="hero-subtext">Shop curated selections at unbeatable prices on Novucart.</p>
-      <a href="#catalog" class="btn btn-primary btn-large">Explore Catalog</a>
-    </div>
-  </section>
+  <!-- HERO BANNER -->
+  <div class="hero">
+    <h1 id="heroHeadline">Discover Extraordinary Products</h1>
+  </div>
 
-  <!-- Video & Product Catalog -->
-  <main class="store-container" id="catalog">
-    <div class="section-title">
-      <h2>Featured Catalog</h2>
-      <p class="text-secondary">Explore item videos, descriptions, and current availability</p>
-    </div>
-
-    <div class="product-grid" id="frontend-product-list">
-      <div class="loading-spinner">Loading products...</div>
-    </div>
-  </main>
-
-  <!-- Footer -->
-  <footer class="main-footer">
-    <div class="footer-container">
-      <div class="footer-col">
-        <h3 id="footer-brand-title">Novucart</h3>
-        <p>Guaranteed premium quality & direct delivery.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Customer Care</h4>
-        <p><a href="#" id="footer-whatsapp-link" target="_blank"><i class="fa-brands fa-whatsapp"></i> <span id="footer-whatsapp-text">Contact on WhatsApp</span></a></p>
-        <p><i class="fa-solid fa-envelope"></i> <span id="footer-email-text">support@novucart.com</span></p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p id="footer-copyright-text">© 2026 Novucart Marketplace. All rights reserved.</p>
-    </div>
-  </footer>
-
-  <!-- Slide-out Cart Drawer -->
-  <div class="cart-drawer-overlay" id="cart-overlay" style="display:none;"></div>
-  <div class="cart-drawer" id="cart-drawer">
-    <div class="cart-header">
-      <h3>Your Shopping Bag</h3>
-      <button class="close-cart-btn" id="close-cart-btn">✕</button>
-    </div>
-    <div class="cart-items-body" id="cart-items-container">
-      <p class="empty-cart-msg">Your bag is empty.</p>
-    </div>
-    <div class="cart-footer">
-      <div class="cart-total-row">
-        <span>Total:</span>
-        <span id="cart-total-price">$0.00</span>
-      </div>
-      <button class="btn btn-primary btn-block" id="checkout-btn">Proceed to Checkout</button>
+  <!-- PRODUCTS CONTAINER -->
+  <div class="container">
+    <h2 style="margin-bottom: 20px;">Catalog</h2>
+    <div class="products-grid" id="publicProductGrid">
+      <p>Loading products...</p>
     </div>
   </div>
 
-  <!-- CHECKOUT MODAL (CARD & PAY ON DELIVERY OPTIONS) -->
-  <div class="modal-overlay" id="checkout-modal" style="display: none;">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Checkout Information</h3>
-        <button class="close-btn" id="close-checkout-modal-btn">✕</button>
+<script>
+  // FIREBASE CONFIGURATION
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  let db;
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+  } catch(e) {}
+
+  document.addEventListener('DOMContentLoaded', () => {
+    applySettings();
+    fetchStoreProducts();
+  });
+
+  function applySettings() {
+    const settings = JSON.parse(localStorage.getItem('novucart_settings')) || {};
+    if(settings.siteTitle) {
+      document.getElementById('pageTitle').innerText = settings.siteTitle;
+      document.getElementById('siteLogo').innerText = settings.siteTitle;
+    }
+    if(settings.announcement) document.getElementById('topAnnouncement').innerText = settings.announcement;
+    if(settings.heroTitle) document.getElementById('heroHeadline').innerText = settings.heroTitle;
+  }
+
+  function fetchStoreProducts() {
+    const grid = document.getElementById('publicProductGrid');
+    if (db && firebaseConfig.apiKey !== "YOUR_API_KEY") {
+      db.collection('products').get().then(snapshot => {
+        if(snapshot.empty) {
+          grid.innerHTML = '<p>No products available right now.</p>';
+          return;
+        }
+        grid.innerHTML = '';
+        snapshot.forEach(doc => {
+          const p = doc.data();
+          grid.innerHTML += renderProductCard(p);
+        });
+      }).catch(() => fetchLocalProducts());
+    } else {
+      fetchLocalProducts();
+    }
+  }
+
+  function fetchLocalProducts() {
+    const grid = document.getElementById('publicProductGrid');
+    const products = JSON.parse(localStorage.getItem('novucart_products')) || [];
+    if(products.length === 0) {
+      grid.innerHTML = '<p>No products available right now.</p>';
+      return;
+    }
+    grid.innerHTML = products.map(p => renderProductCard(p)).join('');
+  }
+
+  function renderProductCard(p) {
+    const settings = JSON.parse(localStorage.getItem('novucart_settings')) || {};
+    const checkoutUrl = settings.cardPaymentUrl || '#';
+    return `
+      <div class="product-card">
+        <div>
+          <img src="${p.image || 'https://via.placeholder.com/200'}" class="product-image" alt="${p.title}">
+          <div class="product-title">${p.title}</div>
+          <div class="product-price">$${parseFloat(p.price).toFixed(2)}</div>
+        </div>
+        <a href="${checkoutUrl}" target="_blank" style="text-decoration:none;">
+          <button class="btn-buy">Buy Now</button>
+        </a>
       </div>
-      <form id="checkout-form">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="cust-name" placeholder="John Doe" required>
-        </div>
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="cust-email" placeholder="john@example.com" required>
-        </div>
-        <div class="form-group">
-          <label>Phone Number</label>
-          <input type="tel" id="cust-phone" placeholder="+1234567890" required>
-        </div>
-        <div class="form-group">
-          <label>Delivery Address</label>
-          <input type="text" id="cust-address" placeholder="123 Main St, City" required>
-        </div>
-        <div class="form-group">
-          <label>Alternative Contact Means (WhatsApp/Telegram/Social)</label>
-          <input type="text" id="cust-alt-contact" placeholder="Optional contact handles or notes">
-        </div>
+    `;
+  }
+</script>
 
-        <div class="form-group" style="margin-top: 18px;">
-          <label><strong>Select Payment Method:</strong></label>
-          <div style="display: flex; gap: 12px; margin-top: 8px;">
-            <label style="font-weight: normal; cursor: pointer;">
-              <input type="radio" name="payment-method" value="card" checked> Pay via Card
-            </label>
-            <label style="font-weight: normal; cursor: pointer;">
-              <input type="radio" name="payment-method" value="pod"> Pay on Delivery
-            </label>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 15px;">Complete & Proceed</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Non-Blocking Side Ad Box -->
-  <div class="promo-ad-sidebox" id="frontend-promo-ad" style="display: none;">
-    <button class="promo-ad-close" id="close-promo-ad">✕</button>
-    <img id="promo-ad-img" src="" style="display:none; width:100%; border-radius:8px; margin-bottom:10px; max-height:120px; object-fit:cover;">
-    <h4 id="promo-ad-heading"></h4>
-    <p id="promo-ad-body"></p>
-    <a href="#" id="promo-ad-link-btn" class="btn btn-ad-action btn-block">Claim Offer</a>
-  </div>
-
-  <script type="module" src="app.js"></script>
 </body>
 </html>
