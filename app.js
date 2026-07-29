@@ -224,51 +224,68 @@ async function loadFrontendProducts() {
   } catch (err) { container.innerHTML = "<p>Error loading catalog.</p>"; }
 }
 
+function applyFrontendSettingsDOM(data) {
+  cardPaymentLink = data.cardPaymentLink || "";
+  storeEmail = data.email || "support@novucart.com";
+
+  if (data.catalogMode === 'slider') {
+    const catContainer = document.getElementById('frontend-product-list');
+    if (catContainer) {
+      catContainer.classList.remove('product-grid');
+      catContainer.classList.add('product-slider-container');
+    }
+  }
+
+  // Logo rendering
+  if (data.logoType === 'image' && data.logoUrl) {
+    if (document.getElementById('logo-img')) {
+      document.getElementById('logo-img').src = data.logoUrl;
+      document.getElementById('logo-img').style.display = 'inline-block';
+    }
+    if (document.getElementById('logo-text')) document.getElementById('logo-text').style.display = 'none';
+  } else if (data.siteTitle && document.getElementById('logo-text')) {
+    document.getElementById('logo-text').textContent = data.siteTitle;
+    document.getElementById('logo-text').style.display = 'inline-block';
+    if (document.getElementById('logo-img')) document.getElementById('logo-img').style.display = 'none';
+  }
+
+  if (data.siteTitle && document.getElementById('site-title-tag')) document.getElementById('site-title-tag').textContent = data.siteTitle;
+  if (data.siteTitle && document.getElementById('footer-brand-title')) document.getElementById('footer-brand-title').textContent = data.siteTitle;
+  if (data.announcement && document.getElementById('announcement-text')) document.getElementById('announcement-text').textContent = data.announcement;
+  if (data.navCatalog && document.getElementById('nav-catalog-text')) document.getElementById('nav-catalog-text').textContent = data.navCatalog;
+  if (data.navContact && document.getElementById('header-contact-text')) document.getElementById('header-contact-text').textContent = data.navContact;
+  if (data.heroHeadline && document.getElementById('hero-headline-text')) document.getElementById('hero-headline-text').textContent = data.heroHeadline;
+  if (data.heroSubtext && document.getElementById('hero-subtext')) document.getElementById('hero-subtext').textContent = data.heroSubtext;
+  if (data.heroBtnText && document.getElementById('hero-btn-text')) document.getElementById('hero-btn-text').textContent = data.heroBtnText;
+  if (data.catalogHeading && document.getElementById('catalog-heading-text')) document.getElementById('catalog-heading-text').textContent = data.catalogHeading;
+  if (data.catalogSubheading && document.getElementById('catalog-subheading-text')) document.getElementById('catalog-subheading-text').textContent = data.catalogSubheading;
+  
+  if (data.whatsapp) {
+    if (document.getElementById('header-contact-btn')) document.getElementById('header-contact-btn').href = data.whatsapp;
+    if (document.getElementById('footer-whatsapp-link')) document.getElementById('footer-whatsapp-link').href = data.whatsapp;
+  }
+  if (data.email && document.getElementById('footer-email-text')) document.getElementById('footer-email-text').textContent = data.email;
+  if (data.footerBrandDesc && document.getElementById('footer-brand-desc')) document.getElementById('footer-brand-desc').textContent = data.footerBrandDesc;
+  if (data.footerCareTitle && document.getElementById('footer-care-title')) document.getElementById('footer-care-title').textContent = data.footerCareTitle;
+  if (data.footerText && document.getElementById('footer-copyright-text')) document.getElementById('footer-copyright-text').textContent = data.footerText;
+}
+
 async function loadFrontendSettings() {
+  // 1. Instant load from local storage cache (0ms delay)
+  const cached = localStorage.getItem('novucart_frontend_settings');
+  if (cached) {
+    try {
+      applyFrontendSettingsDOM(JSON.parse(cached));
+    } catch(e) {}
+  }
+
+  // 2. Fetch fresh from Firebase in background
   try {
     const docSnap = await getDoc(doc(db, "settings", "general"));
     if (docSnap.exists()) {
       const data = docSnap.data();
-      cardPaymentLink = data.cardPaymentLink || "";
-      storeEmail = data.email || "support@novucart.com";
-
-      if (data.catalogMode === 'slider') {
-        const catContainer = document.getElementById('frontend-product-list');
-        if (catContainer) {
-          catContainer.classList.remove('product-grid');
-          catContainer.classList.add('product-slider-container');
-        }
-      }
-
-      // Logo rendering
-      if (data.logoType === 'image' && data.logoUrl) {
-        if (document.getElementById('logo-img')) {
-          document.getElementById('logo-img').src = data.logoUrl;
-          document.getElementById('logo-img').style.display = 'inline-block';
-        }
-        if (document.getElementById('logo-text')) document.getElementById('logo-text').style.display = 'none';
-      } else if (data.siteTitle && document.getElementById('logo-text')) {
-        document.getElementById('logo-text').textContent = data.siteTitle;
-      }
-
-      if (data.siteTitle && document.getElementById('site-title-tag')) document.getElementById('site-title-tag').textContent = data.siteTitle;
-      if (data.announcement && document.getElementById('announcement-text')) document.getElementById('announcement-text').textContent = data.announcement;
-      if (data.navCatalog && document.getElementById('nav-catalog-text')) document.getElementById('nav-catalog-text').textContent = data.navCatalog;
-      if (data.navContact && document.getElementById('header-contact-text')) document.getElementById('header-contact-text').textContent = data.navContact;
-      if (data.heroHeadline && document.getElementById('hero-headline-text')) document.getElementById('hero-headline-text').textContent = data.heroHeadline;
-      if (data.heroSubtext && document.getElementById('hero-subtext')) document.getElementById('hero-subtext').textContent = data.heroSubtext;
-      if (data.heroBtnText && document.getElementById('hero-btn-text')) document.getElementById('hero-btn-text').textContent = data.heroBtnText;
-      if (data.catalogHeading && document.getElementById('catalog-heading-text')) document.getElementById('catalog-heading-text').textContent = data.catalogHeading;
-      if (data.catalogSubheading && document.getElementById('catalog-subheading-text')) document.getElementById('catalog-subheading-text').textContent = data.catalogSubheading;
-      
-      if (data.whatsapp) {
-        if (document.getElementById('header-contact-btn')) document.getElementById('header-contact-btn').href = data.whatsapp;
-        if (document.getElementById('footer-whatsapp-link')) document.getElementById('footer-whatsapp-link').href = data.whatsapp;
-      }
-      if (data.email && document.getElementById('footer-email-text')) document.getElementById('footer-email-text').textContent = data.email;
-      if (data.footerBrandDesc && document.getElementById('footer-brand-desc')) document.getElementById('footer-brand-desc').textContent = data.footerBrandDesc;
-      if (data.footerCareTitle && document.getElementById('footer-care-title')) document.getElementById('footer-care-title').textContent = data.footerCareTitle;
-      if (data.footerText && document.getElementById('footer-copyright-text')) document.getElementById('footer-copyright-text').textContent = data.footerText;
+      applyFrontendSettingsDOM(data);
+      localStorage.setItem('novucart_frontend_settings', JSON.stringify(data));
     }
   } catch(e) {}
 }
@@ -518,11 +535,22 @@ if (settingsForm) {
   settingsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     try {
-      await setDoc(doc(db, "settings", "general"), {
-        cardPaymentLink: document.getElementById('setting-card-payment-link').value,
+      let rawPayLink = document.getElementById('setting-card-payment-link').value.trim();
+      if (rawPayLink && !rawPayLink.startsWith('http://') && !rawPayLink.startsWith('https://')) {
+        rawPayLink = 'https://' + rawPayLink;
+      }
+
+      let rawLogoUrl = document.getElementById('setting-logo-url').value.trim();
+      if (rawLogoUrl.includes('src=')) {
+        const match = rawLogoUrl.match(/src=['"]([^'"]+)['"]/);
+        if (match && match[1]) rawLogoUrl = match[1];
+      }
+
+      const updatedData = {
+        cardPaymentLink: rawPayLink,
         siteTitle: document.getElementById('setting-site-title').value,
         logoType: document.getElementById('setting-logo-type').value,
-        logoUrl: document.getElementById('setting-logo-url').value,
+        logoUrl: rawLogoUrl,
         catalogMode: document.getElementById('setting-catalog-mode').value,
         announcement: document.getElementById('setting-announcement').value,
         navCatalog: document.getElementById('setting-nav-catalog').value,
@@ -537,9 +565,12 @@ if (settingsForm) {
         footerBrandDesc: document.getElementById('setting-footer-brand-desc').value,
         footerCareTitle: document.getElementById('setting-footer-care-title').value,
         footerText: document.getElementById('setting-footer-text').value
-      }, { merge: true });
+      };
+
+      await setDoc(doc(db, "settings", "general"), updatedData, { merge: true });
+      localStorage.setItem('novucart_frontend_settings', JSON.stringify(updatedData));
       alert("Settings and Payment Link updated successfully!");
-    } catch (err) { alert("Failed to save settings."); }
+    } catch (err) { alert("Failed to save settings: " + err.message); }
   });
 }
 
