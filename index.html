@@ -13,18 +13,14 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: #f8fafc; color: #0f172a; }
 
-    /* ANNOUNCEMENT BAR */
     .announcement-bar { background: #000; color: #fff; text-align: center; padding: 8px 16px; font-size: 0.85rem; font-weight: 600; }
 
-    /* NAVBAR */
     header { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     .brand-logo { font-size: 1.4rem; font-weight: 800; text-decoration: none; color: #0f172a; }
 
-    /* HERO SECTION */
     .hero { background: #1e293b; color: #fff; padding: 60px 24px; text-align: center; }
     .hero h1 { font-size: 2.2rem; margin-bottom: 12px; }
 
-    /* PRODUCT GRID */
     .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
     .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
     
@@ -40,21 +36,17 @@
 </head>
 <body>
 
-  <!-- TOP ANNOUNCEMENT -->
   <div class="announcement-bar" id="topAnnouncement">📢 Welcome to Novucart!</div>
 
-  <!-- NAVIGATION -->
   <header>
     <a href="index.html" class="brand-logo" id="siteLogo">Novucart</a>
     <a href="admin.html" style="color: #64748b; text-decoration: none; font-size: 0.85rem; font-weight: 600;">Admin Area</a>
   </header>
 
-  <!-- HERO BANNER -->
   <div class="hero">
     <h1 id="heroHeadline">Discover Extraordinary Products</h1>
   </div>
 
-  <!-- PRODUCTS CONTAINER -->
   <div class="container">
     <h2 style="margin-bottom: 20px;">Catalog</h2>
     <div class="products-grid" id="publicProductGrid">
@@ -63,21 +55,20 @@
   </div>
 
 <script>
-  // FIREBASE CONFIGURATION
+  // YOUR ACTUAL FIREBASE CONFIG
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyCvwAg_i3wnfrKdbegLLh7-tPJE44COYoI",
+    authDomain: "novucart-5d9a3.firebaseapp.com",
+    projectId: "novucart-5d9a3",
+    storageBucket: "novucart-5d9a3.appspot.com",
+    messagingSenderId: "102938475610",
+    appId: "1:102938475610:web:abc123def456"
   };
 
-  let db;
-  try {
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    db = firebase.firestore();
-  } catch(e) {}
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let globalCheckoutUrl = "#";
 
   document.addEventListener('DOMContentLoaded', () => {
     applySettings();
@@ -85,59 +76,44 @@
   });
 
   function applySettings() {
-    const settings = JSON.parse(localStorage.getItem('novucart_settings')) || {};
-    if(settings.siteTitle) {
-      document.getElementById('pageTitle').innerText = settings.siteTitle;
-      document.getElementById('siteLogo').innerText = settings.siteTitle;
-    }
-    if(settings.announcement) document.getElementById('topAnnouncement').innerText = settings.announcement;
-    if(settings.heroTitle) document.getElementById('heroHeadline').innerText = settings.heroTitle;
+    db.collection('settings').doc('site').get().then(doc => {
+      if(doc.exists) {
+        const settings = doc.data();
+        if(settings.siteTitle) {
+          document.getElementById('pageTitle').innerText = settings.siteTitle;
+          document.getElementById('siteLogo').innerText = settings.siteTitle;
+        }
+        if(settings.announcement) document.getElementById('topAnnouncement').innerText = settings.announcement;
+        if(settings.heroTitle) document.getElementById('heroHeadline').innerText = settings.heroTitle;
+        if(settings.cardPaymentUrl) globalCheckoutUrl = settings.cardPaymentUrl;
+      }
+    });
   }
 
   function fetchStoreProducts() {
     const grid = document.getElementById('publicProductGrid');
-    if (db && firebaseConfig.apiKey !== "YOUR_API_KEY") {
-      db.collection('products').get().then(snapshot => {
-        if(snapshot.empty) {
-          grid.innerHTML = '<p>No products available right now.</p>';
-          return;
-        }
-        grid.innerHTML = '';
-        snapshot.forEach(doc => {
-          const p = doc.data();
-          grid.innerHTML += renderProductCard(p);
-        });
-      }).catch(() => fetchLocalProducts());
-    } else {
-      fetchLocalProducts();
-    }
-  }
-
-  function fetchLocalProducts() {
-    const grid = document.getElementById('publicProductGrid');
-    const products = JSON.parse(localStorage.getItem('novucart_products')) || [];
-    if(products.length === 0) {
-      grid.innerHTML = '<p>No products available right now.</p>';
-      return;
-    }
-    grid.innerHTML = products.map(p => renderProductCard(p)).join('');
-  }
-
-  function renderProductCard(p) {
-    const settings = JSON.parse(localStorage.getItem('novucart_settings')) || {};
-    const checkoutUrl = settings.cardPaymentUrl || '#';
-    return `
-      <div class="product-card">
-        <div>
-          <img src="${p.image || 'https://via.placeholder.com/200'}" class="product-image" alt="${p.title}">
-          <div class="product-title">${p.title}</div>
-          <div class="product-price">$${parseFloat(p.price).toFixed(2)}</div>
-        </div>
-        <a href="${checkoutUrl}" target="_blank" style="text-decoration:none;">
-          <button class="btn-buy">Buy Now</button>
-        </a>
-      </div>
-    `;
+    db.collection('products').get().then(snapshot => {
+      if(snapshot.empty) {
+        grid.innerHTML = '<p>No products available right now.</p>';
+        return;
+      }
+      grid.innerHTML = '';
+      snapshot.forEach(doc => {
+        const p = doc.data();
+        grid.innerHTML += `
+          <div class="product-card">
+            <div>
+              <img src="${p.image || 'https://via.placeholder.com/200'}" class="product-image" alt="${p.title}">
+              <div class="product-title">${p.title}</div>
+              <div class="product-price">$${parseFloat(p.price).toFixed(2)}</div>
+            </div>
+            <a href="${globalCheckoutUrl}" target="_blank" style="text-decoration:none;">
+              <button class="btn-buy">Buy Now</button>
+            </a>
+          </div>
+        `;
+      });
+    }).catch(err => console.error(err));
   }
 </script>
 
