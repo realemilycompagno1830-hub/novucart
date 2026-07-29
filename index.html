@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="site-title-tag">Store Front</title>
+  <title id="site-title-tag">Store</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="site-body">
 
   <!-- Top Announcement Bar -->
-  <div class="announcement-bar" id="announcement-text">Loading store announcement...</div>
+  <div class="announcement-bar" id="announcement-text"></div>
 
   <!-- Main Store Header -->
   <header class="main-header">
     <div class="header-container">
       <a href="index.html" class="logo-area" id="store-logo-link">
         <img id="logo-img" src="" class="brand-logo-img" style="display:none;" alt="Logo">
-        <span id="logo-text" class="brand-name">My Store</span>
+        <span id="logo-text" class="brand-name"></span>
       </a>
 
       <nav class="nav-links">
@@ -25,7 +25,7 @@
         <a href="#" id="header-contact-btn" class="nav-item contact-btn" target="_blank">
           <i class="fa-brands fa-whatsapp"></i> <span id="header-contact-text">Contact</span>
         </a>
-        <button class="cart-trigger" id="open-cart-btn">
+        <button class="cart-trigger" id="open-cart-btn" aria-label="Open Cart">
           <i class="fa-solid fa-cart-shopping"></i>
           <span class="cart-count" id="cart-count">0</span>
         </button>
@@ -33,32 +33,50 @@
     </div>
   </header>
 
-  <!-- Product Navbar Media Slider -->
-  <section class="product-navbar-slider" id="product-navbar-slider">
-    <div class="product-slider-container" id="product-slider-inner">
-      <!-- Media slides (images/videos) populated dynamically by JS -->
-    </div>
-  </section>
-
   <!-- Hero Banner -->
   <section class="hero-section">
     <div class="hero-content">
-      <h1 id="hero-headline-text">Welcome to Our Store</h1>
-      <p id="hero-subtext">Find the best deals on featured products today!</p>
+      <h1 id="hero-headline-text"></h1>
+      <p id="hero-subtext"></p>
       <a href="#catalog" class="btn btn-primary btn-large" id="hero-btn-text">Shop Now</a>
+    </div>
+  </section>
+
+  <!-- FEATURED PRODUCT SHOWCASE SLIDER / GALLERY -->
+  <section class="showcase-slider-section">
+    <div class="showcase-container">
+      <div class="showcase-header">
+        <div>
+          <h3>Featured Showcase</h3>
+          <p class="text-secondary">Explore our highlighted collection in real-time</p>
+        </div>
+        <div class="slider-controls">
+          <button class="slider-arrow-btn" id="slider-prev-btn" aria-label="Previous Slide">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <button class="slider-arrow-btn" id="slider-next-btn" aria-label="Next Slide">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="product-slider-container" id="featured-showcase-slider">
+        <!-- Rendered dynamically by app.js -->
+        <div class="loading-spinner">Loading showcase gallery...</div>
+      </div>
     </div>
   </section>
 
   <!-- Video & Product Catalog -->
   <main class="store-container" id="catalog">
     <div class="section-title">
-      <h2 id="catalog-heading-text">Featured Collection</h2>
-      <p class="text-secondary" id="catalog-subheading-text">Browse through our quality selections</p>
+      <h2 id="catalog-heading-text">Our Products</h2>
+      <p class="text-secondary" id="catalog-subheading-text">Browse through our full inventory below</p>
     </div>
 
     <!-- Dynamic Category Filter Tabs -->
     <div class="category-nav" id="category-filter-bar">
-      <button class="cat-btn active" onclick="filterCategory('All')">All</button>
+      <button class="cat-btn active" data-category="All">All</button>
     </div>
 
     <!-- Product Grid Container -->
@@ -70,24 +88,40 @@
   <!-- Footer -->
   <footer class="main-footer">
     <div class="footer-container">
-      <div class="footer-col">
-        <h3 id="footer-brand-title">Our Store</h3>
-        <p id="footer-brand-desc">Your trusted destination for quality products.</p>
+      <div class="footer-col footer-col-brand">
+        <h3 id="footer-brand-title"></h3>
+        <p id="footer-brand-desc"></p>
       </div>
-      <div class="footer-col">
-        <h4 id="footer-care-title">Customer Support</h4>
-        <p><a href="#" id="footer-whatsapp-link" target="_blank"><i class="fa-brands fa-whatsapp"></i> <span id="footer-whatsapp-text">Contact on WhatsApp</span></a></p>
-        <p><i class="fa-solid fa-envelope"></i> <span id="footer-email-text">support@store.com</span></p>
+
+      <div class="footer-col footer-col-nav">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#catalog">Catalog</a></li>
+          <li><a href="#featured-showcase-slider">Featured Showcase</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-contact">
+        <h4 id="footer-care-title">Customer Care</h4>
+        <p>
+          <a href="#" id="footer-whatsapp-link" target="_blank">
+            <i class="fa-brands fa-whatsapp"></i> <span id="footer-whatsapp-text">Contact on WhatsApp</span>
+          </a>
+        </p>
+        <p class="footer-email-row">
+          <i class="fa-solid fa-envelope"></i> <span id="footer-email-text"></span>
+        </p>
       </div>
     </div>
+
     <div class="footer-bottom">
-      <p id="footer-copyright-text">&copy; 2026 Store. All rights reserved.</p>
+      <p id="footer-copyright-text"></p>
     </div>
   </footer>
 
   <!-- Slide-out Cart Drawer -->
   <div class="cart-drawer-overlay" id="cart-overlay" style="display:none;"></div>
-  <div class="cart-drawer" id="cart-drawer">
+  <aside class="cart-drawer" id="cart-drawer">
     <div class="cart-header">
       <h3>Your Shopping Bag</h3>
       <button class="close-cart-btn" id="close-cart-btn">✕</button>
@@ -102,7 +136,7 @@
       </div>
       <button class="btn btn-primary btn-block" id="checkout-btn">Proceed to Checkout</button>
     </div>
-  </div>
+  </aside>
 
   <!-- CHECKOUT MODAL -->
   <div class="modal-overlay" id="checkout-modal" style="display: none;">
@@ -113,39 +147,39 @@
       </div>
       <form id="checkout-form">
         <div class="form-group">
-          <label>Full Name</label>
+          <label for="cust-name">Full Name</label>
           <input type="text" id="cust-name" placeholder="John Doe" required>
         </div>
         <div class="form-group">
-          <label>Email Address</label>
+          <label for="cust-email">Email Address</label>
           <input type="email" id="cust-email" placeholder="john@example.com" required>
         </div>
         <div class="form-group">
-          <label>Phone Number</label>
+          <label for="cust-phone">Phone Number</label>
           <input type="tel" id="cust-phone" placeholder="+1234567890" required>
         </div>
         <div class="form-group">
-          <label>Delivery Address</label>
+          <label for="cust-address">Delivery Address</label>
           <input type="text" id="cust-address" placeholder="123 Main St, City" required>
         </div>
         <div class="form-group">
-          <label>Alternative Contact Means (WhatsApp/Telegram/Social)</label>
+          <label for="cust-alt-contact">Alternative Contact Means (WhatsApp/Telegram/Social)</label>
           <input type="text" id="cust-alt-contact" placeholder="Optional contact handles or notes">
         </div>
 
         <!-- Promo Code Box -->
         <div class="form-group">
-          <label>Promo / Discount Code</label>
+          <label for="cust-promo-code">Promo / Discount Code</label>
           <input type="text" id="cust-promo-code" placeholder="Enter promo code (Optional)">
         </div>
 
         <div class="form-group" style="margin-top: 18px;">
           <label><strong>Select Payment Method:</strong></label>
-          <div style="display: flex; gap: 12px; margin-top: 8px;">
-            <label style="font-weight: normal; cursor: pointer;">
+          <div class="radio-group">
+            <label>
               <input type="radio" name="payment-method" value="card" checked> Pay via Card
             </label>
-            <label style="font-weight: normal; cursor: pointer;">
+            <label>
               <input type="radio" name="payment-method" value="pod"> Pay on Delivery
             </label>
           </div>
@@ -156,12 +190,12 @@
     </div>
   </div>
 
-  <!-- Side Promotional Ad Box -->
+  <!-- Non-Blocking Side Ad Box -->
   <div class="promo-ad-sidebox" id="frontend-promo-ad" style="display: none;">
     <button class="promo-ad-close" id="close-promo-ad">✕</button>
-    <img id="promo-ad-img" src="" style="display:none; width:100%; border-radius:8px; margin-bottom:10px; max-height:120px; object-fit:cover;" alt="Ad Image">
-    <h4 id="promo-ad-heading">Promotional Offer</h4>
-    <p id="promo-ad-body">Special discount available now!</p>
+    <img id="promo-ad-img" src="" style="display:none; width:100%; border-radius:8px; margin-bottom:10px; max-height:120px; object-fit:cover;" alt="Promo">
+    <h4 id="promo-ad-heading"></h4>
+    <p id="promo-ad-body"></p>
     <a href="#" id="promo-ad-link-btn" class="btn btn-ad-action btn-block">Claim Offer</a>
   </div>
 
