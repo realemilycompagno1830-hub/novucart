@@ -16,12 +16,15 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentProductsList = [];
+let categoriesList = ["Men's Clothing", "Electronics", "Women's Wear"];
+let activeCategoryFilter = "All";
 let cart = [];
 let cardPaymentLink = "";
 let storeEmail = "";
 
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('frontend-product-list')) {
+    loadCategories();
     loadFrontendProducts();
     loadFrontendSettings();
     loadFrontendPromoAd();
@@ -37,6 +40,7 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     if (document.getElementById('login-section')) document.getElementById('login-section').style.display = 'none';
     if (document.getElementById('dashboard-section')) document.getElementById('dashboard-section').style.display = 'block';
+    loadCategories();
     loadAdminProducts();
     loadAdminOrders();
     loadSiteSettings();
@@ -60,6 +64,77 @@ if (loginForm) {
 
 if (logoutBtn) logoutBtn.addEventListener('click', () => signOut(auth));
 
+// CATEGORY MANAGEMENT
+async function loadCategories() {
+  try {
+    const docSnap = await getDoc(doc(db, "settings", "categories"));
+    if (docSnap.exists() && docSnap.data().list) {
+      categoriesList = docSnap.data().list;
+    }
+  } catch(e) {}
+  renderCategoryTabs();
+  renderCategorySelectOptions();
+  renderAdminCategoryTable();
+}
+
+function renderCategoryTabs() {
+  const bar = document.getElementById('category-filter-bar');
+  if (!bar) return;
+  bar.innerHTML = `<button class="cat-btn ${activeCategoryFilter === 'All' ? 'active' : ''}" onclick="filterCategory('All')">All</button>`;
+  categoriesList.forEach(cat => {
+    bar.innerHTML += `<button class="cat-btn ${activeCategoryFilter === cat ? 'active' : ''}" onclick="filterCategory('${cat}')">${cat}</button>`;
+  });
+}
+
+function renderCategorySelectOptions() {
+  const select = document.getElementById('modal-product-category');
+  if (!select) return;
+  select.innerHTML = `<option value="Uncategorized">Uncategorized</option>`;
+  categoriesList.forEach(cat => {
+    select.innerHTML += `<option value="${cat}">${cat}</option>`;
+  });
+}
+
+function renderAdminCategoryTable() {
+  const tbody = document.getElementById('admin-categories-list');
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  categoriesList.forEach((cat, idx) => {
+    tbody.innerHTML += `
+      <tr>
+        <td><strong>${cat}</strong></td>
+        <td><button class="btn btn-outline" style="color:red; padding:4px 8px;" onclick="deleteCategory(${idx})">Delete</button></td>
+      </tr>
+    `;
+  });
+}
+
+window.filterCategory = (cat) => {
+  activeCategoryFilter = cat;
+  renderCategoryTabs();
+  loadFrontendProducts();
+};
+
+window.deleteCategory = async (idx) => {
+  categoriesList.splice(idx, 1);
+  await setDoc(doc(db, "settings", "categories"), { list: categoriesList });
+  loadCategories();
+};
+
+const categoryForm = document.getElementById('category-form');
+if (categoryForm) {
+  categoryForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('new-category-name').value.trim();
+    if (name && !categoriesList.includes(name)) {
+      categoriesList.push(name);
+      await setDoc(doc(db, "settings", "categories"), { list: categoriesList });
+      document.getElementById('new-category-name').value = "";
+      loadCategories();
+    }
+  });
+}
+
 // ADD / EDIT PRODUCT MODAL
 const productModal = document.getElementById('product-modal');
 const openModalBtn = document.getElementById('open-product-modal-btn');
@@ -71,6 +146,7 @@ if (openModalBtn) {
     if (document.getElementById('modal-title')) document.getElementById('modal-title').textContent = "Add New Product";
     if (document.getElementById('modal-product-id')) document.getElementById('modal-product-id').value = "";
     if (productForm) productForm.reset();
+    renderCategorySelectOptions();
     if (productModal) productModal.style.display = 'flex';
   });
 }
@@ -84,6 +160,7 @@ if (productForm) {
     e.preventDefault();
     const id = document.getElementById('modal-product-id').value;
     const title = document.getElementById('modal-product-title').value.trim();
+    const category = document.getElementById('modal-product-category').value;
     const desc = document.getElementById('modal-product-desc').value.trim();
     const price = parseFloat(document.getElementById('modal-product-price').value);
     const stock = parseInt(document.getElementById('modal-product-stock').value) || 0;
@@ -92,10 +169,10 @@ if (productForm) {
 
     try {
       if (id) {
-        await updateDoc(doc(db, "products", id), { title, desc, price, stock, image, badge });
+        await updateDoc(doc(db, "products", id), { title, category, desc, price, stock, image, badge });
       } else {
         const newDocRef = doc(collection(db, "products"));
-        await setDoc(newDocRef, { title, desc, price, stock, image, badge, order: currentProductsList.length + 1 });
+        await setDoc(newDocRef, { title, category, desc, price, stock, image, badge, order: currentProductsList.length + 1 });
       }
       if (productModal) productModal.style.display = 'none';
       productForm.reset();
@@ -116,15 +193,19 @@ async function loadFrontendProducts() {
     snapshot.forEach(d => products.push({ id: d.id, ...d.data() }));
     products.sort((a,b) => (a.order || 0) - (b.order || 0));
 
+    if (activeCategoryFilter !== "All") {
+      products = products.filter(p => p.category === activeCategoryFilter);
+    }
+
     if (products.length === 0) {
-      container.innerHTML = "<p>No catalog items available right now.</p>";
+      container.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>No items available in this view.</p>";
       return;
     }
 
     products.forEach(p => {
       const card = document.createElement('div');
       card.className = "product-card";
-      const isVideo = p.image && p.image.toLowerCase().endsWith('.mp4');
+      const isVideo = p.image && (p.image.toLowerCase().endsWith('.mp4') || p.image.toLowerCase().includes('video'));
 
       const mediaHtml = isVideo 
         ? `<video src="${p.image}" class="product-media" controls autoplay muted loop></video>`
@@ -151,14 +232,42 @@ async function loadFrontendSettings() {
       cardPaymentLink = data.cardPaymentLink || "";
       storeEmail = data.email || "support@novucart.com";
 
+      if (data.catalogMode === 'slider') {
+        const catContainer = document.getElementById('frontend-product-list');
+        if (catContainer) {
+          catContainer.classList.remove('product-grid');
+          catContainer.classList.add('product-slider-container');
+        }
+      }
+
+      // Logo rendering
+      if (data.logoType === 'image' && data.logoUrl) {
+        if (document.getElementById('logo-img')) {
+          document.getElementById('logo-img').src = data.logoUrl;
+          document.getElementById('logo-img').style.display = 'inline-block';
+        }
+        if (document.getElementById('logo-text')) document.getElementById('logo-text').style.display = 'none';
+      } else if (data.siteTitle && document.getElementById('logo-text')) {
+        document.getElementById('logo-text').textContent = data.siteTitle;
+      }
+
       if (data.siteTitle && document.getElementById('site-title-tag')) document.getElementById('site-title-tag').textContent = data.siteTitle;
       if (data.announcement && document.getElementById('announcement-text')) document.getElementById('announcement-text').textContent = data.announcement;
+      if (data.navCatalog && document.getElementById('nav-catalog-text')) document.getElementById('nav-catalog-text').textContent = data.navCatalog;
+      if (data.navContact && document.getElementById('header-contact-text')) document.getElementById('header-contact-text').textContent = data.navContact;
       if (data.heroHeadline && document.getElementById('hero-headline-text')) document.getElementById('hero-headline-text').textContent = data.heroHeadline;
+      if (data.heroSubtext && document.getElementById('hero-subtext')) document.getElementById('hero-subtext').textContent = data.heroSubtext;
+      if (data.heroBtnText && document.getElementById('hero-btn-text')) document.getElementById('hero-btn-text').textContent = data.heroBtnText;
+      if (data.catalogHeading && document.getElementById('catalog-heading-text')) document.getElementById('catalog-heading-text').textContent = data.catalogHeading;
+      if (data.catalogSubheading && document.getElementById('catalog-subheading-text')) document.getElementById('catalog-subheading-text').textContent = data.catalogSubheading;
+      
       if (data.whatsapp) {
         if (document.getElementById('header-contact-btn')) document.getElementById('header-contact-btn').href = data.whatsapp;
         if (document.getElementById('footer-whatsapp-link')) document.getElementById('footer-whatsapp-link').href = data.whatsapp;
       }
       if (data.email && document.getElementById('footer-email-text')) document.getElementById('footer-email-text').textContent = data.email;
+      if (data.footerBrandDesc && document.getElementById('footer-brand-desc')) document.getElementById('footer-brand-desc').textContent = data.footerBrandDesc;
+      if (data.footerCareTitle && document.getElementById('footer-care-title')) document.getElementById('footer-care-title').textContent = data.footerCareTitle;
       if (data.footerText && document.getElementById('footer-copyright-text')) document.getElementById('footer-copyright-text').textContent = data.footerText;
     }
   } catch(e) {}
@@ -232,15 +341,15 @@ function setupCartAndCheckout() {
       const phone = document.getElementById('cust-phone').value;
       const address = document.getElementById('cust-address').value;
       const altContact = document.getElementById('cust-alt-contact').value || 'N/A';
+      const promoCode = document.getElementById('cust-promo-code').value || 'None';
       const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
 
-      let total = cart.reduce((acc, i) => acc + parseFloat(i.price), 0);
-      let itemsListStr = cart.map(i => `- ${i.title} ($${i.price})`).join('\n');
+      let total = cart.reduce((acc, i) => acc + (parseFloat(i.price) * i.qty), 0);
+      let itemsListStr = cart.map(i => `- ${i.title} (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}`).join('\n');
 
       try {
-        // Save order to Firebase
         await addDoc(collection(db, "orders"), {
-          name, email, phone, address, altContact,
+          name, email, phone, address, altContact, promoCode,
           paymentMethod: paymentMethod === 'card' ? 'Pay via Card' : 'Pay on Delivery',
           total: total.toFixed(2), items: cart, date: new Date().toLocaleDateString()
         });
@@ -252,9 +361,9 @@ function setupCartAndCheckout() {
           }
           window.location.href = cardPaymentLink;
         } else {
-          // Pay on Delivery: Launch default mail client
+          // PAY ON DELIVERY: Direct email launch with zero popup blocks
           const subject = encodeURIComponent(`New Pay on Delivery Order from ${name}`);
-          const body = encodeURIComponent(`Customer Order Details:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nDelivery Address: ${address}\nAlt Contact: ${altContact}\n\nItems Ordered:\n${itemsListStr}\n\nTotal Amount: $${total.toFixed(2)}`);
+          const body = encodeURIComponent(`Customer Order Details:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nDelivery Address: ${address}\nAlt Contact: ${altContact}\nPromo Code: ${promoCode}\n\nItems Ordered:\n${itemsListStr}\n\nTotal Amount: $${total.toFixed(2)}`);
           
           window.location.href = `mailto:${storeEmail}?subject=${subject}&body=${body}`;
         }
@@ -268,15 +377,30 @@ function setupCartAndCheckout() {
   }
 }
 
+// MULTI-QUANTITY CART SUPPORT
 window.addToCart = (id, title, price, image) => {
-  cart.push({ id, title, price, image });
+  const existing = cart.find(item => item.id === id);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({ id, title, price: parseFloat(price), image, qty: 1 });
+  }
   updateCartUI();
   if (document.getElementById('cart-drawer')) document.getElementById('cart-drawer').classList.add('open');
   if (document.getElementById('cart-overlay')) document.getElementById('cart-overlay').style.display = 'block';
 };
 
+window.changeQty = (idx, delta) => {
+  if (cart[idx]) {
+    cart[idx].qty += delta;
+    if (cart[idx].qty <= 0) cart.splice(idx, 1);
+  }
+  updateCartUI();
+};
+
 function updateCartUI() {
-  if (document.getElementById('cart-count')) document.getElementById('cart-count').textContent = cart.length;
+  const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+  if (document.getElementById('cart-count')) document.getElementById('cart-count').textContent = totalCount;
   const container = document.getElementById('cart-items-container');
   let total = 0;
   if (!container) return;
@@ -289,29 +413,27 @@ function updateCartUI() {
 
   container.innerHTML = "";
   cart.forEach((item, idx) => {
-    total += parseFloat(item.price);
+    const itemTotal = item.price * item.qty;
+    total += itemTotal;
     const div = document.createElement('div');
-    div.style.cssText = "display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;";
+    div.style.cssText = "display:flex; align-items:center; justify-style:space-between; margin-bottom:12px; gap:8px;";
     div.innerHTML = `
-      <div style="display:flex; align-items:center; gap:10px;">
-        <img src="${item.image}" width="40" height="40" style="border-radius:6px; object-fit:cover;">
-        <div>
-          <strong style="font-size:0.85rem; display:block;">${item.title}</strong>
-          <span style="font-size:0.8rem; color:#64748B;">$${item.price.toFixed(2)}</span>
-        </div>
+      <img src="${item.image}" width="40" height="40" style="border-radius:6px; object-fit:cover;">
+      <div style="flex:1;">
+        <strong style="font-size:0.85rem; display:block;">${item.title}</strong>
+        <span style="font-size:0.8rem; color:#64748B;">$${item.price.toFixed(2)}</span>
       </div>
-      <button style="background:none; border:none; color:red; cursor:pointer;" onclick="removeFromCart(${idx})">✕</button>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <button class="qty-btn" onclick="changeQty(${idx}, -1)">-</button>
+        <span style="font-size:0.85rem; font-weight:bold;">${item.qty}</span>
+        <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
+      </div>
     `;
     container.appendChild(div);
   });
 
   if (document.getElementById('cart-total-price')) document.getElementById('cart-total-price').textContent = `$${total.toFixed(2)}`;
 }
-
-window.removeFromCart = (idx) => {
-  cart.splice(idx, 1);
-  updateCartUI();
-};
 
 // ADMIN DATA LOADERS
 async function loadAdminProducts() {
@@ -338,7 +460,7 @@ async function loadAdminProducts() {
           <button class="btn btn-outline" style="padding:2px 6px;" onclick="moveProduct('${item.id}', 'down')" ${index===currentProductsList.length-1?'disabled':''}>▼</button>
         </td>
         <td><img src="${item.image}" width="35" height="35" style="border-radius:6px; object-fit:cover;"></td>
-        <td><strong>${item.title}</strong><br><small style="color:#64748B;">${item.desc || 'No description'}</small></td>
+        <td><strong>${item.title}</strong><br><small style="color:#64748B;">Cat: ${item.category || 'Uncategorized'}</small></td>
         <td>$${item.price}</td>
         <td>${item.stock || 0}</td>
         <td>
@@ -355,9 +477,11 @@ window.editProduct = (id) => {
   const product = currentProductsList.find(p => p.id === id);
   if (!product) return;
 
+  renderCategorySelectOptions();
   if (document.getElementById('modal-title')) document.getElementById('modal-title').textContent = "Edit Product";
   if (document.getElementById('modal-product-id')) document.getElementById('modal-product-id').value = product.id;
   if (document.getElementById('modal-product-title')) document.getElementById('modal-product-title').value = product.title || '';
+  if (document.getElementById('modal-product-category')) document.getElementById('modal-product-category').value = product.category || 'Uncategorized';
   if (document.getElementById('modal-product-desc')) document.getElementById('modal-product-desc').value = product.desc || '';
   if (document.getElementById('modal-product-price')) document.getElementById('modal-product-price').value = product.price || '';
   if (document.getElementById('modal-product-stock')) document.getElementById('modal-product-stock').value = product.stock || '';
@@ -379,6 +503,7 @@ window.moveProduct = async (id, direction) => {
   await updateDoc(doc(db, "products", a.id), { order: targetIdx + 1 });
   await updateDoc(doc(db, "products", b.id), { order: idx + 1 });
   loadAdminProducts();
+  loadFrontendProducts();
 };
 
 window.deleteProduct = async (id) => {
@@ -396,11 +521,21 @@ if (settingsForm) {
       await setDoc(doc(db, "settings", "general"), {
         cardPaymentLink: document.getElementById('setting-card-payment-link').value,
         siteTitle: document.getElementById('setting-site-title').value,
+        logoType: document.getElementById('setting-logo-type').value,
         logoUrl: document.getElementById('setting-logo-url').value,
+        catalogMode: document.getElementById('setting-catalog-mode').value,
         announcement: document.getElementById('setting-announcement').value,
+        navCatalog: document.getElementById('setting-nav-catalog').value,
+        navContact: document.getElementById('setting-nav-contact').value,
         heroHeadline: document.getElementById('setting-hero-headline').value,
+        heroSubtext: document.getElementById('setting-hero-subtext').value,
+        heroBtnText: document.getElementById('setting-hero-btn-text').value,
+        catalogHeading: document.getElementById('setting-catalog-heading').value,
+        catalogSubheading: document.getElementById('setting-catalog-subheading').value,
         whatsapp: document.getElementById('setting-whatsapp').value,
         email: document.getElementById('setting-email').value,
+        footerBrandDesc: document.getElementById('setting-footer-brand-desc').value,
+        footerCareTitle: document.getElementById('setting-footer-care-title').value,
         footerText: document.getElementById('setting-footer-text').value
       }, { merge: true });
       alert("Settings and Payment Link updated successfully!");
@@ -448,11 +583,21 @@ async function loadSiteSettings() {
       const data = docSnap.data();
       if (document.getElementById('setting-card-payment-link')) document.getElementById('setting-card-payment-link').value = data.cardPaymentLink || '';
       if (document.getElementById('setting-site-title')) document.getElementById('setting-site-title').value = data.siteTitle || '';
+      if (document.getElementById('setting-logo-type')) document.getElementById('setting-logo-type').value = data.logoType || 'text';
       if (document.getElementById('setting-logo-url')) document.getElementById('setting-logo-url').value = data.logoUrl || '';
+      if (document.getElementById('setting-catalog-mode')) document.getElementById('setting-catalog-mode').value = data.catalogMode || 'grid';
       if (document.getElementById('setting-announcement')) document.getElementById('setting-announcement').value = data.announcement || '';
+      if (document.getElementById('setting-nav-catalog')) document.getElementById('setting-nav-catalog').value = data.navCatalog || '';
+      if (document.getElementById('setting-nav-contact')) document.getElementById('setting-nav-contact').value = data.navContact || '';
       if (document.getElementById('setting-hero-headline')) document.getElementById('setting-hero-headline').value = data.heroHeadline || '';
+      if (document.getElementById('setting-hero-subtext')) document.getElementById('setting-hero-subtext').value = data.heroSubtext || '';
+      if (document.getElementById('setting-hero-btn-text')) document.getElementById('setting-hero-btn-text').value = data.heroBtnText || '';
+      if (document.getElementById('setting-catalog-heading')) document.getElementById('setting-catalog-heading').value = data.catalogHeading || '';
+      if (document.getElementById('setting-catalog-subheading')) document.getElementById('setting-catalog-subheading').value = data.catalogSubheading || '';
       if (document.getElementById('setting-whatsapp')) document.getElementById('setting-whatsapp').value = data.whatsapp || '';
       if (document.getElementById('setting-email')) document.getElementById('setting-email').value = data.email || '';
+      if (document.getElementById('setting-footer-brand-desc')) document.getElementById('setting-footer-brand-desc').value = data.footerBrandDesc || '';
+      if (document.getElementById('setting-footer-care-title')) document.getElementById('setting-footer-care-title').value = data.footerCareTitle || '';
       if (document.getElementById('setting-footer-text')) document.getElementById('setting-footer-text').value = data.footerText || '';
     }
   } catch(e) {}
@@ -476,7 +621,7 @@ async function loadAdminOrders() {
         <td><strong>${o.name || 'N/A'}</strong></td>
         <td>${o.email || 'N/A'}<br><small>${o.phone || ''}</small></td>
         <td>${o.address || 'N/A'}</td>
-        <td>${o.paymentMethod || 'N/A'}</td>
+        <td>${o.paymentMethod || 'N/A'}<br><small>Promo: ${o.promoCode || 'None'}</small></td>
         <td>$${o.total || '0.00'}</td>
       `;
       container.appendChild(tr);
