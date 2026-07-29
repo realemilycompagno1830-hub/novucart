@@ -276,7 +276,7 @@ body {
 .product-card p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px; flex: 1; }
 .product-card .price { font-size: 1.25rem; font-weight: 800; color: var(--primary-color); margin-bottom: 12px; }
 
-/* CORRECTED PROFESSIONAL FOOTER */
+/* DYNAMIC PROFESSIONAL FOOTER */
 .site-footer {
   background-color: #F8FAFC;
   color: var(--text-dark);
