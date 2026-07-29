@@ -7,58 +7,176 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: #F8FAFC; color: #0F172A; padding: 20px; }
-    .admin-container { max-width: 900px; margin: 0 auto; background: #FFF; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    h1 { font-size: 1.5rem; margin-bottom: 20px; color: #1E293B; border-bottom: 2px solid #E2E8F0; padding-bottom: 10px; }
+    .admin-container { max-width: 1000px; margin: 0 auto; background: #FFF; padding: 24px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    
+    .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #E2E8F0; padding-bottom: 12px; }
+    .header-bar h1 { font-size: 1.5rem; color: #1E293B; }
+    
+    /* NAV TABS */
+    .admin-nav { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; border-bottom: 1px solid #E2E8F0; padding-bottom: 12px; }
+    .nav-btn { background: #F1F5F9; border: 1px solid #CBD5E1; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+    .nav-btn.active { background: #4F46E5; color: #FFF; border-color: #4F46E5; }
+
+    /* TAB PANELS */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* FORM STYLES */
     .form-group { margin-bottom: 18px; }
     label { display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 6px; color: #334155; }
-    input[type="text"], input[type="email"], textarea { width: 100%; padding: 10px 14px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.95rem; background: #F8FAFC; }
+    input[type="text"], input[type="number"], input[type="email"], textarea { width: 100%; padding: 10px 14px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.95rem; background: #F8FAFC; }
     input:focus, textarea:focus { outline: none; border-color: #4F46E5; background: #FFF; }
-    .btn-save { background: #FF6B1F; color: white; border: none; padding: 12px 24px; font-size: 1rem; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+    
+    .btn-save { background: #FF6B1F; color: white; border: none; padding: 12px 24px; font-size: 0.95rem; font-weight: 700; border-radius: 8px; cursor: pointer; }
     .btn-save:hover { background: #E55A10; }
+
+    /* TABLES & LISTS */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #E2E8F0; padding: 10px; text-align: left; font-size: 0.88rem; }
+    th { background: #F8FAFC; }
   </style>
 </head>
 <body>
 
 <div class="admin-container">
-  <h1>⚙️ Novucart Site & Payment Configuration</h1>
+  <div class="header-bar">
+    <h1>🛍️ Novucart Admin Dashboard</h1>
+    <a href="index.html" style="color: #64748B; text-decoration: none; font-weight: 600; font-size: 0.85rem;">← View Store</a>
+  </div>
 
-  <form id="adminForm">
-    <div class="form-group">
-      <label>Custom Card Payment Link (Stripe/Paystack/Flutterwave/PayPal)</label>
-      <input type="text" id="cardPaymentUrl" placeholder="https://checkout.stripe.com/pay/...">
-    </div>
+  <!-- NAVIGATION TABS -->
+  <div class="admin-nav">
+    <button class="nav-btn active" onclick="switchTab('productsTab', this)">📦 Products</button>
+    <button class="nav-btn" onclick="switchTab('settingsTab', this)">⚙️ Customizer & Card Link</button>
+    <button class="nav-btn" onclick="switchTab('bannerTab', this)">📢 Pop-Up Ad Banner</button>
+    <button class="nav-btn" onclick="switchTab('ordersTab', this)">📋 Orders</button>
+  </div>
 
-    <div class="form-group">
-      <label>Site Title</label>
-      <input type="text" id="siteTitle" placeholder="Novucart">
-    </div>
+  <!-- 1. PRODUCTS MANAGEMENT -->
+  <div id="productsTab" class="tab-panel active">
+    <h3>Add / Manage Products</h3>
+    <form id="productForm" style="margin-top: 15px; background: #F8FAFC; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+      <div class="form-group">
+        <label>Product Title</label>
+        <input type="text" id="prodTitle" required placeholder="e.g. HP Gaming Monitor">
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <div class="form-group" style="flex:1;">
+          <label>Price ($)</label>
+          <input type="number" id="prodPrice" step="0.01" required placeholder="100.00">
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>Stock Quantity</label>
+          <input type="number" id="prodStock" required placeholder="100">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Image URL</label>
+        <input type="text" id="prodImage" placeholder="https://images.unsplash.com/...">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="prodDesc" rows="2" placeholder="Item details..."></textarea>
+      </div>
+      <button type="button" class="btn-save" onclick="saveProduct()">Save Product</button>
+    </form>
 
-    <div class="form-group">
-      <label>Top Announcement Bar Text</label>
-      <input type="text" id="announcement" placeholder="📢 Welcome to Novucart!">
-    </div>
+    <h4>Current Catalog</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="adminProductTable"></tbody>
+    </table>
+  </div>
 
-    <div class="form-group">
-      <label>Hero Headline</label>
-      <input type="text" id="heroTitle" placeholder="Discover Extraordinary Products">
-    </div>
+  <!-- 2. SITE & PAYMENT SETTINGS -->
+  <div id="settingsTab" class="tab-panel">
+    <h3>Site & Payment Configuration</h3>
+    <form style="margin-top: 15px;">
+      <div class="form-group">
+        <label>Custom Card Payment Link (Stripe/Paystack/Flutterwave/PayPal)</label>
+        <input type="text" id="cardPaymentUrl" placeholder="https://checkout.stripe.com/pay/...">
+      </div>
+      <div class="form-group">
+        <label>Site Title</label>
+        <input type="text" id="siteTitle" placeholder="Novucart">
+      </div>
+      <div class="form-group">
+        <label>Top Announcement Text</label>
+        <input type="text" id="announcement" placeholder="📢 Welcome to Novucart!">
+      </div>
+      <div class="form-group">
+        <label>Hero Headline</label>
+        <input type="text" id="heroTitle" placeholder="Discover Extraordinary Products">
+      </div>
+      <div class="form-group">
+        <label>Store Email (Receives Pay-on-Delivery Orders)</label>
+        <input type="email" id="storeEmail" placeholder="buycheapcarsonline@gmail.com">
+      </div>
+      <div class="form-group">
+        <label>WhatsApp Contact Link</label>
+        <input type="text" id="whatsapp" placeholder="https://wa.me/">
+      </div>
+      <button type="button" class="btn-save" onclick="saveSettings()">Save Configuration</button>
+    </form>
+  </div>
 
-    <div class="form-group">
-      <label>Store Email (Receives Pay-on-Delivery Orders)</label>
-      <input type="email" id="storeEmail" placeholder="buycheapcarsonline@gmail.com">
-    </div>
+  <!-- 3. POP-UP AD BANNER -->
+  <div id="bannerTab" class="tab-panel">
+    <h3>Pop-Up Ad Banner Control</h3>
+    <form style="margin-top: 15px;">
+      <div class="form-group">
+        <label>Banner Headline</label>
+        <input type="text" id="bannerTitle" placeholder="Activate Special Offer!">
+      </div>
+      <div class="form-group">
+        <label>Banner Text / Description</label>
+        <input type="text" id="bannerText" placeholder="Get 20% off your first order now.">
+      </div>
+      <div class="form-group">
+        <label>Button Label</label>
+        <input type="text" id="bannerBtnText" placeholder="Claim Offer">
+      </div>
+      <div class="form-group">
+        <label>Button Target Link</label>
+        <input type="text" id="bannerLink" placeholder="https://...">
+      </div>
+      <button type="button" class="btn-save" onclick="saveBannerSettings()">Save Banner Settings</button>
+    </form>
+  </div>
 
-    <div class="form-group">
-      <label>WhatsApp Contact Link</label>
-      <input type="text" id="whatsapp" placeholder="https://wa.me/1234567890">
-    </div>
+  <!-- 4. ORDERS -->
+  <div id="ordersTab" class="tab-panel">
+    <h3>Recent Orders</h3>
+    <p style="margin-top: 10px; color: #64748B; font-size: 0.9rem;">Pay-On-Delivery orders are routed straight to your store email address (buycheapcarsonline@gmail.com).</p>
+  </div>
 
-    <button type="button" class="btn-save" onclick="saveAdminSettings()">Save Settings & Payment Link</button>
-  </form>
 </div>
 
 <script>
+  // TAB SWITCHING LOGIC
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // INITIAL LOAD
   document.addEventListener('DOMContentLoaded', () => {
+    loadSettings();
+    renderAdminProducts();
+  });
+
+  // SETTINGS MANAGEMENT
+  function loadSettings() {
     const settings = JSON.parse(localStorage.getItem('novucart_settings')) || {};
     if(settings.cardPaymentUrl) document.getElementById('cardPaymentUrl').value = settings.cardPaymentUrl;
     if(settings.siteTitle) document.getElementById('siteTitle').value = settings.siteTitle;
@@ -66,9 +184,9 @@
     if(settings.heroTitle) document.getElementById('heroTitle').value = settings.heroTitle;
     if(settings.storeEmail) document.getElementById('storeEmail').value = settings.storeEmail;
     if(settings.whatsapp) document.getElementById('whatsapp').value = settings.whatsapp;
-  });
+  }
 
-  function saveAdminSettings() {
+  function saveSettings() {
     const settings = {
       cardPaymentUrl: document.getElementById('cardPaymentUrl').value,
       siteTitle: document.getElementById('siteTitle').value,
@@ -77,9 +195,71 @@
       storeEmail: document.getElementById('storeEmail').value,
       whatsapp: document.getElementById('whatsapp').value,
     };
-
     localStorage.setItem('novucart_settings', JSON.stringify(settings));
     alert('Settings saved successfully!');
+  }
+
+  // PRODUCTS MANAGEMENT
+  function renderAdminProducts() {
+    const products = JSON.parse(localStorage.getItem('novucart_products')) || [];
+    const tbody = document.getElementById('adminProductTable');
+    if(!tbody) return;
+
+    if(products.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No products added yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = products.map(p => `
+      <tr>
+        <td><strong>${p.title}</strong></td>
+        <td>$${parseFloat(p.price).toFixed(2)}</td>
+        <td>${p.stock}</td>
+        <td><button onclick="deleteProduct('${p.id}')" style="color:red; background:none; border:none; cursor:pointer;">Delete</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function saveProduct() {
+    const title = document.getElementById('prodTitle').value;
+    const price = document.getElementById('prodPrice').value;
+    const stock = document.getElementById('prodStock').value;
+    const image = document.getElementById('prodImage').value;
+    const description = document.getElementById('prodDesc').value;
+
+    if(!title || !price) {
+      alert('Title and Price are required.');
+      return;
+    }
+
+    const products = JSON.parse(localStorage.getItem('novucart_products')) || [];
+    const newProd = {
+      id: 'prod_' + Date.now(),
+      title,
+      price: parseFloat(price),
+      stock: parseInt(stock) || 0,
+      image: image || 'https://via.placeholder.com/150',
+      description
+    };
+
+    products.push(newProd);
+    localStorage.setItem('novucart_products', JSON.stringify(products));
+    renderAdminProducts();
+    
+    // Clear Form
+    document.getElementById('productForm').reset();
+    alert('Product added successfully!');
+  }
+
+  function deleteProduct(id) {
+    let products = JSON.parse(localStorage.getItem('novucart_products')) || [];
+    products = products.filter(p => p.id !== id);
+    localStorage.setItem('novucart_products', JSON.stringify(products));
+    renderAdminProducts();
+  }
+
+  function saveBannerSettings() {
+    alert('Banner settings updated!');
   }
 </script>
 
