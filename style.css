@@ -187,7 +187,7 @@ body {
 .promo-ad-close { position: absolute; top: 8px; right: 10px; background: none; border: none; font-size: 1rem; cursor: pointer; color: #94A3B8; }
 .btn-ad-action { background-color: var(--accent-red) !important; color: #FFF !important; font-weight: 800; padding: 8px 12px; font-size: 0.85rem; }
 
-/* RESPONSIVE BREAKPOINTS (TABLET & MOBILE) */
+/* RESPONSIVE BREAKPOINTS */
 @media (max-width: 1024px) {
   .hero-content h1 { font-size: 2.3rem; }
   .footer-container { grid-template-columns: 1fr 1fr; gap: 32px; }
