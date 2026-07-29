@@ -51,6 +51,7 @@
     <div class="admin-nav-tabs">
       <button class="tab-btn active" onclick="switchAdminTab('products-tab', this)"><i class="fa-solid fa-box"></i> Products</button>
       <button class="tab-btn" onclick="switchAdminTab('categories-tab', this)"><i class="fa-solid fa-list"></i> Categories</button>
+      <button class="tab-btn" onclick="switchAdminTab('hero-tab', this)"><i class="fa-solid fa-images"></i> Hero Slider</button>
       <button class="tab-btn" onclick="switchAdminTab('settings-tab', this)"><i class="fa-solid fa-sliders"></i> Full Site Customizer</button>
       <button class="tab-btn" onclick="switchAdminTab('promo-tab', this)"><i class="fa-solid fa-rectangle-ad"></i> Side Ad Banner</button>
       <button class="tab-btn" onclick="switchAdminTab('orders-tab', this)"><i class="fa-solid fa-receipt"></i> Orders</button>
@@ -89,7 +90,7 @@
     <div class="admin-tab-content" id="categories-tab" style="display: none;">
       <div class="admin-card">
         <h3>Category Manager</h3>
-        <p class="text-secondary" style="margin-bottom:15px;">Create and edit store categories.</p>
+        <p class="text-secondary" style="margin-bottom:15px;">Create, rename, delete, and reorder store categories. Reordering here also reorders the category tabs and dropdown on the storefront.</p>
         
         <form id="category-form" style="display:flex; gap:10px; margin-bottom:20px;">
           <input type="text" id="new-category-name" placeholder="New Category Name" required style="flex:1;">
@@ -99,6 +100,7 @@
         <table class="admin-table">
           <thead>
             <tr>
+              <th>Order</th>
               <th>Category Name</th>
               <th>Actions</th>
             </tr>
@@ -108,7 +110,31 @@
       </div>
     </div>
 
-    <!-- TAB 3: Customizer & Text Links -->
+    <!-- TAB 3: Hero Slider -->
+    <div class="admin-tab-content" id="hero-tab" style="display: none;">
+      <div class="admin-card">
+        <h3>Hero Slider Manager</h3>
+        <p class="text-secondary" style="margin-bottom:15px;">Add banner images or videos for the homepage hero slider. This list is independent of the product catalog, so you choose exactly which media shows and in what order — the top row plays first.</p>
+
+        <form id="hero-slide-form" style="display:flex; gap:10px; margin-bottom:20px;">
+          <input type="text" id="new-hero-slide-image" placeholder="Image or video URL" required style="flex:1;">
+          <button type="submit" class="btn btn-primary">+ Add Slide</button>
+        </form>
+
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Reorder</th>
+              <th>Preview</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-hero-slides-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: Customizer & Text Links -->
     <div class="admin-tab-content" id="settings-tab" style="display: none;">
       <div class="admin-card">
         <h3>Full Site Text & Logo Customizer</h3>
@@ -159,6 +185,7 @@
           <div class="form-group"><label>Catalog Subheading</label><input type="text" id="setting-catalog-subheading"></div>
           <div class="form-group"><label>Store Email (Receives Pay-on-Delivery Orders)</label><input type="email" id="setting-email"></div>
           <div class="form-group"><label>WhatsApp Contact Link</label><input type="text" id="setting-whatsapp"></div>
+          <div class="form-group"><label>Footer Brand Title</label><input type="text" id="setting-footer-brand-title" placeholder="Novucart"></div>
           <div class="form-group"><label>Footer Brand Description</label><input type="text" id="setting-footer-brand-desc"></div>
           <div class="form-group"><label>Footer Customer Care Heading</label><input type="text" id="setting-footer-care-title"></div>
           <div class="form-group"><label>Footer Copyright Text</label><input type="text" id="setting-footer-text"></div>
@@ -168,7 +195,7 @@
       </div>
     </div>
 
-    <!-- TAB 4: Pop-Up Side Ad Banner -->
+    <!-- TAB 5: Pop-Up Side Ad Banner -->
     <div class="admin-tab-content" id="promo-tab" style="display: none;">
       <div class="admin-card">
         <h3>Side Ad Banner Manager</h3>
@@ -187,7 +214,7 @@
       </div>
     </div>
 
-    <!-- TAB 5: Orders -->
+    <!-- TAB 6: Orders -->
     <div class="admin-tab-content" id="orders-tab" style="display: none;">
       <div class="admin-card">
         <h3>Logged Customer Orders</h3>
@@ -201,6 +228,7 @@
                 <th>Address</th>
                 <th>Method / Promo</th>
                 <th>Total</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="admin-orders-list"></tbody>
