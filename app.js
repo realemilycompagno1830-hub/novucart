@@ -24,6 +24,21 @@ let storeEmail = "";
 let heroSlideTimer = null;
 let currentHeroIndex = 0;
 let heroSlidesList = [];
+let frontendProductsList = [];
+let productMediaIndex = {};
+let modalMediaList = [];
+
+// Returns a product's media as an array, falling back to the old single
+// "image" field for products saved before multi-media support existed.
+function getProductMediaList(p) {
+  if (Array.isArray(p.media) && p.media.length > 0) return p.media;
+  if (p.image) return [p.image];
+  return [];
+}
+
+function isVideoUrl(url) {
+  return !!url && (url.toLowerCase().endsWith('.mp4') || url.toLowerCase().includes('video'));
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('frontend-product-list')) {
@@ -205,7 +220,59 @@ if (openModalBtn) {
     if (document.getElementById('modal-product-id')) document.getElementById('modal-product-id').value = "";
     if (productForm) productForm.reset();
     renderCategorySelectOptions();
+    modalMediaList = [];
+    renderModalMediaList();
     if (productModal) productModal.style.display = 'flex';
+  });
+}
+
+// PRODUCT MEDIA LIST (multiple images/videos per product)
+function renderModalMediaList() {
+  const container = document.getElementById('modal-media-list');
+  if (!container) return;
+  container.innerHTML = "";
+  if (modalMediaList.length === 0) {
+    container.innerHTML = `<p class="text-secondary" style="font-size:0.8rem;">No media added yet.</p>`;
+    return;
+  }
+  modalMediaList.forEach((url, idx) => {
+    const isVideo = isVideoUrl(url);
+    const row = document.createElement('div');
+    row.style.cssText = "display:flex; align-items:center; gap:8px; padding:6px; border:1px solid var(--border-color); border-radius:8px; margin-bottom:6px;";
+    row.innerHTML = `
+      ${isVideo ? `<video src="${url}" width="40" height="40" muted style="border-radius:6px; object-fit:cover; flex-shrink:0;"></video>` : `<img src="${url}" width="40" height="40" style="border-radius:6px; object-fit:cover; flex-shrink:0;">`}
+      <span style="flex:1; font-size:0.78rem; word-break:break-all;">${url}${idx===0 ? ' <strong>(Main thumbnail)</strong>' : ''}</span>
+      <button type="button" class="btn btn-outline" style="padding:2px 6px;" onclick="moveModalMedia(${idx}, 'up')" ${idx===0?'disabled':''}>▲</button>
+      <button type="button" class="btn btn-outline" style="padding:2px 6px;" onclick="moveModalMedia(${idx}, 'down')" ${idx===modalMediaList.length-1?'disabled':''}>▼</button>
+      <button type="button" class="btn btn-outline" style="padding:2px 6px; color:red;" onclick="removeModalMedia(${idx})">✕</button>
+    `;
+    container.appendChild(row);
+  });
+}
+
+window.moveModalMedia = (idx, direction) => {
+  const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+  if (targetIdx < 0 || targetIdx >= modalMediaList.length) return;
+  const temp = modalMediaList[idx];
+  modalMediaList[idx] = modalMediaList[targetIdx];
+  modalMediaList[targetIdx] = temp;
+  renderModalMediaList();
+};
+
+window.removeModalMedia = (idx) => {
+  modalMediaList.splice(idx, 1);
+  renderModalMediaList();
+};
+
+const addModalMediaBtn = document.getElementById('add-modal-media-btn');
+if (addModalMediaBtn) {
+  addModalMediaBtn.addEventListener('click', () => {
+    const input = document.getElementById('modal-media-input');
+    const url = input.value.trim();
+    if (!url) return;
+    modalMediaList.push(url);
+    input.value = "";
+    renderModalMediaList();
   });
 }
 
@@ -222,18 +289,25 @@ if (productForm) {
     const desc = document.getElementById('modal-product-desc').value.trim();
     const price = parseFloat(document.getElementById('modal-product-price').value);
     const stock = parseInt(document.getElementById('modal-product-stock').value) || 0;
-    const image = document.getElementById('modal-product-image').value.trim();
     const badge = document.getElementById('modal-product-badge').value.trim() || 'In Stock';
+
+    if (modalMediaList.length === 0) {
+      alert("Add at least one image or video for this product.");
+      return;
+    }
+    const media = [...modalMediaList];
 
     try {
       if (id) {
-        await updateDoc(doc(db, "products", id), { title, category, desc, price, stock, image, badge });
+        await updateDoc(doc(db, "products", id), { title, category, desc, price, stock, media, image: media[0], badge });
       } else {
         const newDocRef = doc(collection(db, "products"));
-        await setDoc(newDocRef, { title, category, desc, price, stock, image, badge, order: currentProductsList.length + 1 });
+        await setDoc(newDocRef, { title, category, desc, price, stock, media, image: media[0], badge, order: currentProductsList.length + 1 });
       }
       if (productModal) productModal.style.display = 'none';
       productForm.reset();
+      modalMediaList = [];
+      renderModalMediaList();
       loadAdminProducts();
     } catch (err) { alert("Failed to save product."); }
   });
@@ -249,6 +323,7 @@ async function loadFrontendProducts() {
     let products = [];
     snapshot.forEach(d => products.push({ id: d.id, ...d.data() }));
     products.sort((a,b) => (a.order || 0) - (b.order || 0));
+    frontendProductsList = products;
 
     container.innerHTML = "";
     let filteredProducts = products;
@@ -264,24 +339,59 @@ async function loadFrontendProducts() {
     filteredProducts.forEach(p => {
       const card = document.createElement('div');
       card.className = "product-card";
-      const isVideo = p.image && (p.image.toLowerCase().endsWith('.mp4') || p.image.toLowerCase().includes('video'));
-
-      const mediaHtml = isVideo 
-        ? `<video src="${p.image}" class="product-media" autoplay muted loop playsinline></video>`
-        : `<img src="${p.image || 'https://via.placeholder.com/250'}" class="product-media" alt="${p.title}">`;
+      const mediaList = getProductMediaList(p);
+      if (productMediaIndex[p.id] === undefined) productMediaIndex[p.id] = 0;
+      const thumbnail = mediaList[0] || '';
 
       card.innerHTML = `
-        ${mediaHtml}
+        <div class="product-media-wrap" id="media-wrap-${p.id}">
+          ${renderProductMediaInner(p.id, mediaList, p.title)}
+        </div>
         <h3>${p.title}</h3>
         <span class="stock-tag">${p.stock > 0 ? `${p.stock} in stock` : 'Out of stock'}</span>
         <p>${p.desc || 'High quality item available for immediate order.'}</p>
         <div class="price">$${parseFloat(p.price).toFixed(2)}</div>
-        <button class="btn btn-primary btn-block" onclick="addToCart('${p.id}', '${p.title}', ${p.price}, '${p.image}')">Add to Bag</button>
+        <button class="btn btn-primary btn-block" onclick="addToCart('${p.id}', '${p.title}', ${p.price}, '${thumbnail}')">Add to Bag</button>
       `;
       container.appendChild(card);
     });
   } catch (err) { if (container) container.innerHTML = "<p>Error loading catalog.</p>"; }
 }
+
+// Renders the current media item for one product card, plus prev/next
+// arrows and dot indicators when the product has more than one image/video.
+function renderProductMediaInner(id, mediaList, title) {
+  if (mediaList.length === 0) {
+    return `<img src="https://via.placeholder.com/250" class="product-media" alt="${title}">`;
+  }
+  const idx = productMediaIndex[id] || 0;
+  const url = mediaList[idx];
+  const mediaTag = isVideoUrl(url)
+    ? `<video src="${url}" class="product-media" autoplay muted loop playsinline></video>`
+    : `<img src="${url}" class="product-media" alt="${title}">`;
+
+  if (mediaList.length <= 1) return mediaTag;
+
+  return `
+    ${mediaTag}
+    <button type="button" class="media-nav-btn media-nav-prev" onclick="changeProductMedia('${id}', -1)">‹</button>
+    <button type="button" class="media-nav-btn media-nav-next" onclick="changeProductMedia('${id}', 1)">›</button>
+    <div class="media-dots">
+      ${mediaList.map((_, i) => `<span class="media-dot ${i === idx ? 'active' : ''}"></span>`).join('')}
+    </div>
+  `;
+}
+
+window.changeProductMedia = (id, direction) => {
+  const product = frontendProductsList.find(p => p.id === id);
+  if (!product) return;
+  const mediaList = getProductMediaList(product);
+  if (mediaList.length <= 1) return;
+  const current = productMediaIndex[id] || 0;
+  productMediaIndex[id] = (current + direction + mediaList.length) % mediaList.length;
+  const wrap = document.getElementById(`media-wrap-${id}`);
+  if (wrap) wrap.innerHTML = renderProductMediaInner(id, mediaList, product.title);
+};
 
 // HERO SLIDER (independent of the product catalog, fully admin-controlled)
 async function loadHeroSlides() {
@@ -633,13 +743,18 @@ async function loadAdminProducts() {
     }
 
     currentProductsList.forEach((item, index) => {
+      const mediaList = getProductMediaList(item);
+      const thumb = mediaList[0] || '';
+      const thumbTag = isVideoUrl(thumb)
+        ? `<video src="${thumb}" width="35" height="35" muted style="border-radius:6px; object-fit:cover;"></video>`
+        : `<img src="${thumb}" width="35" height="35" style="border-radius:6px; object-fit:cover;">`;
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>
           <button class="btn btn-outline" style="padding:2px 6px;" onclick="moveProduct('${item.id}', 'up')" ${index===0?'disabled':''}>▲</button>
           <button class="btn btn-outline" style="padding:2px 6px;" onclick="moveProduct('${item.id}', 'down')" ${index===currentProductsList.length-1?'disabled':''}>▼</button>
         </td>
-        <td><img src="${item.image}" width="35" height="35" style="border-radius:6px; object-fit:cover;"></td>
+        <td>${thumbTag}${mediaList.length > 1 ? `<br><small style="color:#64748B;">+${mediaList.length - 1} more</small>` : ''}</td>
         <td><strong>${item.title}</strong><br><small style="color:#64748B;">Cat: ${item.category || 'Uncategorized'}</small></td>
         <td>$${item.price}</td>
         <td>${item.stock || 0}</td>
@@ -665,8 +780,10 @@ window.editProduct = (id) => {
   if (document.getElementById('modal-product-desc')) document.getElementById('modal-product-desc').value = product.desc || '';
   if (document.getElementById('modal-product-price')) document.getElementById('modal-product-price').value = product.price || '';
   if (document.getElementById('modal-product-stock')) document.getElementById('modal-product-stock').value = product.stock || '';
-  if (document.getElementById('modal-product-image')) document.getElementById('modal-product-image').value = product.image || '';
   if (document.getElementById('modal-product-badge')) document.getElementById('modal-product-badge').value = product.badge || '';
+
+  modalMediaList = getProductMediaList(product);
+  renderModalMediaList();
 
   if (productModal) productModal.style.display = 'flex';
 };
